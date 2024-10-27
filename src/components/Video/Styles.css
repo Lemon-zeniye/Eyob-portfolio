@@ -1,0 +1,19 @@
+/* styles.css */
+.video-container {
+  display: flex;
+  justify-content: center; /* Center the video player */
+  align-items: center; /* Center vertically */
+  width: 100%; /* Full width of the parent */
+}
+
+.video-wrapper {
+  width: 100%; /* Full width */
+  height: 25vh; /* Set the height to 25vh */
+  max-width: 640px; /* Optional: Limit the maximum width */
+  overflow: hidden; /* Hide any overflow if needed */
+}
+
+.video-js {
+  width: 100%; /* Full width of the wrapper */
+  height: 100%; /* Full height of the wrapper */
+}

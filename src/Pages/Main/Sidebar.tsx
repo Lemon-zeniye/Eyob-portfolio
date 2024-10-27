@@ -1,0 +1,125 @@
+import {
+  Briefcase,
+  Home,
+  LucideIcon,
+  MessageCircle,
+  Settings,
+} from "lucide-react"
+import logo from "../../assets/Bevy.png"
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import Navbar from "@/components/Navbar/Navbar"
+import SidebarSm from "@/components/Sidebar/SidebarSm"
+import { useAuth } from "@/Context/AuthContext"
+
+export interface Route {
+  id: number
+  icon: LucideIcon
+  name: string
+  path: string
+}
+
+const routes: Route[] = [
+  {
+    id: 1,
+    icon: Home,
+    name: "Feed",
+    path: "/",
+  },
+  {
+    id: 2,
+    icon: MessageCircle,
+    name: "Chat",
+    path: "",
+  },
+  {
+    id: 3,
+    icon: Briefcase,
+    name: "Jobs",
+    path: "/jobs",
+  },
+]
+
+const Sidebar = () => {
+  const [selected, setSelected] = useState<number | null>(() => {
+    // const location = useLocation()
+    const saved = localStorage.getItem("selected")
+    // const selectedProfile = location.pathname === "/profile"
+    return saved !== null ? JSON.parse(saved) : 1
+  })
+  const [selectedName, setSelectedName] = useState<string>(() => {
+    const saved = localStorage.getItem("selectedName")
+    return saved !== null ? JSON.parse(saved) : ""
+  })
+
+  const { isLoggedIn } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login")
+    } else {
+      navigate("/")
+    }
+  }, [])
+
+  console.log("This is logged in", isLoggedIn)
+
+  useEffect(() => {
+    localStorage.setItem("selected", JSON.stringify(selected))
+    localStorage.setItem("selectedName", JSON.stringify(selectedName))
+  }, [selected, selectedName])
+
+  const handleSelected = (id: number, name: string) => {
+    setSelected(id)
+    setSelectedName(name)
+  }
+
+  return (
+    <div className=" w-full flex sm-phone:flex-col sm-phone:justify-between md:flex-row bg-[#f5f5f5] min-h-screen scroll-smooth">
+      <div className="bg-white sm-phone:hidden h-screen fixed w-20 border-r md:flex flex-col justify-between py-5 items-center">
+        <div className="flex flex-col gap-10">
+          <img src={logo} className="h-auto" alt="" />
+          <div className="flex flex-col items-center justify-between h-[30vh]">
+            {routes.map((route) => (
+              <Link
+                key={route.id}
+                to={route.path}
+                onClick={() => handleSelected(route.id, route.name)}
+                className={` ${
+                  route.id === selected
+                    ? "bg-primary text-white"
+                    : "text-[#00000099] hover:bg-slate-100"
+                }   p-3 rounded-md `}
+              >
+                <route.icon size={22} />
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <Link
+            to={"/settings"}
+            onClick={() => handleSelected(4, "Setting")}
+            className={` ${
+              4 === selected
+                ? "bg-primary text-white"
+                : "text-[#00000099] hover:bg-slate-100"
+            }   p-3 rounded-md `}
+          >
+            <Settings size={22} />
+          </Link>
+        </div>
+      </div>
+      <div className="flex flex-col gap-3 md:pl-24 sm-phone:pl-3  w-full">
+        <Navbar name={selectedName} />
+        <Outlet />
+      </div>
+      <div className="w-full fixed bottom-0 md:hidden">
+        <SidebarSm selected={selected} handleSelected={handleSelected} />
+      </div>
+    </div>
+  )
+}
+
+export default Sidebar

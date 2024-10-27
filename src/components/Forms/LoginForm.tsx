@@ -1,17 +1,20 @@
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form"
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { Checkbox } from "../ui/checkbox";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
-import goggle from "../../assets/icons8-google-48.png";
-import { useNavigate } from "react-router-dom";
+} from "../ui/form"
+import { Input } from "../ui/input"
+import { Checkbox } from "../ui/checkbox"
+import { Button } from "../ui/button"
+import { Separator } from "../ui/separator"
+import goggle from "../../assets/icons8-google-48.png"
+import { useNavigate } from "react-router-dom"
+// import { login } from "@/Api/api"
+import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/Context/AuthContext"
 
 const LoginForm = () => {
   const methods = useForm({
@@ -20,9 +23,24 @@ const LoginForm = () => {
       password: "",
       rememberMe: "",
     },
-  });
+  })
 
-  const navigate = useNavigate();
+  const { toast } = useToast()
+  const navigate = useNavigate()
+  const { login } = useAuth()
+
+  const handleLogin = async () => {
+    try {
+      await login(methods.getValues("email"), methods.getValues("password"))
+      toast({
+        title: "Logged In",
+        description: "Successfully logged in!",
+      })
+      navigate("/")
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-8r lg:w-1/2 ">
@@ -100,7 +118,9 @@ const LoginForm = () => {
               )}
             />
           </div>
-          <Button type="submit">Log In</Button>
+          <Button onClick={handleLogin} type="button">
+            Log In
+          </Button>
         </form>
         <Button onClick={() => {}} variant={"outline"} type="button">
           <div className="flex flex-row gap-2 items-center justify-center">
@@ -120,7 +140,7 @@ const LoginForm = () => {
         </div>
       </FormProvider>
     </div>
-  );
-};
+  )
+}
 
-export default LoginForm;
+export default LoginForm

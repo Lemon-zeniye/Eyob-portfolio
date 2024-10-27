@@ -1,7 +1,7 @@
 // import logo from "../assets/logo_2.png";
-import { ChevronLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import LoginForm from "@/components/Forms/LoginForm";
+// import { ChevronLeft } from "lucide-react"
+// import { Button } from "@/components/ui/button"
+import LoginForm from "@/components/Forms/LoginForm"
 
 const Login: React.FC = () => {
   return (
@@ -14,12 +14,12 @@ const Login: React.FC = () => {
       </div>
       <div className="lg:w-1/2 sm-phone:w-full flex flex-col py-14 px-8r justify-between bg-white">
         <div>
-          <Button className="px-0" onClick={() => {}} variant={"ghost"}>
+          {/* <Button className="px-0" onClick={() => {}} variant={"ghost"}>
             <div className="flex flex-row items-center">
               <ChevronLeft className="text-primary" />
               <p className="text-body">Back</p>
             </div>
-          </Button>
+          </Button> */}
         </div>
         <div className="flex items-center justify-center">
           <LoginForm />
@@ -27,7 +27,7 @@ const Login: React.FC = () => {
         <div></div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
