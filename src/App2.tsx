@@ -5,7 +5,7 @@ import Sidebar from "./Pages/Main/Sidebar"
 import Settings from "./Pages/Settings"
 import Profile from "./Pages/Profile"
 import Jobs from "./Pages/Jobs"
-import { AuthProvider, useAuth } from "./Context/AuthContext"
+import { useAuth } from "./Context/AuthContext"
 // import { ReactNode } from "react"
 import AppliedJobs from "./Pages/AppliedJobs"
 

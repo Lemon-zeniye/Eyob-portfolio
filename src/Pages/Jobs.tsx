@@ -1,10 +1,4 @@
-import {
-  fetchAllUserPosts,
-  fetchJobs,
-  fetchUserEducation,
-  fetchUserExperience,
-  fetchUserSkills,
-} from "@/Api/api"
+import { fetchJobs } from "@/Api/api"
 import AppliedSide from "@/components/Jobs/AppliedSide"
 import { CheckboxWithLabel } from "@/components/Jobs/CheckBox"
 import JobsCard from "@/components/Jobs/JobsCard"

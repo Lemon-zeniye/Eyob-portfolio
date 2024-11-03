@@ -19,8 +19,18 @@ const AppliedSide = () => {
           </Button>
         </div>
         <div className="flex flex-col gap-4">
-          <JobsCard size="small" />
-          <JobsCard size="small" />
+          <JobsCard
+            size="small"
+            companyName={"Akilo"}
+            jobTitle={"AI Engineer"}
+            jobDescription={"Desc"}
+            location={"Tigray, Mekelle"}
+            locationType={"Remote"}
+            salary={100000}
+            onClick={function (): void {
+              throw new Error("Function not implemented.")
+            }}
+          />
         </div>
       </div>
     </EmptyCard>
