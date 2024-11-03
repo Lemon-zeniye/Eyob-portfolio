@@ -11,6 +11,7 @@ interface JobsCardProps {
   locationType: string
   salary: number
   onClick: () => void
+  classname?: string
 }
 
 const JobsCard = ({
@@ -22,11 +23,14 @@ const JobsCard = ({
   locationType,
   salary,
   onClick,
+  classname,
 }: JobsCardProps) => {
   const isSmall = size === "small"
   return (
     <div>
-      <EmptyCard cardClassname={`${isSmall ? "bg-[#f5f5f5]" : ""} `}>
+      <EmptyCard
+        cardClassname={`${isSmall ? "bg-[#f5f5f5]" : ""} ${classname} `}
+      >
         <div
           onClick={onClick}
           className="flex flex-col gap-4 pt-4 px-4 cursor-pointer"

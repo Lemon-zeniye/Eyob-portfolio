@@ -1,4 +1,10 @@
-import { fetchJobs } from "@/Api/api"
+import {
+  fetchAllUserPosts,
+  fetchJobs,
+  fetchUserEducation,
+  fetchUserExperience,
+  fetchUserSkills,
+} from "@/Api/api"
 import AppliedSide from "@/components/Jobs/AppliedSide"
 import { CheckboxWithLabel } from "@/components/Jobs/CheckBox"
 import JobsCard from "@/components/Jobs/JobsCard"
@@ -8,6 +14,7 @@ import { SearchBar } from "@/components/SearchBar/SearchBar"
 import { Button } from "@/components/ui/button"
 import { ExternalLink, Frown, LoaderCircle } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 interface AppliedButtonProps {
   classname: string
@@ -18,9 +25,10 @@ type JobsCardty = {
   company: string
   jobTitle: string
   jobDescription: string
-  location: string
+  jobLocation: string
   locationType: string
   salary: number
+  skills: string[]
 }
 
 const AppliedButton = ({ classname, onClick }: AppliedButtonProps) => (
@@ -78,6 +86,15 @@ const Jobs = () => {
   const [selectedValues, setSelectedValues] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [openJobDetail, setOpenJobDetail] = useState<boolean>(false)
+  const [jobTitle, setJobTitle] = useState<string>("")
+  const [jobDescription, setDescription] = useState<string>("")
+  const [location, setLocation] = useState<string>("")
+  const [locationType, setLocationType] = useState<string>("")
+  const [companyName, setCompanyName] = useState<string>("")
+  const [salary, setSalary] = useState<number>(0)
+  const [jobSkills, setSkills] = useState<string[]>([])
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const getJobs = async () => {
@@ -93,6 +110,25 @@ const Jobs = () => {
 
     getJobs()
   }, [])
+
+  const handleJobDetail = (
+    jobTitle: string,
+    jobDescription: string,
+    location: string,
+    locationType: string,
+    companyName: string,
+    salary: number,
+    jobSkills: string[]
+  ) => {
+    setOpenJobDetail(true)
+    setJobTitle(jobTitle)
+    setDescription(jobDescription)
+    setLocation(location)
+    setLocationType(locationType)
+    setCompanyName(companyName)
+    setSalary(salary)
+    setSkills(jobSkills)
+  }
 
   const handleCheckboxChange = (value: string, checked: boolean) => {
     setSelectedValues((prevValues) =>
@@ -114,7 +150,7 @@ const Jobs = () => {
     const matchesSearch =
       job.company?.toLowerCase().includes(search.toLowerCase()) ||
       job.jobTitle?.toLowerCase().includes(search.toLowerCase()) ||
-      job.location?.toLowerCase().includes(search.toLowerCase()) ||
+      job.jobLocation?.toLowerCase().includes(search.toLowerCase()) ||
       job.locationType?.toLowerCase().includes(search.toLowerCase())
 
     return matchesFilters && matchesSearch
@@ -142,7 +178,7 @@ const Jobs = () => {
           </div>
           <AppliedButton
             classname=" sm:hidden sm-phone:flex "
-            onClick={() => {}}
+            onClick={() => navigate("/applied-jobs")}
           />
         </div>
       </div>
@@ -158,7 +194,7 @@ const Jobs = () => {
           </div>
           <AppliedButton
             classname=" sm:flex sm-phone:hidden lg:hidden"
-            onClick={() => {}}
+            onClick={() => navigate("/applied-jobs")}
           />
         </div>
         <div className="flex flex-row justify-between w-full gap-6">
@@ -204,10 +240,20 @@ const Jobs = () => {
                   companyName={job.company}
                   jobTitle={job.jobTitle}
                   jobDescription={job.jobDescription}
-                  location={job.location}
+                  location={job.jobLocation}
                   locationType={job.locationType}
                   salary={job.salary}
-                  onClick={() => setOpenJobDetail(true)}
+                  onClick={() =>
+                    handleJobDetail(
+                      job.jobTitle,
+                      job.jobDescription,
+                      job.jobLocation,
+                      job.locationType,
+                      job.company,
+                      job.salary,
+                      job.skills
+                    )
+                  }
                 />
               ))
             )}
@@ -215,10 +261,29 @@ const Jobs = () => {
 
           <AppliedSide />
         </div>
-        <JobsDetail
-          open={openJobDetail}
-          onChange={(isOpen) => setOpenJobDetail(isOpen)}
-        />
+        <div className="w-full">
+          <JobsDetail
+            open={openJobDetail}
+            onChange={(isOpen) => setOpenJobDetail(isOpen)}
+            jobTitle={jobTitle}
+            jobDescription={jobDescription}
+            skills={jobSkills}
+            location={location}
+            locationType={locationType}
+            salary={salary}
+            companyName={companyName}
+            FollowClicked={function (): void {
+              throw new Error("Function not implemented.")
+            }}
+            companyDescription={""}
+            ApplyClicked={function (): void {
+              throw new Error("Function not implemented.")
+            }}
+            ReportClicked={function (): void {
+              throw new Error("Function not implemented.")
+            }}
+          />
+        </div>
       </div>
     </div>
   )

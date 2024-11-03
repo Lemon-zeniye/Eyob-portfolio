@@ -22,7 +22,7 @@ const UserDropdown = () => {
             className="w-full flex items-center justify-center py-1 border rounded-md"
             to={"/profile"}
           >
-            Edit Profile
+            View Profile
           </Link>
           <Button onClick={logout} variant={"link"} className="text-red-500">
             Log Out

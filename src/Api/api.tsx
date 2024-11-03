@@ -29,21 +29,45 @@ export const login = async (email: string, password: string) => {
   }
 }
 
-export const fetchJobs = async () => {
+export const fetch = async (url: string) => {
   try {
     const token = localStorage.getItem("accessToken")
     if (!token) throw new Error("No access token found in local storage")
 
-    const response = await axios.get(`${BASE_URL}/api/job/fetchJob`, {
+    const response = await axios.get(`${BASE_URL}/api/${url}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-    // console.log("Jobs fetched:", response.data)
+    console.log("Fetched Data:", response.data)
 
     return response.data
   } catch (error) {
     console.error("Error fetching jobs:", error)
     throw error
   }
+}
+
+export const fetchJobs = async () => {
+  return await fetch("job/fetchJob")
+}
+
+export const fetchUserProfile = async () => {
+  return await fetch("userProfile/fetch")
+}
+
+export const fetchUserExperience = async () => {
+  return await fetch("experience/fetch")
+}
+
+export const fetchAllUserPosts = async () => {
+  return await fetch("userPost/getAllUser")
+}
+
+export const fetchUserSkills = async () => {
+  return await fetch("profession/getSkill")
+}
+
+export const fetchUserEducation = async () => {
+  return await fetch("education/fetch")
 }

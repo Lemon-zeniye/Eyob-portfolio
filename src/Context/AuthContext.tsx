@@ -1,6 +1,11 @@
 // src/contexts/AuthContext.tsx
-
-import React, { createContext, useContext, useState, ReactNode } from "react"
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react"
 import axios from "axios"
 
 interface AuthContextProps {
@@ -22,6 +27,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken")
+    if (token) {
+      setIsLoggedIn(true)
+    }
+  }, [])
+
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     setError(null)
@@ -36,18 +48,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       if (accessToken && refreshToken) {
         localStorage.setItem("accessToken", accessToken)
         localStorage.setItem("refreshToken", refreshToken)
-        // console.log("Tokens stored:", { accessToken, refreshToken })
+        setIsLoggedIn(true)
       } else {
-        console.error("Tokens not found in response:", response.data)
         throw new Error("Login failed, tokens missing")
       }
 
-      //   console.log(response.data)
-
-      setIsLoggedIn(true)
       return response.data
     } catch (error) {
-      console.error("Error logging in:", error)
+      setError("Error logging in. Please try again.")
       throw error
     } finally {
       setIsLoading(false)
@@ -55,9 +63,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   const logout = () => {
-    localStorage.removeItem("token")
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
     setIsLoggedIn(false)
-    window.location.reload()
   }
 
   return (

@@ -12,10 +12,11 @@ const EmptyCard: FC<EmptyCardProps> = ({
   children,
   contentClassname,
   cardClassname,
+  onClick,
 }) => {
   return (
     <Card className={`${cardClassname}`}>
-      <CardContent className={`${contentClassname} px-0`}>
+      <CardContent onClick={onClick} className={`${contentClassname} px-0`}>
         {children}
       </CardContent>
     </Card>
