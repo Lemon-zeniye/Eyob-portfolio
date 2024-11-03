@@ -4,6 +4,8 @@ import { PostTypes } from "../Types"
 
 interface ActivityProps {
   posts: PostTypes[]
+  addBtn: () => void
+  editBtn: (title: string, desc: string) => void
 }
 
 export const ConvertToDate = (date: string): string => {
@@ -33,28 +35,17 @@ export const ConvertToDateOnly = (date: string | number): string => {
   return formattedDate
 }
 
-const Activity = ({ posts }: ActivityProps) => {
+const Activity = ({ posts, addBtn, editBtn }: ActivityProps) => {
   return (
     <div className="w-full flex flex-col gap-5">
       <div className="flex flex-row gap-2 justify-end items-end px-2">
-        <AddEditButton
-          onclick={function (): void {
-            throw new Error("Function not implemented.")
-          }}
-          isEdit={true}
-        />
-        <AddEditButton
-          onclick={function (): void {
-            throw new Error("Function not implemented.")
-          }}
-          isEdit={false}
-        />
+        <AddEditButton onclick={addBtn} isEdit={false} />
       </div>
       <div className="flex flex-row flex-wrap gap-4 px-2">
         {posts.map((item, index) => (
           <ActivityCard
             key={index}
-            onclick={() => console.log("Iam")}
+            onclick={() => editBtn(item.postTitle, item.postContent)}
             classname=" sm-phone:w-full lg:w-[45%]"
             postContent={item.postContent}
             postDate={ConvertToDate(item.postDate)}

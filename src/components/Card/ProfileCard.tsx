@@ -8,11 +8,40 @@ import ExperienceCard from "./ExperienceCard"
 import EducationCard from "./EducationCard"
 import SkillCard from "./SkillCard"
 import { useUser } from "@/Context/UserContext"
+import { useState } from "react"
+import ActivityModal from "../Modal/ActivityModal"
 
 const ProfileCard = () => {
-  const { education, experience, error, loading, posts, skills } = useUser()
+  const { education, experience, posts, skills } = useUser()
+  const [openModal, setOpenModal] = useState<boolean>(false)
+  const [isEditMode, setEditMode] = useState(false)
+  const [currentPost, setCurrentPost] = useState<{
+    title: string
+    desc: string
+  } | null>(null)
 
-  console.log("Education: ", skills)
+  const handleOpenForNewPost = () => {
+    setEditMode(false)
+    setOpenModal(true)
+  }
+
+  const handleOpenForEdit = (title: string, desc: string) => {
+    setCurrentPost(null)
+    setEditMode(true)
+    setCurrentPost({ title, desc })
+    setOpenModal(true)
+  }
+
+  console.log("Current Post", currentPost)
+
+  const handleSubmit = (data: { title: string; desc: string }) => {
+    if (isEditMode) {
+      console.log("Updating post:", data)
+    } else {
+      console.log("Creating new post:", data)
+    }
+    setOpenModal(false)
+  }
 
   return (
     <EmptyCard
@@ -45,19 +74,41 @@ const ProfileCard = () => {
           eos. dolor sit amet consectetur adipisicing elit. Non, nostrum.
           Consequatur laudantium earum officia quam natus deserunt at beatae
           eos.{" "}
-          <strong onClick={() => {}} className="font-bold text-primary">
+          <strong
+            onClick={() => setOpenModal(true)}
+            className="font-bold text-primary"
+          >
             See More
           </strong>
         </p>
       </div>
       <div className="flex flex-row sm-phone:bg-white sm-phone:border sm:border-none sm:bg-none justify-between sm-phone:px-0 sm:px-12">
         <Tabs tabs={["Activity", "Experience", "Education", "Skills"]}>
-          <Activity posts={posts} />
+          <Activity
+            addBtn={() => handleOpenForNewPost()}
+            editBtn={() =>
+              handleOpenForEdit(
+                "Hey",
+                "HHHHHEEEEEYYYY"
+                // currentPost?.title ?? "",
+                // currentPost?.desc ?? ""
+              )
+            }
+            posts={posts}
+          />
           <ExperienceCard experiences={experience} />
           <EducationCard education={education} />
           <SkillCard skills={skills} />
         </Tabs>
       </div>
+      <ActivityModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        title="Create Post"
+        onSubmit={handleSubmit}
+        initialData={currentPost || undefined}
+        isEditMode={isEditMode}
+      />
     </EmptyCard>
   )
 }

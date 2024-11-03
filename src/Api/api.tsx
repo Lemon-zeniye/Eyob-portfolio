@@ -39,7 +39,6 @@ export const fetch = async (url: string) => {
         Authorization: `Bearer ${token}`,
       },
     })
-    console.log("Fetched Data:", response.data)
 
     return response.data
   } catch (error) {

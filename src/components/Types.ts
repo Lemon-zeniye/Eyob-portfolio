@@ -45,3 +45,13 @@ export interface UserSkill {
   userid: string
   __v: number
 }
+
+export interface UserProfile {
+  bio: string
+  createdAt: string
+  location: string
+  position: string
+  userid: string
+  __v: number
+  _id: string
+}
