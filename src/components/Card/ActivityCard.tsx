@@ -1,5 +1,5 @@
 import EmptyCard from "./EmptyCard"
-import user from "../../assets/user.jpg"
+import user from "../../assets/no-image.png"
 import { PostTypes } from "../Types"
 
 interface ActivityCardProps
@@ -23,7 +23,7 @@ const ActivityCard = ({
   return (
     <EmptyCard
       cardClassname={`px-5 ${classname} `}
-      contentClassname="flex flex-row gap-5 py-2"
+      contentClassname="flex flex-row gap-5 py-2 cursor-pointer"
       onClick={onclick}
     >
       <img

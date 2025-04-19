@@ -5,7 +5,7 @@ import { PostTypes } from "../Types"
 interface ActivityProps {
   posts: PostTypes[]
   addBtn: () => void
-  editBtn: (title: string, desc: string) => void
+  editBtn: (id: string) => void
 }
 
 export const ConvertToDate = (date: string): string => {
@@ -44,8 +44,8 @@ const Activity = ({ posts, addBtn, editBtn }: ActivityProps) => {
       <div className="flex flex-row flex-wrap gap-4 px-2">
         {posts.map((item, index) => (
           <ActivityCard
-            key={index}
-            onclick={() => editBtn(item.postTitle, item.postContent)}
+            key={item._id}
+            onclick={() => editBtn(item._id)}
             classname=" sm-phone:w-full lg:w-[45%]"
             postContent={item.postContent}
             postDate={ConvertToDate(item.postDate)}

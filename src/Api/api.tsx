@@ -1,72 +1,114 @@
-import axios from "axios"
+import axios, { AxiosError, AxiosInstance } from "axios"
+import Cookies from "js-cookie"
 
-export const BASE_URL = "http://194.5.159.228:3002"
+export const BASE_URL = "http://awema.com"
+const REFRESH_URL = `${BASE_URL}/api/auth/refresh`
+
+const api: AxiosInstance = axios.create({
+  baseURL: `${BASE_URL}/api/`,
+  headers: {
+    "Content-Type": "application/json",
+  },
+})
+
+// Attach Authorization header if token exists
+api.interceptors.request.use((config) => {
+  const token = Cookies.get("accessToken")
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+// Handle token expiration & refresh
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      try {
+        const newAccessToken = await refreshToken()
+        if (newAccessToken) {
+          error.config!.headers!["Authorization"] = `Bearer ${newAccessToken}`
+          return axios.request(error.config!)
+        }
+      } catch (refreshError) {
+        console.error("Token refresh failed", refreshError)
+        logout()
+      }
+    }
+    return Promise.reject(error)
+  }
+)
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await axios.post(`${BASE_URL}/api/auth/login`, {
-      email,
-      password,
-    })
-    const accessToken = response.data.accessToken
-    const refreshToken = response.data.refreshToken
-
-    if (accessToken && refreshToken) {
-      localStorage.setItem("accessToken", accessToken)
-      localStorage.setItem("refreshToken", refreshToken)
-      // console.log("Tokens stored:", { accessToken, refreshToken })
-    } else {
-      console.error("Tokens not found in response:", response.data)
-      throw new Error("Login failed, tokens missing")
-    }
-
-    console.log(response.data)
-
-    return response.data
+    const { data } = await api.post("auth/login", { email, password })
+    storeTokens(data.accessToken, data.refreshToken)
+    return data
   } catch (error) {
-    console.error("Error logging in:", error)
+    handleApiError(error, "Login failed")
     throw error
   }
 }
 
-export const fetch = async (url: string) => {
+export const fetchData = async (endpoint: string) => {
   try {
-    const token = localStorage.getItem("accessToken")
-    if (!token) throw new Error("No access token found in local storage")
-
-    const response = await axios.get(`${BASE_URL}/api/${url}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    return response.data
+    const { data } = await api.get(endpoint)
+    return data
   } catch (error) {
-    console.error("Error fetching jobs:", error)
+    handleApiError(error, "Data fetching failed")
     throw error
   }
 }
 
-export const fetchJobs = async () => {
-  return await fetch("job/fetchJob")
+export const postData = async <T,>(endpoint: string, data?: T) => {
+  try {
+    const response = await api.post(endpoint, data)
+    return response.data
+  } catch (error) {
+    handleApiError(error, "Posting data failed")
+    throw error
+  }
 }
 
-export const fetchUserProfile = async () => {
-  return await fetch("userProfile/fetch")
+// Token Refresh Function
+const refreshToken = async (): Promise<string | null> => {
+  const refreshToken = Cookies.get("refreshToken")
+  if (!refreshToken) return null
+  try {
+    const { data } = await axios.post(REFRESH_URL, { refreshToken })
+    storeTokens(data.accessToken, data.refreshToken)
+    return data.accessToken
+  } catch (error) {
+    console.error("Error refreshing token", error)
+    return null
+  }
 }
 
-export const fetchUserExperience = async () => {
-  return await fetch("experience/fetch")
+// Store tokens in cookies
+const storeTokens = (accessToken: string, refreshToken: string) => {
+  Cookies.set("accessToken", accessToken, { expires: 1, secure: true })
+  Cookies.set("refreshToken", refreshToken, { expires: 7, secure: true })
 }
 
-export const fetchAllUserPosts = async () => {
-  return await fetch("userPost/getAllUser")
+// Logout Function
+const logout = () => {
+  Cookies.remove("accessToken")
+  Cookies.remove("refreshToken")
+  console.log("User logged out")
 }
 
-export const fetchUserSkills = async () => {
-  return await fetch("profession/getSkill")
+// Error Handling
+const handleApiError = (error: unknown, message: string) => {
+  if (axios.isAxiosError(error)) {
+    console.error(`${message}:`, error.response?.data || error.message)
+  } else {
+    console.error(`Unexpected error: ${message}`, error)
+  }
 }
 
-export const fetchUserEducation = async () => {
-  return await fetch("education/fetch")
-}
+// Specific API Calls
+export const fetchJobs = () => fetchData("job/fetchJob")
+export const fetchUserProfile = () => fetchData("userProfile/fetch")
+export const fetchUserExperience = () => fetchData("experience/fetch")
+export const fetchAllUserPosts = () => fetchData("userPost/getAllUser")
+export const fetchUserSkills = () => fetchData("profession/getSkill")
+export const fetchUserEducation = () => fetchData("education/fetch")

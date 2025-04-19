@@ -1,6 +1,4 @@
 import EmptyCard from "./EmptyCard"
-// import sampleVideo from "../../assets/WhatsApp Video 2024-05-30 at 01.30.45.mp4"
-// import VideoPlayer from "../Video/VideoJs"
 import user from "../../assets/user.jpg"
 import Tabs from "../Tabs/TabsLine"
 import Activity from "../Profile/Activity"
@@ -10,14 +8,16 @@ import SkillCard from "./SkillCard"
 import { useUser } from "@/Context/UserContext"
 import { useState } from "react"
 import ActivityModal from "../Modal/ActivityModal"
+import Video from "../Video/Video"
+// import { post_ } from "@/Api/api"
 
 const ProfileCard = () => {
-  const { education, experience, posts, skills } = useUser()
+  const { education, experience, posts, skills, profile } = useUser()
   const [openModal, setOpenModal] = useState<boolean>(false)
   const [isEditMode, setEditMode] = useState(false)
   const [currentPost, setCurrentPost] = useState<{
-    title: string
-    desc: string
+    postTitle: string
+    postContent: string
   } | null>(null)
 
   const handleOpenForNewPost = () => {
@@ -25,22 +25,40 @@ const ProfileCard = () => {
     setOpenModal(true)
   }
 
-  const handleOpenForEdit = (title: string, desc: string) => {
-    setCurrentPost(null)
+  const filterPost = (id: string) => {
+    posts.filter((_id) =>
+      _id._id === id
+        ? setCurrentPost({
+            postTitle: _id.postTitle,
+            postContent: _id.postContent,
+          })
+        : ""
+    )
+  }
+
+  const handleOpenForEdit = (id: string) => {
+    filterPost(id)
     setEditMode(true)
-    setCurrentPost({ title, desc })
     setOpenModal(true)
   }
 
-  console.log("Current Post", currentPost)
+  console.log("Posts", posts)
 
-  const handleSubmit = (data: { title: string; desc: string }) => {
+  const handleSubmit = async (data: {
+    postTitle: string
+    postContent: string
+  }) => {
     if (isEditMode) {
       console.log("Updating post:", data)
     } else {
+      const data_ = { ...data, postImages: [] }
       console.log("Creating new post:", data)
+      // const response = await post_("userPost/postContent", data_)
+      console.log(response)
     }
     setOpenModal(false)
+    setCurrentPost(null)
+    setEditMode(false)
   }
 
   return (
@@ -49,8 +67,9 @@ const ProfileCard = () => {
       contentClassname="flex flex-col gap-20"
     >
       <div className="relative   ">
-        <div className=" w-full h-[35vh]">video-holder</div>
-        {/* <VideoPlayer src={sampleVideo} type={"video/mp4"} /> */}
+        <div className=" w-full ">
+          <Video />
+        </div>
         <img
           className=" sm-phone:w-20 sm-phone:h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-16 sm:left-12 sm-phone:left-8 "
           src={user}
@@ -62,18 +81,12 @@ const ProfileCard = () => {
           <div className="flex flex-col gap-2">
             <p className="text-2xl font-bold">John Wick</p>
             <p className="text-lg font-extralight">
-              UI/UX Designer, <strong>Industry</strong>
+              {profile?.position || "No Position"}, <strong>Industry</strong>
             </p>
           </div>
         </div>
         <p className=" md:text-base lg:text-lg font-extralight">
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Non,
-          nostrum. Consequatur laudantium earum officia quam natus deserunt at
-          beatae eos. dolor sit amet consectetur adipisicing elit. Non, nostrum.
-          Consequatur laudantium earum officia quam natus deserunt at beatae
-          eos. dolor sit amet consectetur adipisicing elit. Non, nostrum.
-          Consequatur laudantium earum officia quam natus deserunt at beatae
-          eos.{" "}
+          {profile?.bio || "No Bio Available"}
           <strong
             onClick={() => setOpenModal(true)}
             className="font-bold text-primary"
@@ -86,14 +99,7 @@ const ProfileCard = () => {
         <Tabs tabs={["Activity", "Experience", "Education", "Skills"]}>
           <Activity
             addBtn={() => handleOpenForNewPost()}
-            editBtn={() =>
-              handleOpenForEdit(
-                "Hey",
-                "HHHHHEEEEEYYYY"
-                // currentPost?.title ?? "",
-                // currentPost?.desc ?? ""
-              )
-            }
+            editBtn={handleOpenForEdit}
             posts={posts}
           />
           <ExperienceCard experiences={experience} />

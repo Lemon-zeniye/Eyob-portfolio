@@ -8,6 +8,7 @@ import Jobs from "./Pages/Jobs"
 import { useAuth } from "./Context/AuthContext"
 // import { ReactNode } from "react"
 import AppliedJobs from "./Pages/AppliedJobs"
+import Chat from "./Pages/Chat"
 
 // interface ProtectedRouteProps {
 //   children: ReactNode
@@ -44,8 +45,8 @@ const router = createBrowserRouter([
         element: <Jobs />,
       },
       {
-        path: "/applied-jobs",
-        element: <AppliedJobs />,
+        path: "/chat",
+        element: <Chat />,
       },
     ],
   },

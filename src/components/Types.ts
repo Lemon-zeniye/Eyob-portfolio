@@ -55,3 +55,5 @@ export interface UserProfile {
   __v: number
   _id: string
 }
+
+export type ChatType = "all" | "personal" | "group"

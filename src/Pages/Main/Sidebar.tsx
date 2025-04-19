@@ -20,7 +20,7 @@ export interface Route {
 
 const routes: Route[] = [
   { id: 1, icon: Home, name: "Feed", path: "/" },
-  { id: 2, icon: MessageCircle, name: "Chat", path: "" },
+  { id: 2, icon: MessageCircle, name: "Chat", path: "/chat" },
   { id: 3, icon: Briefcase, name: "Jobs", path: "/jobs" },
   { id: 4, icon: Settings, name: "Settings", path: "/settings" },
 ]
