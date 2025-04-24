@@ -1,11 +1,11 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { FC, ReactNode } from "react"
+import { Card, CardContent } from "@/components/ui/card";
+import { FC, ReactNode } from "react";
 
 interface EmptyCardProps {
-  children: ReactNode
-  contentClassname?: string
-  cardClassname?: string
-  onClick?: () => void
+  children: ReactNode;
+  contentClassname?: string;
+  cardClassname?: string;
+  onClick?: () => void;
 }
 
 const EmptyCard: FC<EmptyCardProps> = ({
@@ -20,7 +20,7 @@ const EmptyCard: FC<EmptyCardProps> = ({
         {children}
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default EmptyCard
+export default EmptyCard;

@@ -1,46 +1,122 @@
-import { FormProvider, useForm } from "react-hook-form"
+import { FormProvider, useForm } from "react-hook-form";
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
-} from "../ui/form"
-import { Input } from "../ui/input"
-import { Checkbox } from "../ui/checkbox"
-import { Button } from "../ui/button"
-import { Separator } from "../ui/separator"
-import goggle from "../../assets/icons8-google-48.png"
-import { useNavigate } from "react-router-dom"
-// import { login } from "@/Api/api"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/Context/AuthContext"
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { Checkbox } from "../ui/checkbox";
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/Context/AuthContext";
+import { useMutation } from "react-query";
+import { getAxiosErrorMessage, login } from "@/Api/auth.api";
+import Cookies from "js-cookie";
+import { Spinner } from "../ui/Spinner";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+import axiosInstance from "@/Api/axios";
+
+interface GooglePayload {
+  name: string;
+  email: string;
+  sub: string; // This is the Google ID
+}
 
 const LoginForm = () => {
+  const { login: authLogin } = useAuth();
   const methods = useForm({
     defaultValues: {
       email: "",
       password: "",
       rememberMe: "",
     },
-  })
+  });
 
-  const { toast } = useToast()
-  const navigate = useNavigate()
-  const { login } = useAuth()
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  // const { login } = useAuth();
 
-  const handleLogin = async () => {
+  const onSubmit = (data: any) => {
+    const payload = {
+      email: data.email,
+      password: data.password,
+    };
+    mutate(payload);
+  };
+
+  const handleSuccess = async (credentialResponse: any) => {
+    const idToken = credentialResponse.credential;
+
+    // Decode the token to get user info
+    const decoded: GooglePayload = jwtDecode(idToken);
+
+    const payload = {
+      idToken,
+      name: decoded.name,
+      email: decoded.email,
+      googleId: decoded.sub,
+    };
+
     try {
-      await login(methods.getValues("email"), methods.getValues("password"))
-      toast({
-        title: "Logged In",
-        description: "Successfully logged in!",
-      })
-      navigate("/")
+      const response = await axiosInstance.post("/auth/verifyTokenId", payload);
+      const accessToken = response.data?.access_token;
+      const refreshToken = response.data?.refresh_token;
+      if (accessToken && refreshToken) {
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
+        Cookies.set("accessToken", accessToken);
+        Cookies.set("refreshToken", refreshToken);
+        authLogin(accessToken, refreshToken);
+
+        navigate("/home");
+        toast({
+          title: "Logged In",
+          description: "Successfully logged in!",
+        });
+      } else {
+        throw new Error("Login failed, tokens missing");
+      }
     } catch (error) {
-      console.error(error)
+      console.error("Backend error:", error);
     }
-  }
+  };
+
+  const { mutate, isLoading } = useMutation({
+    mutationFn: login,
+    onSuccess: (response) => {
+      const accessToken = response?.accessToken;
+      const refreshToken = response?.refreshToken;
+      if (accessToken && refreshToken) {
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
+        Cookies.set("accessToken", accessToken);
+        Cookies.set("refreshToken", refreshToken);
+        authLogin(accessToken, refreshToken);
+        navigate("/home");
+
+        toast({
+          title: "Logged In",
+          description: "Successfully logged in!",
+        });
+      } else {
+        throw new Error("Login failed, tokens missing");
+      }
+    },
+    onError: (error: any) => {
+      const message = getAxiosErrorMessage(error);
+      toast({
+        title: "❌ Error",
+        description: error?.msg || message,
+      });
+    },
+  });
 
   return (
     <div className="flex flex-col gap-8r lg:w-1/2 ">
@@ -56,7 +132,7 @@ const LoginForm = () => {
       <FormProvider {...methods}>
         <form
           className="flex flex-col gap-5"
-          onSubmit={methods.handleSubmit(() => {})}
+          onSubmit={methods.handleSubmit(onSubmit)}
         >
           <div className="flex lg:flex-col sm-phone:flex-col gap-4r w-full">
             <FormField
@@ -118,16 +194,20 @@ const LoginForm = () => {
               )}
             />
           </div>
-          <Button onClick={handleLogin} type="button">
-            Log In
-          </Button>
+          <Button type="submit">{isLoading ? <Spinner /> : "Log In"}</Button>
         </form>
-        <Button onClick={() => {}} variant={"outline"} type="button">
+        {/* <Button onClick={() => {}} variant={"outline"} type="button">
           <div className="flex flex-row gap-2 items-center justify-center">
             <img className="w-7 h-7" src={goggle} alt="googleIcon" />
             <p>Sign In With Google</p>
           </div>
-        </Button>
+        </Button> */}
+        <GoogleLogin
+          onSuccess={handleSuccess}
+          onError={() => {
+            console.log("Login Failed");
+          }}
+        />
         <div className="flex flex-row gap-0 items-center justify-center">
           <p>Don't have an account?</p>
           <Button
@@ -140,7 +220,7 @@ const LoginForm = () => {
         </div>
       </FormProvider>
     </div>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;

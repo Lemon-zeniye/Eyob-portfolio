@@ -1,48 +1,88 @@
-import EmptyCard from "./EmptyCard"
-import user from "../../assets/no-image.png"
-import { PostTypes } from "../Types"
+import EmptyCard from "./EmptyCard";
+import { Post } from "@/Types/profile.type";
+import { formatDateToMonthYear } from "@/lib/utils";
+import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { deletePost } from "@/Api/profile.api";
+import { toast } from "sonner";
+import { CiCalendar } from "react-icons/ci";
 
-interface ActivityCardProps
-  extends Pick<PostTypes, "postContent" | "postDate" | "postTitle"> {
-  classname: string
-  onclick: () => void
+interface ActivityCardProps {
+  post: Post;
+  classname: string;
+  onclick: () => void;
 }
 
 function sliceTo168Characters(text: string): string {
-  const maxLength = 168
-  return text.length > maxLength ? text.slice(0, maxLength) + "..." : text
+  const maxLength = 168;
+  return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
 }
 
-const ActivityCard = ({
-  postContent,
-  postDate,
-  postTitle,
-  classname,
-  onclick,
-}: ActivityCardProps) => {
+const ActivityCard = ({ post, classname, onclick }: ActivityCardProps) => {
+  const [showMenu, setShowMenu] = useState(false);
+  const queryClient = useQueryClient();
+
+  const postPictureURL =
+    post.postPictures?.length > 0
+      ? `https://awema.co/${post.postPictures[0].replace("public/", "")}`
+      : undefined;
+
+  const { mutate } = useMutation({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries("singleUserPost");
+      toast.success("Success");
+    },
+  });
+
   return (
     <EmptyCard
-      cardClassname={`px-5 ${classname} `}
-      contentClassname="flex flex-row gap-5 py-2 cursor-pointer"
+      cardClassname={`relative  ${classname}`}
+      contentClassname="flex flex-row gap-4 cursor-pointer p-0"
       onClick={onclick}
     >
       <img
-        className="sm:w-32 sm:h-32 sm-phone:w-20 sm-phone:h-20 "
-        src={user}
+        className="w-32 h-32 object-cover rounded-lg"
+        src={postPictureURL || `https://i.pravatar.cc/100?img=3`}
         alt=""
       />
-      <div className="flex flex-col w-full gap-3 justify-center">
-        <div className="flex flex-row justify-between items-center w-full">
-          <p className="text-lg font-semibold">{postTitle}</p>
-          <p className="text-sm font-extralight">{postDate}</p>
-        </div>
 
-        <p className="text-base font-extralight">
-          {sliceTo168Characters(postContent)}
-        </p>
+      <div className="flex flex-col pb-2 gap-2 justify-between">
+        <div>
+          <p className="text-lg font-semibold">{post.postTitle}</p>
+          <p className="">{sliceTo168Characters(post.postContent)}</p>
+        </div>
+        <div className="flex gap-2 items-center text-sm text-gray-500 ">
+          <CiCalendar className="w-4 h-4" />
+          <span className="">{formatDateToMonthYear(post.postDate)}</span>
+        </div>
+      </div>
+
+      {/* 3-dot menu */}
+      <div
+        className="absolute top-3 right-4 group z-10"
+        onClick={(e) => e.stopPropagation()}
+        onMouseEnter={() => setShowMenu(true)}
+        onMouseLeave={() => setShowMenu(false)}
+      >
+        <MoreHorizontal className="w-5 h-5 text-gray-500 hover:text-gray-700 cursor-pointer" />
+
+        {showMenu && (
+          <div className="absolute right-0 mt-0 bg-white shadow-md rounded-md border text-sm z-20">
+            <button
+              className="px-4 py-2 text-red-500 hover:bg-gray-100 w-full text-left"
+              onClick={() => {
+                mutate(post._id);
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
     </EmptyCard>
-  )
-}
+  );
+};
 
-export default ActivityCard
+export default ActivityCard;

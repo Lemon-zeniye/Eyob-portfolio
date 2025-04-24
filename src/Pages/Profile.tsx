@@ -1,14 +1,12 @@
-import ProfileCard from "@/components/Card/ProfileCard"
-import { UserProvider } from "@/Context/UserContext"
+import ProfileCard from "@/components/Card/ProfileCard";
+// import { UserProvider } from "@/Context/UserContext"
 
 const Profile = () => {
   return (
     <div className="w-full pr-5 flex flex-col ">
-      <UserProvider>
-        <ProfileCard />
-      </UserProvider>
+      <ProfileCard />
     </div>
-  )
-}
+  );
+};
 
-export default Profile
+export default Profile;

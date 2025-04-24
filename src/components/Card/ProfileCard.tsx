@@ -1,122 +1,252 @@
-import EmptyCard from "./EmptyCard"
-import user from "../../assets/user.jpg"
-import Tabs from "../Tabs/TabsLine"
-import Activity from "../Profile/Activity"
-import ExperienceCard from "./ExperienceCard"
-import EducationCard from "./EducationCard"
-import SkillCard from "./SkillCard"
-import { useUser } from "@/Context/UserContext"
-import { useState } from "react"
-import ActivityModal from "../Modal/ActivityModal"
-import Video from "../Video/Video"
-// import { post_ } from "@/Api/api"
+import EmptyCard from "./EmptyCard";
+import user from "../../assets/user.jpg";
+import Tabs from "../Tabs/TabsLine";
+import ExperienceCard from "./ExperienceCard";
+import EducationCard from "./EducationCard";
+import SkillCard from "./SkillCard";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import ActivityNew from "../Profile/ActivityNew";
+import {
+  deleteUserPicture,
+  getUserPicture,
+  getUserProfile,
+  uploadUserPicture,
+} from "@/Api/profile.api";
+import { Spinner } from "../ui/Spinner";
+import * as Dialog from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
+import CustomVideoPlayer from "../Video/Video";
+import { UserInfo } from "@/Types/profile.type";
+import { getUserFromToken } from "@/lib/utils";
+import OrganizationCard from "./OrganizationCard";
+import { Button } from "../ui/button";
+import { IoMdShare } from "react-icons/io";
+import EditProfile from "../Profile/EditProfile";
+import ShareProfile from "../Profile/ShareProfile";
 
 const ProfileCard = () => {
-  const { education, experience, posts, skills, profile } = useUser()
-  const [openModal, setOpenModal] = useState<boolean>(false)
-  const [isEditMode, setEditMode] = useState(false)
-  const [currentPost, setCurrentPost] = useState<{
-    postTitle: string
-    postContent: string
-  } | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [open, setOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const { data: userPicture } = useQuery({
+    queryKey: ["userPicture"],
+    queryFn: getUserPicture,
+  });
+  const [editProfile, setEditProfile] = useState(false);
+  const [shareProfile, setShareProfile] = useState(false);
+  const [tempImage, setTempImage] = useState<string>("");
 
-  const handleOpenForNewPost = () => {
-    setEditMode(false)
-    setOpenModal(true)
-  }
-
-  const filterPost = (id: string) => {
-    posts.filter((_id) =>
-      _id._id === id
-        ? setCurrentPost({
-            postTitle: _id.postTitle,
-            postContent: _id.postContent,
-          })
-        : ""
-    )
-  }
-
-  const handleOpenForEdit = (id: string) => {
-    filterPost(id)
-    setEditMode(true)
-    setOpenModal(true)
-  }
-
-  console.log("Posts", posts)
-
-  const handleSubmit = async (data: {
-    postTitle: string
-    postContent: string
-  }) => {
-    if (isEditMode) {
-      console.log("Updating post:", data)
+  useEffect(() => {
+    if (userPicture?.data) {
+      const newImageUrl = `https://awema.co/${userPicture.data.path.replace(
+        "public/",
+        ""
+      )}`;
+      setTempImage(newImageUrl);
     } else {
-      const data_ = { ...data, postImages: [] }
-      console.log("Creating new post:", data)
-      // const response = await post_("userPost/postContent", data_)
-      console.log(response)
+      setTempImage(user);
     }
-    setOpenModal(false)
-    setCurrentPost(null)
-    setEditMode(false)
-  }
+  }, [userPicture]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const userData = getUserFromToken(token);
+
+    if (userData) {
+      setUserInfo(userData);
+    }
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setTempImage(URL.createObjectURL(file)); // Preview
+    }
+  };
+
+  const { data: userData } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: () => {
+      if (userInfo?.id) {
+        return getUserProfile(userInfo.id);
+      }
+    },
+    enabled: !!userInfo?.id,
+  });
+
+  console.log("user data", userData);
+
+  const { mutate, isLoading: uploading } = useMutation({
+    mutationFn: uploadUserPicture,
+    onSuccess: () => {
+      setOpen(false);
+      setSelectedFile(null);
+    },
+    onError: (error) => {
+      console.error("Upload failed", error);
+    },
+  });
+
+  const { mutate: deleteProfilePic, isLoading: isDeleting } = useMutation({
+    mutationFn: deleteUserPicture,
+    onSuccess: () => {
+      setOpen(false);
+      setSelectedFile(null);
+    },
+    onError: (error) => {
+      console.error("Upload failed", error);
+    },
+  });
+
+  const handleUpload = () => {
+    if (!selectedFile) return;
+    const formData = new FormData();
+    formData.append("imageFile", selectedFile);
+    mutate(formData);
+  };
 
   return (
     <EmptyCard
       cardClassname="lg:w-3/4 pb-10 sm-phone:bg-transparent sm-phone:border-none sm:border sm:bg-white sm-phone:w-full overflow-y-scroll "
-      contentClassname="flex flex-col gap-20"
+      contentClassname="space-y-4"
     >
-      <div className="relative   ">
-        <div className=" w-full ">
-          <Video />
+      <div className="flex flex-col gap-20">
+        <div className="relative">
+          <div className="w-full">
+            <CustomVideoPlayer />
+          </div>
+          <Dialog.Root open={open} onOpenChange={setOpen}>
+            <Dialog.Trigger asChild>
+              <img
+                src="https://awema.co/uploads/imageFile-1745421435186-646881582.png"
+                alt="Profile"
+                className="z-50 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-16 sm:left-12 left-8 border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 transition"
+              />
+            </Dialog.Trigger>
+
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
+              <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
+                <div className="flex justify-between items-center mb-2">
+                  <Dialog.Title className="text-lg font-semibold text-gray-900">
+                    Update Profile Picture
+                  </Dialog.Title>
+                  <Dialog.Close asChild>
+                    <button className="text-gray-400 hover:text-gray-600 transition">
+                      <X size={20} />
+                    </button>
+                  </Dialog.Close>
+                </div>
+
+                <div className="flex flex-col items-center gap-4">
+                  <img
+                    src={tempImage}
+                    alt="Preview"
+                    className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-primary shadow-md object-cover"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-white file:hover:bg-primary/80"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  {userPicture?.data?.path && (
+                    <button
+                      onClick={() => deleteProfilePic()}
+                      className="px-4 py-2 text-sm rounded-md border text-white bg-red-500 hover:bg-red-500/90 transition"
+                    >
+                      {isDeleting ? <Spinner /> : " Delete"}
+                    </button>
+                  )}
+                  <button
+                    onClick={handleUpload}
+                    disabled={uploading || !selectedFile}
+                    className="px-4 py-2 text-sm rounded-md bg-primary text-white hover:bg-primary/90 transition disabled:opacity-50"
+                  >
+                    {uploading ? <Spinner /> : "Upload"}
+                  </button>
+                </div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
         </div>
-        <img
-          className=" sm-phone:w-20 sm-phone:h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-16 sm:left-12 sm-phone:left-8 "
-          src={user}
-          alt=""
-        />
-      </div>
-      <div className="w-full sm-phone:px-0 sm:px-12 flex flex-col gap-6">
-        <div className="w-full px-2 flex flex-row justify-between items-center">
-          <div className="flex flex-col gap-2">
-            <p className="text-2xl font-bold">John Wick</p>
-            <p className="text-lg font-extralight">
-              {profile?.position || "No Position"}, <strong>Industry</strong>
-            </p>
+
+        <div className="w-full sm-phone:px-0 sm:px-12 flex flex-col">
+          <div className="w-full px-2 flex flex-row justify-between items-center">
+            <div className="flex flex-col gap-2">
+              <p className="text-2xl font-bold">{userInfo?.name}</p>
+              <p className="font-extralight">{"No Position specified"}</p>
+              <p className="md:text-base font-extralight">{"No bio yet"}</p>
+            </div>
           </div>
         </div>
-        <p className=" md:text-base lg:text-lg font-extralight">
-          {profile?.bio || "No Bio Available"}
-          <strong
-            onClick={() => setOpenModal(true)}
-            className="font-bold text-primary"
-          >
-            See More
-          </strong>
-        </p>
       </div>
-      <div className="flex flex-row sm-phone:bg-white sm-phone:border sm:border-none sm:bg-none justify-between sm-phone:px-0 sm:px-12">
-        <Tabs tabs={["Activity", "Experience", "Education", "Skills"]}>
-          <Activity
-            addBtn={() => handleOpenForNewPost()}
-            editBtn={handleOpenForEdit}
-            posts={posts}
-          />
-          <ExperienceCard experiences={experience} />
-          <EducationCard education={education} />
-          <SkillCard skills={skills} />
+      <div className="flex items-center gap-6 w-full sm-phone:px-0 sm:px-12 ">
+        <Button
+          className="border-primary text-primary hover:text-primary"
+          variant="outline"
+          onClick={() => setEditProfile(true)}
+        >
+          Edit Profile
+        </Button>
+        <Button
+          className="flex items-center gap-2 border-primary text-primary hover:text-primary"
+          variant="outline"
+          onClick={() => setShareProfile(true)}
+        >
+          {" "}
+          <IoMdShare /> Share
+        </Button>
+      </div>
+
+      <div className="flex flex-row sm-phone:bg-white sm-phone:border sm:border-none sm:bg-none justify-between sm-phone:px-0 sm:px-12 min-h-[40vh]">
+        <Tabs
+          tabs={[
+            "Activity",
+            "Experience",
+            "Education",
+            "Skills",
+            "Organization",
+          ]}
+        >
+          <ActivityNew />
+          <ExperienceCard />
+          <EducationCard />
+          <SkillCard />
+          <OrganizationCard />
         </Tabs>
       </div>
-      <ActivityModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        title="Create Post"
-        onSubmit={handleSubmit}
-        initialData={currentPost || undefined}
-        isEditMode={isEditMode}
-      />
-    </EmptyCard>
-  )
-}
 
-export default ProfileCard
+      <Dialog.Root open={editProfile} onOpenChange={setEditProfile}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[60%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
+            <Dialog.Title className="text-lg font-semibold text-gray-900">
+              Edit Profile
+            </Dialog.Title>
+            <EditProfile onSuccess={() => setEditProfile(false)} />
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      <Dialog.Root open={shareProfile} onOpenChange={setShareProfile}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[60%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
+            <Dialog.Title className="text-lg font-semibold text-gray-900">
+              Share
+            </Dialog.Title>
+            <ShareProfile onSuccess={() => setEditProfile(false)} />
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </EmptyCard>
+  );
+};
+
+export default ProfileCard;

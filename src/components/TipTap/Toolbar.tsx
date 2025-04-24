@@ -1,40 +1,38 @@
-import { Editor } from "@tiptap/react"
+import { Editor } from "@tiptap/react";
 import {
   Bold,
   Italic,
   List,
-  // ListOrdered,
-  Image,
   Pilcrow,
   CheckCircle,
   LetterText,
   ChevronDown,
-} from "lucide-react"
-import React from "react"
-import { Button } from "../ui/button"
-import ToolbarDropdown from "./ToolbarDropdown"
+} from "lucide-react";
+import React from "react";
+import { Button } from "../ui/button";
+import ToolbarDropdown from "./ToolbarDropdown";
 
 interface ToolbarProps {
-  editor: Editor | null
-  url?: string
+  editor: Editor | null;
+  url?: string;
 }
 
 interface Tool {
-  id: number
-  icon?: React.ReactNode
-  function?: () => void
-  disabled?: boolean
-  dropdown?: DropdownItem[]
+  id: number;
+  icon?: React.ReactNode;
+  function?: () => void;
+  disabled?: boolean;
+  dropdown?: DropdownItem[];
 }
 
 interface DropdownItem {
-  id: number
-  name: string
-  function?: () => void
-  disabled?: boolean
+  id: number;
+  name: string;
+  function?: () => void;
+  disabled?: boolean;
 }
 
-const Toolbar = ({ editor, url }: ToolbarProps) => {
+const Toolbar = ({ editor }: ToolbarProps) => {
   // const isActive = (type: string) => editor?.isActive(type) ?? false;
 
   const tools: Tool[] = [
@@ -109,7 +107,7 @@ const Toolbar = ({ editor, url }: ToolbarProps) => {
       function: () => editor?.chain().focus().toggleTaskList().run(),
       disabled: !editor?.can().chain().focus().toggleTaskList().run(),
     },
-  ]
+  ];
 
   const Buttons = tools.map((tool) =>
     tool.dropdown ? (
@@ -146,7 +144,7 @@ const Toolbar = ({ editor, url }: ToolbarProps) => {
         </Button>
       </div>
     )
-  )
+  );
 
   return (
     <div className="sticky top-0 z-10 border-b py-3 px-2">
@@ -160,7 +158,7 @@ const Toolbar = ({ editor, url }: ToolbarProps) => {
         </ToolbarDropdown>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Toolbar
+export default Toolbar;

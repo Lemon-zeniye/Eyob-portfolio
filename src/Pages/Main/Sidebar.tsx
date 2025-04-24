@@ -4,18 +4,18 @@ import {
   LucideIcon,
   MessageCircle,
   Settings,
-} from "lucide-react"
-import logo from "../../assets/Bevy.png"
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
-import Navbar from "@/components/Navbar/Navbar"
-import SidebarSm from "@/components/Sidebar/SidebarSm"
+} from "lucide-react";
+import logo from "../../assets/Bevy.png";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import Navbar from "@/components/Navbar/Navbar";
+import SidebarSm from "@/components/Sidebar/SidebarSm";
 
 export interface Route {
-  id: number
-  icon: LucideIcon
-  name: string
-  path: string
+  id: number;
+  icon: LucideIcon;
+  name: string;
+  path: string;
 }
 
 const routes: Route[] = [
@@ -23,22 +23,22 @@ const routes: Route[] = [
   { id: 2, icon: MessageCircle, name: "Chat", path: "/chat" },
   { id: 3, icon: Briefcase, name: "Jobs", path: "/jobs" },
   { id: 4, icon: Settings, name: "Settings", path: "/settings" },
-]
+];
 
 const Sidebar = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const activeRoute = routes.find((route) => route.path === location.pathname)
-  const [selectedName, setSelectedName] = useState(activeRoute?.name || "")
+  const activeRoute = routes.find((route) => route.path === location.pathname);
+  const [selectedName, setSelectedName] = useState(activeRoute?.name || "");
 
   useEffect(() => {
-    setSelectedName(activeRoute?.name || "")
-  }, [activeRoute])
+    setSelectedName(activeRoute?.name || "");
+  }, [activeRoute]);
 
   const handleSelected = (path: string) => {
-    navigate(path)
-  }
+    navigate(path);
+  };
 
   return (
     <div className="w-full flex sm-phone:flex-col sm-phone:justify-between md:flex-row bg-[#f5f5f5] min-h-screen scroll-smooth">
@@ -86,7 +86,7 @@ const Sidebar = () => {
         <SidebarSm routes={routes} handleSelected={handleSelected} />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

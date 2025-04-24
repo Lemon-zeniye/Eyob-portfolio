@@ -1,12 +1,20 @@
-import { StrictMode } from "react"
-import { createRoot } from "react-dom/client"
-import App from "./App.tsx"
-import "./index.css"
-import { Toaster } from "./components/ui/toaster.tsx"
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+import { Toaster as CustomToaster } from "./components/ui/toaster.tsx";
+import Providers from "./Providers/providers.tsx";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Toaster } from "sonner";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
-    <Toaster />
+    <GoogleOAuthProvider clientId="195047541516-ihgd0pebuld9h8le27mdpogiq7c5d5fn.apps.googleusercontent.com">
+      <Providers>
+        <App />
+        <Toaster />
+        <CustomToaster />
+      </Providers>
+    </GoogleOAuthProvider>
   </StrictMode>
-)
+);

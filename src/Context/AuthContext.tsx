@@ -1,85 +1,50 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react"
-import axios from "axios"
+import React, { createContext, useContext, useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
-interface AuthContextProps {
-  isLoggedIn: boolean
-  login: (email: string, password: string) => Promise<void>
-  logout: () => void
-  isLoading: boolean
-  error: string | null
-}
+type AuthContextType = {
+  isAuthenticated: boolean;
+  accessToken: string | null;
+  login: (accessToken: string, refreshToken: string) => void;
+  logout: () => void;
+};
 
-export const BASE_URL = "http://194.5.159.228:3002"
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AuthContext = createContext<AuthContextProps | undefined>(undefined)
-
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken")
+    const token = Cookies.get("accessToken");
     if (token) {
-      setIsLoggedIn(true)
+      setAccessToken(token);
     }
-  }, [])
+  }, []);
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const response = await axios.post(`${BASE_URL}/api/auth/login`, {
-        email,
-        password,
-      })
-      const accessToken = response.data.accessToken
-      const refreshToken = response.data.refreshToken
-
-      if (accessToken && refreshToken) {
-        localStorage.setItem("accessToken", accessToken)
-        localStorage.setItem("refreshToken", refreshToken)
-        setIsLoggedIn(true)
-      } else {
-        throw new Error("Login failed, tokens missing")
-      }
-
-      return response.data
-    } catch (error) {
-      setError("Error logging in. Please try again.")
-      throw error
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const login = (accessToken: string, refreshToken: string) => {
+    Cookies.set("accessToken", accessToken);
+    Cookies.set("refreshToken", refreshToken);
+    setAccessToken(accessToken);
+  };
 
   const logout = () => {
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("refreshToken")
-    setIsLoggedIn(false)
-  }
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken");
+    setAccessToken(null);
+  };
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, login, logout, isLoading, error }}
+      value={{ isAuthenticated: !!accessToken, accessToken, login, logout }}
     >
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
-export const useAuth = (): AuthContextProps => {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
-}
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  return context;
+};

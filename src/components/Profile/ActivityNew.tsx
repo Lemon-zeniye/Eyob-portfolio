@@ -1,16 +1,17 @@
 import { useState } from "react";
-import ExpAndEduCard from "./ExpAndEduCard";
-import AddSkill from "../Profile/AddSkill";
 import { useQuery } from "react-query";
-import { getUserSkills } from "@/Api/profile.api";
+import { getSingleUserPost } from "@/Api/profile.api";
 import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import ActivityCard from "../Card/ActivityCard";
+import AddPost from "./AddPost";
 
-const SkillCard = () => {
+function ActivityNew() {
   const [open, setOpen] = useState(false);
-  const { data: skills } = useQuery({
-    queryKey: ["skills"],
-    queryFn: getUserSkills,
+
+  const { data: posts } = useQuery({
+    queryKey: ["singleUserPost"],
+    queryFn: getSingleUserPost,
   });
 
   return (
@@ -39,16 +40,13 @@ const SkillCard = () => {
               transition={{ type: "tween", ease: "easeInOut" }}
               className="grid sm-phone:grid-cols-1 lg:grid-cols-2 sm-phone:gap-8 lg:gap-10 px-2"
             >
-              {skills &&
-                skills?.data.map((item, index) => (
-                  <ExpAndEduCard
-                    id={item._id}
-                    key={index}
-                    isNotSkills={false}
-                    title={item.name}
-                    type="Ski"
-                    category={item.category?.name}
-                    institution="Company"
+              {posts &&
+                posts?.data.map((item) => (
+                  <ActivityCard
+                    key={item._id}
+                    onclick={() => {}}
+                    classname=" sm-phone:w-full "
+                    post={item}
                   />
                 ))}
             </motion.div>
@@ -61,15 +59,15 @@ const SkillCard = () => {
               transition={{ type: "tween", ease: "easeInOut" }}
             >
               <h1 className="text-lg py-2 items-center font-semibold">
-                Add Skill
+                Add Post
               </h1>
-              <AddSkill onSuccess={() => setOpen(false)} />
+              <AddPost onSuccess={() => setOpen(false)} />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
     </div>
   );
-};
+}
 
-export default SkillCard;
+export default ActivityNew;

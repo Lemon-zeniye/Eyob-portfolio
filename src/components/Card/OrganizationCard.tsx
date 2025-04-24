@@ -1,17 +1,19 @@
 import { useState } from "react";
 import ExpAndEduCard from "./ExpAndEduCard";
-import AddSkill from "../Profile/AddSkill";
 import { useQuery } from "react-query";
-import { getUserSkills } from "@/Api/profile.api";
+import { getUserOrganization } from "@/Api/profile.api";
 import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import AddOrganization from "../Profile/AddOrganization";
 
-const SkillCard = () => {
+const OrganizationCard = () => {
   const [open, setOpen] = useState(false);
   const { data: skills } = useQuery({
-    queryKey: ["skills"],
-    queryFn: getUserSkills,
+    queryKey: ["organization"],
+    queryFn: getUserOrganization,
   });
+
+  console.log("org]", skills);
 
   return (
     <div className="flex flex-col gap-5">
@@ -45,10 +47,10 @@ const SkillCard = () => {
                     id={item._id}
                     key={index}
                     isNotSkills={false}
-                    title={item.name}
-                    type="Ski"
-                    category={item.category?.name}
-                    institution="Company"
+                    title={item.organizationName}
+                    type="Org"
+                    category={item.organizationType}
+                    orgEmail={item.email}
                   />
                 ))}
             </motion.div>
@@ -61,9 +63,9 @@ const SkillCard = () => {
               transition={{ type: "tween", ease: "easeInOut" }}
             >
               <h1 className="text-lg py-2 items-center font-semibold">
-                Add Skill
+                Add Organization
               </h1>
-              <AddSkill onSuccess={() => setOpen(false)} />
+              <AddOrganization onSuccess={() => setOpen(false)} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -72,4 +74,4 @@ const SkillCard = () => {
   );
 };
 
-export default SkillCard;
+export default OrganizationCard;

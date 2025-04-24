@@ -1,15 +1,15 @@
-import { FC } from "react"
-import user from "../../assets/user.jpg"
-import { Check, CheckCheck } from "lucide-react"
+import { FC } from "react";
+import user from "../../assets/user.jpg";
+import { Check, CheckCheck } from "lucide-react";
 
 interface PersonalChatProps {
-  imgUrl: string
-  name: string
-  lastchat: string
-  date: string
-  seen: boolean
-  selected: boolean
-  onclick: () => void
+  imgUrl: string;
+  name: string;
+  lastchat: string;
+  date: string;
+  seen: boolean;
+  selected: boolean;
+  onclick: () => void;
 }
 
 const PersonalChat: FC<PersonalChatProps> = ({
@@ -28,7 +28,7 @@ const PersonalChat: FC<PersonalChatProps> = ({
       }  px-2 `}
       onClick={onclick}
     >
-      <img className="w-12 h-12 rounded-full" src={user} alt="" />
+      <img className="w-12 h-12 rounded-full" src={imgUrl || user} alt="" />
       <div className="w-3 h-3 absolute left-11 bottom-1 bg-green-500 rounded-full" />
       <div className="flex flex-col gap-1">
         <p className="font-semibold">{name}</p>
@@ -45,7 +45,7 @@ const PersonalChat: FC<PersonalChatProps> = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PersonalChat
+export default PersonalChat;
