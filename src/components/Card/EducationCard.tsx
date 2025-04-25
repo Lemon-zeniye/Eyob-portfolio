@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "react-query";
 import { getEducations } from "@/Api/profile.api";
 import { Button } from "../ui/button";
+import AddCertification from "../Profile/AddCertification";
 
 const EducationCard = () => {
   const [open, setOpen] = useState(false);
+  const [certification, setCertification] = useState(false);
 
   const { data: educations } = useQuery({
     queryKey: ["educations"],
@@ -17,21 +19,44 @@ const EducationCard = () => {
   return (
     <div className="flex flex-col gap-5 relative overflow-hidden">
       <div className="flex flex-row gap-2 justify-end items-end px-2">
-        <Button
-          className={`${
-            !open
-              ? "bg-primary hover:bg-primary/80"
-              : "bg-red-500 hover:bg-red-500/80"
-          }`}
-          onClick={() => setOpen(!open)}
-        >
-          {open ? "Cancel" : "Add"}
-        </Button>
+        {!open && !certification && (
+          <>
+            <Button
+              variant="outline"
+              className="border-primary"
+              onClick={() => {
+                setCertification(true);
+              }}
+            >
+              Certification
+            </Button>
+            <Button
+              className={"bg-primary hover:bg-primary/80"}
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              Add
+            </Button>
+          </>
+        )}
+
+        {open || certification ? (
+          <Button
+            className={"bg-red-500 hover:bg-red-500/80"}
+            onClick={() => {
+              setOpen(false);
+              setCertification(false);
+            }}
+          >
+            Cancel
+          </Button>
+        ) : null}
       </div>
 
       <div className="relative">
         <AnimatePresence mode="wait">
-          {!open ? (
+          {!open && !certification ? (
             <motion.div
               key="education-list"
               initial={{ x: 0 }}
@@ -65,9 +90,13 @@ const EducationCard = () => {
               transition={{ type: "tween", ease: "easeInOut" }}
             >
               <h1 className="text-lg py-2 items-center font-semibold">
-                Add Education
+                {open ? "Add Education" : "Add Certification"}
               </h1>
-              <AddEducation onSuccess={() => setOpen(false)} />
+
+              {open && <AddEducation onSuccess={() => setOpen(false)} />}
+              {certification && (
+                <AddCertification onSuccess={() => setOpen(false)} />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
