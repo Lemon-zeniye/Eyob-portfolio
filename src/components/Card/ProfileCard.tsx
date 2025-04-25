@@ -239,7 +239,7 @@ const ProfileCard = () => {
           <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
           <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[60%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
             <Dialog.Title className="text-lg font-semibold text-gray-900">
-              Share
+              Share Profile
             </Dialog.Title>
             <ShareProfile onSuccess={() => setEditProfile(false)} />
           </Dialog.Content>

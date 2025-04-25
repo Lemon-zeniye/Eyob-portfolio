@@ -1,5 +1,6 @@
 import axios from "./axios";
 import {
+  ActiveUserResponse,
   EducationResponse,
   ExperienceResponse,
   FetchSkillsResponse,
@@ -118,7 +119,7 @@ export const deleteUserVideo = async (): Promise<any> => {
 
 export const getUserOrganization =
   async (): Promise<GetOrganizationsResponse> => {
-    const response = await axios.get<any>("/organization/user/organizations");
+    const response = await axios.get<any>("organization/user/organizations");
     return response.data;
   };
 
@@ -148,7 +149,9 @@ export const deleteOrganization = async (id: string): Promise<any> => {
 };
 
 export const deletePost = async (id: string): Promise<any> => {
-  const response = await axios.delete<any>(`userPost/deletePost/${id}`);
+  const response = await axios.delete<any>(
+    `/userPost/deactivateUserPost/${id}`
+  );
   return response.data;
 };
 
@@ -157,8 +160,22 @@ export const deleteSkill = async (id: string): Promise<any> => {
   return response.data;
 };
 
-//experience/deleteExp/:id
-//education/deleteEdu/:id
-//organization/deleteOrganization/:id
-//userPost/deletePost/:id
-//skill/deleteSkill/:id
+export const updateUserProfile = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>(
+    `userProfile/updateUserProfile`,
+    payload
+  );
+  return response.data;
+};
+
+export const getActiveUsers = async (): Promise<ActiveUserResponse> => {
+  const response = await axios.get("user/getActiveUsers");
+  return response.data;
+};
+
+export const shareProfile = async (
+  payload: any
+): Promise<ActiveUserResponse> => {
+  const response = await axios.post("/share/addShare", payload);
+  return response.data;
+};

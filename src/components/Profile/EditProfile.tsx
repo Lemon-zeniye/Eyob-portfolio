@@ -10,7 +10,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "../ui/input";
 import { useMutation } from "react-query";
-import { createPost } from "@/Api/profile.api";
+import { updateUserProfile } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
 
 type PostFormProps = {
@@ -27,7 +27,7 @@ function EditProfile({ onSuccess }: PostFormProps) {
   });
 
   const { mutate, isLoading } = useMutation({
-    mutationFn: createPost,
+    mutationFn: updateUserProfile,
     onSuccess: () => {
       onSuccess();
     },

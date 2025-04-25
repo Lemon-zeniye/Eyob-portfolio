@@ -122,3 +122,15 @@ export interface Organization {
   createdAt: string;
   __v: number;
 }
+
+export interface ActiveUser {
+  email: string;
+  name: string;
+  role: "user" | "company";
+  _id: string;
+}
+export interface ActiveUserResponse {
+  success: boolean;
+  meg: string;
+  data: ActiveUser[];
+}

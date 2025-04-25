@@ -221,22 +221,3 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
 }
 
 export default AddSkill;
-// Could you please provide the following endpoints for our project?
-
-// Edit Profile
-
-// Delete Skill
-
-// List of Users to Share Profile
-
-// Share Profile
-
-// Delete a Single User Post
-
-// Additionally, I encountered an issue with the following endpoint:
-
-// GET https://awema.co/api/userProfile/fetchSingle/6807898b70880c5943b5805c – I received the message: "msg": "user profile of the given id was not found". I am using the ID retrieved from the access token, but it still doesn't seem to work.
-
-// Lastly, when trying to access images and videos from the backend, I get the following error:
-
-// GET https://awema.co/uploads/imageFile-1745421435186-646881582.png net::ERR_BLOCKED_BY_RESPONSE.NotSameOrigin 200 (OK). This seems to be a strict cross-origin issue. Could you kindly look into this as well?
