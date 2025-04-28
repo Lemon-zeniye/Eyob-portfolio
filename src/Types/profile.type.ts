@@ -1,4 +1,5 @@
 import { UserEducation, UserExperience } from "@/components/Types";
+import { Role } from "./auth.type";
 
 export interface UserPostResponse {
   success: boolean;
@@ -101,7 +102,7 @@ export interface JwtPayload {
 export interface UserInfo {
   id?: string;
   name?: string;
-  role?: string;
+  role?: Role;
   iat?: number;
   exp?: number;
 }

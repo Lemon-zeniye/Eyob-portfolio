@@ -20,6 +20,8 @@ import { Spinner } from "../ui/Spinner";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import axiosInstance from "@/Api/axios";
+import { useRole } from "@/Context/RoleContext";
+import { getUserFromToken } from "@/lib/utils";
 
 interface GooglePayload {
   name: string;
@@ -29,6 +31,7 @@ interface GooglePayload {
 
 const LoginForm = () => {
   const { login: authLogin } = useAuth();
+  const { setRole } = useRole();
   const methods = useForm({
     defaultValues: {
       email: "",
@@ -93,14 +96,16 @@ const LoginForm = () => {
       const accessToken = response?.accessToken;
       const refreshToken = response?.refreshToken;
       if (accessToken && refreshToken) {
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-
         Cookies.set("accessToken", accessToken);
         Cookies.set("refreshToken", refreshToken);
         authLogin(accessToken, refreshToken);
+        const userInfo = getUserFromToken(accessToken);
+        if (userInfo?.role) {
+          setRole(userInfo.role);
+        } else {
+          setRole("user");
+        }
         navigate("/home");
-
         toast({
           title: "Logged In",
           description: "Successfully logged in!",

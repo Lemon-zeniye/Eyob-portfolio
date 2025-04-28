@@ -7,7 +7,9 @@ import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { formatDateToMonthYear } from "@/lib/utils";
+import { formatDateToMonthYear, tos } from "@/lib/utils";
+import { Spinner } from "../ui/Spinner";
+import { getAxiosSuccessMessage } from "@/Api/axios";
 
 const ExperienceCard = () => {
   const [open, setOpen] = useState(false);
@@ -38,15 +40,20 @@ const ExperienceCard = () => {
     onSuccess: () => {
       setOpenUploadCV(false);
       setFile(null);
+      tos.success("CV uploaded successfully");
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const mes = getAxiosSuccessMessage(error);
+      tos.error(mes);
     },
   });
 
   const { data: userCV } = useQuery({
     queryKey: ["userCV"],
     queryFn: getUserCV,
+    onSuccess: () => {
+      tos.success("CV uploaded successfully");
+    },
   });
 
   const { data: experiences } = useQuery({
@@ -165,7 +172,7 @@ const ExperienceCard = () => {
                 disabled={!file || uploading}
                 className="w-full"
               >
-                {uploading ? "Uploading..." : "Submit"}
+                {uploading ? <Spinner /> : "Submit"}
               </Button>
             </div>
           </Dialog.Content>

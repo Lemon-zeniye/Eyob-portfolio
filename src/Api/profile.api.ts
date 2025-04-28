@@ -161,7 +161,7 @@ export const deleteSkill = async (id: string): Promise<any> => {
 };
 
 export const updateUserProfile = async (payload: any): Promise<any> => {
-  const response = await axios.post<any>(
+  const response = await axios.patch<any>(
     `userProfile/updateUserProfile`,
     payload
   );
@@ -177,5 +177,10 @@ export const shareProfile = async (
   payload: any
 ): Promise<ActiveUserResponse> => {
   const response = await axios.post("/share/addShare", payload);
+  return response.data;
+};
+
+export const addCertificate = async (payload: any): Promise<any> => {
+  const response = await axios.post("/organization/addCertificate", payload);
   return response.data;
 };

@@ -20,8 +20,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { addEducation } from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/auth.api";
 import { Spinner } from "../ui/Spinner";
-import { getDateParts } from "@/lib/utils";
-import { toast } from "sonner";
+import { getDateParts, tos } from "@/lib/utils";
 
 function AddEducation({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient();
@@ -39,13 +38,13 @@ function AddEducation({ onSuccess }: { onSuccess: () => void }) {
   const { mutate, isLoading } = useMutation({
     mutationFn: addEducation,
     onSuccess: () => {
-      toast.success("Education added Successfully");
+      tos.success("Education added Successfully");
       queryClient.invalidateQueries("educations");
       onSuccess();
     },
     onError: (error: any) => {
       const message = getAxiosErrorMessage(error);
-      toast.error(message);
+      tos.error(message);
     },
   });
   const onSubmit = (data: any) => {

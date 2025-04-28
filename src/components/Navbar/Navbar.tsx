@@ -1,33 +1,33 @@
-import { useLocation } from "react-router-dom"
-import { useState, useEffect } from "react"
-import NotificationDropdown from "./NotificationDropdown"
-import UserDropdown from "./UserDropdown"
+import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import NotificationDropdown from "./NotificationDropdown";
+import UserDropdown from "./UserDropdown";
 
 interface NavbarProps {
-  name: string
+  name: string;
 }
 
 const Navbar = ({ name }: NavbarProps) => {
-  const location = useLocation()
-  const [displayName, setDisplayName] = useState(name)
+  const location = useLocation();
+  const [displayName, setDisplayName] = useState(name);
 
   useEffect(() => {
     if (location.pathname === "/profile") {
-      setDisplayName("Profile")
+      setDisplayName("Profile");
     } else {
-      setDisplayName(name)
+      setDisplayName(name);
     }
-  }, [location.pathname, name])
+  }, [location.pathname, name]);
 
   return (
-    <div className="flex flex-row justify-between items-center pr-5 py-2">
+    <div className="flex flex-row sticky top-0 z-[20] bg-[#F5F5F5] justify-between items-center pr-5 py-2">
       <p className="text-lg font-bold">{displayName}</p>
       <div className="flex flex-row gap-7 items-center">
         <NotificationDropdown />
         <UserDropdown />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

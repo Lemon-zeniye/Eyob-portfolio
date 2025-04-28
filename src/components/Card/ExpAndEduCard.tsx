@@ -13,7 +13,7 @@ import {
   deleteOrganization,
   deleteSkill,
 } from "@/Api/profile.api";
-import { toast } from "@/hooks/use-toast";
+import { tos } from "@/lib/utils";
 
 interface ExpAndEduCardProps {
   id: string;
@@ -49,24 +49,35 @@ const ExpAndEduCard = ({
 
   const deleteEducationMutation = useMutation({
     mutationFn: deleteEducation,
-    onSuccess: () => queryClient.invalidateQueries("educations"),
+    onSuccess: () => {
+      tos.success("Success");
+      queryClient.invalidateQueries("educations");
+    },
   });
 
   const deleteExperienceMutation = useMutation({
     mutationFn: deleteExperience,
-    onSuccess: () => queryClient.invalidateQueries("experiences"),
+    onSuccess: () => {
+      tos.success("Success");
+      queryClient.invalidateQueries("experiences");
+    },
   });
 
   const deleteSkillMutation = useMutation({
     mutationFn: deleteSkill,
-    onSuccess: () => queryClient.invalidateQueries("skill"),
+    onSuccess: () => {
+      tos.success("Success");
+      queryClient.invalidateQueries("skill");
+    },
   });
 
   const deleteOrganizationMutation = useMutation({
     mutationFn: deleteOrganization,
     onSuccess: () => {
-      queryClient.invalidateQueries("organization");
-      toast;
+      {
+        queryClient.invalidateQueries("organization");
+        tos.success("Success");
+      }
     },
   });
 
@@ -96,15 +107,15 @@ const ExpAndEduCard = ({
       contentClassname="flex flex-row gap-5 py-4"
     >
       <div
-        className="h-28 w-28  rounded-full flex items-center justify-center border-2 text-primary border-primary bg-[#daf2f2]
+        className="h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0 md:h-28 md:w-28  rounded-full flex items-center justify-center border-2 text-primary border-primary bg-[#daf2f2]
 "
       >
         {type === "Exp" ? (
-          <TbBriefcase2 size={70} />
+          <TbBriefcase2 size={40} />
         ) : type === "Org" ? (
-          <HiBuildingOffice2 size={70} />
+          <HiBuildingOffice2 size={40} />
         ) : (
-          <LuGraduationCap size={70} />
+          <LuGraduationCap size={40} />
         )}
       </div>
       <div className="flex flex-col gap-2 justify-center ">

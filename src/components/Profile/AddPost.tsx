@@ -14,7 +14,7 @@ import { Input } from "../ui/input";
 import { useMutation, useQueryClient } from "react-query";
 import { createPost } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
-import { toast } from "sonner";
+import { tos } from "@/lib/utils";
 
 type PostFormProps = {
   onSuccess: () => void;
@@ -45,7 +45,7 @@ function AddPost({ onSuccess }: PostFormProps) {
     onSuccess: () => {
       onSuccess();
       queryClient.invalidateQueries("singleUserPost");
-      toast.success("Success");
+      tos.success("Success");
     },
   });
 

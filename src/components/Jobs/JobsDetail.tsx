@@ -3,48 +3,58 @@ import {
   SheetContent,
   SheetDescription,
   SheetHeader,
-} from "@/components/ui/sheet"
-import {
-  Briefcase,
-  CircleDollarSign,
-  Flag,
-  HardHat,
-  MapPin,
-} from "lucide-react"
-import CompanySmallCard from "../Card/CompanySmallCard"
-import { Button } from "../ui/button"
+} from "@/components/ui/sheet";
+import { Flag, HardHat } from "lucide-react";
+import CompanySmallCard from "../Card/CompanySmallCard";
+import { Button } from "../ui/button";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { applyJob, getFetchSingleJob } from "@/Api/job.api";
+import { Job } from "@/Types/job.type";
+import { MdOutlineLocationOn } from "react-icons/md";
+import { HiOutlineBriefcase } from "react-icons/hi2";
+import { AiOutlineDollar } from "react-icons/ai";
+import { IoBriefcaseOutline } from "react-icons/io5";
+import { Spinner } from "../ui/Spinner";
+import { toast } from "sonner";
 
 interface JobsDetailProps {
-  open: boolean
-  onChange: (open: boolean) => void
-  jobTitle: string
-  jobDescription: string
-  skills: string[]
-  location: string
-  locationType: string
-  salary: number
-  companyName: string
-  FollowClicked: () => void
-  companyDescription: string
-  ApplyClicked: () => void
-  ReportClicked: () => void
+  id: string | undefined;
+  selectedJob: Job;
+  open: boolean;
+  onChange: (open: boolean) => void;
+  FollowClicked: () => void;
+  ReportClicked: () => void;
 }
 
 const JobsDetail = ({
+  id,
+  selectedJob,
   open,
   onChange,
   FollowClicked,
-  companyDescription,
-  companyName,
-  jobDescription,
-  jobTitle,
-  location,
-  locationType,
-  salary,
-  skills,
-  ApplyClicked,
   ReportClicked,
 }: JobsDetailProps) => {
+  const queryClient = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["singleJob", id],
+    queryFn: () => {
+      if (id) {
+        return getFetchSingleJob(id);
+      }
+    },
+    enabled: !!id,
+  });
+
+  const { mutate, isLoading } = useMutation({
+    mutationFn: applyJob,
+    onSuccess: () => {
+      toast.success("Application submitted successfully!");
+      queryClient.invalidateQueries("appliedJobs");
+    },
+  });
+
+  console.log(data);
+
   return (
     <Sheet open={open} onOpenChange={onChange}>
       <SheetContent
@@ -53,20 +63,20 @@ const JobsDetail = ({
       >
         <SheetHeader>
           <SheetDescription className="text-xl text-black font-bold">
-            {jobTitle}
+            {selectedJob.jobTitle}
           </SheetDescription>
         </SheetHeader>
         <div className="w-full flex sm-phone:flex-col md:flex-row justify-between gap-10">
           <div className="lg:w-3/4 md:w-1/2 flex flex-col gap-4">
             <SheetDescription className="text-base">
-              {jobDescription}
+              {selectedJob.jobDescription}
             </SheetDescription>
             <div className="flex flex-col gap-4">
               <SheetDescription className="text-base text-black font-bold">
                 Skills
               </SheetDescription>
               <div className="flex flex-row gap-4 flex-wrap">
-                {skills.map((item) => (
+                {selectedJob.skills.map((item) => (
                   <div className="flex flex-row gap-2 items-center">
                     <div className="bg-primary flex items-center justify-center p-2 text-white rounded-md">
                       <HardHat className="" />
@@ -80,26 +90,41 @@ const JobsDetail = ({
           <div className="lg:w-1/4 md:w-1/2 flex flex-col gap-4">
             <div className="w-full flex opacity-75 flex-col  gap-5 ">
               <div className="flex flex-row gap-2 items-center">
-                <MapPin />
-                <p className={``}>{location}</p>
+                <IoBriefcaseOutline size={22} />
+                <p className={``}>{selectedJob.jobType}</p>
               </div>
               <div className="flex flex-row gap-2 items-center">
-                <Briefcase /> <p className={``}>{locationType}</p>
+                <MdOutlineLocationOn size={22} />
+                <p className={``}>{selectedJob.jobLocation}</p>
               </div>
               <div className="flex flex-row gap-2 items-center">
-                <CircleDollarSign />
-                <p className={``}>{salary}</p>
+                <HiOutlineBriefcase size={22} />{" "}
+                <p className={``}>{selectedJob.locationType}</p>
+              </div>
+              <div className="flex flex-row gap-2 items-center">
+                <AiOutlineDollar size={22} />
+                <p className={``}>
+                  {selectedJob.salary?.toFixed(2)} / {selectedJob.salaryType}
+                </p>
               </div>
             </div>
             <div className=" w-full">
               <CompanySmallCard
                 FollowClicked={FollowClicked}
-                companyDescription={companyDescription}
-                companyName={companyName}
+                companyDescription={selectedJob.company}
+                companyName={selectedJob.company}
               />
             </div>
             <div className="w-full flex flex-col gap-2">
-              <Button onClick={ApplyClicked}>Apply</Button>
+              <Button
+                onClick={() =>
+                  mutate({
+                    jobId: id,
+                  })
+                }
+              >
+                {isLoading ? <Spinner /> : "Apply"}
+              </Button>
               <Button onClick={ReportClicked} variant={"destructive"}>
                 <div className="flex flex-row gap-2 items-center">
                   <Flag size={20} />
@@ -111,7 +136,7 @@ const JobsDetail = ({
         </div>
       </SheetContent>
     </Sheet>
-  )
-}
+  );
+};
 
-export default JobsDetail
+export default JobsDetail;

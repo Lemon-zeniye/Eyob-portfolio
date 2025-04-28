@@ -18,7 +18,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import CustomVideoPlayer from "../Video/Video";
 import { UserInfo } from "@/Types/profile.type";
-import { getUserFromToken } from "@/lib/utils";
+import { getUserFromToken, tos } from "@/lib/utils";
 import OrganizationCard from "./OrganizationCard";
 import { Button } from "../ui/button";
 import { IoMdShare } from "react-icons/io";
@@ -83,6 +83,7 @@ const ProfileCard = () => {
     onSuccess: () => {
       setOpen(false);
       setSelectedFile(null);
+      tos.success("Profile uploaded successfully");
     },
     onError: (error) => {
       console.error("Upload failed", error);

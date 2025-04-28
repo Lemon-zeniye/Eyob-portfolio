@@ -2,6 +2,8 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload, UserInfo } from "@/Types/profile.type";
+import { toast } from "sonner";
+import { Role } from "@/Types/auth.type";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -45,7 +47,7 @@ export const getUserFromToken = (token: string | null): UserInfo | null => {
     return {
       id: aud.find((item): item is { _id: string } => !!item?._id)?._id,
       name: aud.find((item): item is { name: string } => !!item?.name)?.name,
-      role: aud.find((item): item is { role: string } => !!item?.role)?.role,
+      role: aud.find((item): item is { role: Role } => !!item?.role)?.role,
       iat: decoded.iat,
       exp: decoded.exp,
     };
@@ -80,3 +82,21 @@ export function formatDateToMonthYear(dateString: string): string {
 
   return date.toLocaleDateString("en-US", options);
 }
+
+export const tos = {
+  success: (message: string) =>
+    toast.success(message, {
+      style: {
+        backgroundColor: "#4ade80",
+        color: "white",
+      },
+    }),
+
+  error: (message: string) =>
+    toast.error(message, {
+      style: {
+        backgroundColor: "#ef4444",
+        color: "white",
+      },
+    }),
+};

@@ -1,31 +1,20 @@
-import EmptyCard from "../Card/EmptyCard"
-import logo from "../../assets/icons8-google-48.png"
-import { Briefcase, CircleDollarSign, Heart, MapPin } from "lucide-react"
+import EmptyCard from "../Card/EmptyCard";
+import logo from "../../assets/icons8-google-48.png";
+import { Job } from "@/Types/job.type";
+import { MdOutlineLocationOn } from "react-icons/md";
+import { HiOutlineBriefcase } from "react-icons/hi2";
+import { AiOutlineDollar } from "react-icons/ai";
+import { IoMdHeartEmpty } from "react-icons/io";
 
 interface JobsCardProps {
-  size: "small" | "large"
-  companyName: string
-  jobTitle: string
-  jobDescription: string
-  location: string
-  locationType: string
-  salary: number
-  onClick: () => void
-  classname?: string
+  size: "small" | "large";
+  job: Job;
+  onClick: () => void;
+  classname?: string;
 }
 
-const JobsCard = ({
-  size,
-  companyName,
-  jobDescription,
-  jobTitle,
-  location,
-  locationType,
-  salary,
-  onClick,
-  classname,
-}: JobsCardProps) => {
-  const isSmall = size === "small"
+const JobsCard = ({ size, job, onClick, classname }: JobsCardProps) => {
+  const isSmall = size === "small";
   return (
     <div>
       <EmptyCard
@@ -38,21 +27,25 @@ const JobsCard = ({
           <div className="flex flex-row justify-between items-center">
             <div className="flex flex-row gap-2 items-center">
               <img
-                className={` ${isSmall ? "w-12 h-12" : "w-16 h-16"}  `}
+                className={` ${
+                  isSmall ? "w-12 h-12" : "w-16 h-16"
+                }  rounded-full border border-primary `}
                 src={logo}
                 alt=""
               />
               <div className="flex flex-col">
-                <p className="text-sm font-medium">
-                  {companyName ?? "Company Name"}
-                </p>
-                <p className={` ${isSmall ? "text-sm" : ""} font-bold `}>
-                  {jobTitle ?? "Job Title"}
+                <p className="text-sm font-medium">{job.company}</p>
+                <p
+                  className={` ${
+                    isSmall ? "text-base" : "text-lg"
+                  } font-semibold `}
+                >
+                  {job.jobTitle}
                 </p>
               </div>
             </div>
             <div>
-              <Heart size={isSmall ? 24 : 25} />
+              <IoMdHeartEmpty size={isSmall ? 24 : 25} />
             </div>
           </div>
           <div className="w-full">
@@ -61,33 +54,35 @@ const JobsCard = ({
                 isSmall ? "text-sm" : "text-base"
               } font-light opacity-75`}
             >
-              {jobDescription ?? "job description"}
+              {job.jobDescription}
             </p>
           </div>
           <div className="w-full flex opacity-75 flex-row justify-between gap-5 flex-wrap">
             <div className="flex flex-row gap-2 items-center">
-              <MapPin size={isSmall ? 22 : 25} />{" "}
+              <MdOutlineLocationOn size={isSmall ? 20 : 22} />{" "}
               <p className={`${isSmall ? "text-sm" : "text-base"}`}>
-                {location ?? "Location"}
+                {job.jobLocation}
               </p>
             </div>
             <div className="flex flex-row gap-2 items-center">
-              <Briefcase size={isSmall ? 22 : 25} />{" "}
+              <HiOutlineBriefcase size={isSmall ? 20 : 22} />{" "}
               <p className={`${isSmall ? "text-sm" : "text-base"}`}>
-                {locationType ?? "Not Specified"}
+                {job.locationType}
               </p>
             </div>
             <div className="flex flex-row gap-2 items-center">
-              <CircleDollarSign size={isSmall ? 24 : 25} />{" "}
+              <AiOutlineDollar size={isSmall ? 20 : 22} />{" "}
               <p className={`${isSmall ? "text-sm" : "text-base"}`}>
-                {salary ?? "Not Specified"}
+                {job.salary && job.salaryType
+                  ? `${job.salary?.toFixed(2)} / ${job.salaryType}`
+                  : "Not Specified"}
               </p>
             </div>
           </div>
         </div>
       </EmptyCard>
     </div>
-  )
-}
+  );
+};
 
-export default JobsCard
+export default JobsCard;

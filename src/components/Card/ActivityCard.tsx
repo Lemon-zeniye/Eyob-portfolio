@@ -43,7 +43,7 @@ const ActivityCard = ({ post, classname, onclick }: ActivityCardProps) => {
       onClick={onclick}
     >
       <img
-        className="w-32 h-32 object-cover rounded-lg"
+        className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-lg"
         src={postPictureURL || `https://i.pravatar.cc/100?img=3`}
         alt=""
       />

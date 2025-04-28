@@ -1,23 +1,23 @@
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Button } from "../ui/button"
-import { ListFilter } from "lucide-react"
-import { CheckboxWithLabel } from "./CheckBox"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ListFilter } from "lucide-react";
+import { CheckboxWithLabel } from "./CheckBox";
+import { FilterCategory, SelectedValues } from "@/Types/job.type";
 
-interface FilterOption {
-  id: number
-  name: string
-  value: string
-}
+// interface FilterOption {
+//   id: number;
+//   name: string;
+//   value: string;
+// }
 
-interface FilterCategory {
-  category: string
-  options: FilterOption[]
-}
+// interface FilterCategory {
+//   category: string;
+//   options: FilterOption[];
+// }
 
 interface JobsFilterSmProps {
-  filterValues: FilterCategory[]
-  selectedValues: string[]
-  handleCheckboxChange: (value: string, checked: boolean) => void
+  filterValues: FilterCategory[];
+  selectedValues: SelectedValues;
+  handleCheckboxChange: (category: string, value: string) => void;
 }
 
 const JobsFilterSm: React.FC<JobsFilterSmProps> = ({
@@ -25,30 +25,31 @@ const JobsFilterSm: React.FC<JobsFilterSmProps> = ({
   selectedValues,
   handleCheckboxChange,
 }) => {
+  console.log("ss", selectedValues);
   return (
     <Sheet>
       <SheetTrigger>
-        <Button>
-          <div className="flex flex-row gap-2 items-center">
-            <ListFilter />
-          </div>
-        </Button>
+        <div className="flex flex-row gap-2 items-center">
+          {/* <Button> */}
+          <ListFilter />
+          {/* </Button> */}
+        </div>
       </SheetTrigger>
       <SheetContent side={"bottom"} className="w-full">
         <div className="grid grid-cols-2 gap-10">
           {filterValues.map((filter) => (
-            <div key={filter.category} className="flex flex-col gap-3">
-              <p className="font-medium">{filter.category}</p>
+            <div key={filter.category.value} className="flex flex-col gap-3">
+              <p className="font-medium">{filter.category.label}</p>
               <div className="flex flex-col gap-4">
                 {filter.options.map((option) => (
                   <CheckboxWithLabel
                     key={option.id}
                     id={option.value}
                     label={option.name}
-                    onChange={(checked) =>
-                      handleCheckboxChange(option.value, checked)
+                    onChange={() =>
+                      handleCheckboxChange(filter.category.value, option.value)
                     }
-                    checked={selectedValues.includes(option.value)}
+                    // checked={selectedValues && selectedValues.includes(option.value)}
                   />
                 ))}
               </div>
@@ -57,7 +58,7 @@ const JobsFilterSm: React.FC<JobsFilterSmProps> = ({
         </div>
       </SheetContent>
     </Sheet>
-  )
-}
+  );
+};
 
-export default JobsFilterSm
+export default JobsFilterSm;

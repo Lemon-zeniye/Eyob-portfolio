@@ -11,6 +11,7 @@ import { useAuth } from "./Context/AuthContext";
 import Chat from "./Pages/Chat";
 import CreateProfile from "./Pages/CreateProfile";
 import Home from "./Pages/Home";
+import AppliedJobs from "./Pages/AppliedJobs";
 
 // interface ProtectedRouteProps {
 //   children: ReactNode
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
       {
         path: "jobs",
         element: <Jobs />,
+      },
+      {
+        path: "applied-jobs",
+        element: <AppliedJobs />,
       },
       {
         path: "chat",

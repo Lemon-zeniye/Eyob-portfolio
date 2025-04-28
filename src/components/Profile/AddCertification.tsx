@@ -10,16 +10,16 @@ import { Input } from "../ui/input";
 import "react-day-picker/dist/style.css";
 import { Button } from "../ui/button";
 import { useMutation } from "react-query";
-import { addUserOrganization } from "@/Api/profile.api";
+import { addCertificate } from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import { useState } from "react";
-import { toast } from "sonner";
 import { CalendarIcon, FileText } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
 import * as Popover from "@radix-ui/react-popover";
 import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
+import { tos } from "@/lib/utils";
 
 function AddCertification({ onSuccess }: { onSuccess: () => void }) {
   const form = useForm({
@@ -45,16 +45,15 @@ function AddCertification({ onSuccess }: { onSuccess: () => void }) {
   const [isExpired, setIsExpired] = useState(false);
 
   const { mutate, isLoading } = useMutation({
-    mutationFn: addUserOrganization,
+    mutationFn: addCertificate,
     onSuccess: () => {
-      toast.success("Success");
-
+      tos.success("Success");
       onSuccess();
       //   queryClient.invalidateQueries("organization");
     },
     onError: (error: any) => {
       const message = getAxiosErrorMessage(error);
-      toast.error(message);
+      tos.error(message);
     },
   });
 
@@ -63,10 +62,11 @@ function AddCertification({ onSuccess }: { onSuccess: () => void }) {
 
     formData.append("certificateName", data.certificateName);
     formData.append("certifiedBy", data.certifiedBy);
-    formData.append("certificationNo", data.certificationNo);
+    formData.append("certificateNumber", data.certificationNo);
+    formData.append("expireDate", data.expireDate);
 
     if (logoFile instanceof File) {
-      formData.append("certificate", logoFile);
+      formData.append("certificateDoc", logoFile);
     }
 
     mutate(formData);
