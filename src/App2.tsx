@@ -12,6 +12,7 @@ import Chat from "./Pages/Chat";
 import CreateProfile from "./Pages/CreateProfile";
 import Home from "./Pages/Home";
 import AppliedJobs from "./Pages/AppliedJobs";
+import AddJob from "./components/Jobs/AddJob";
 
 // interface ProtectedRouteProps {
 //   children: ReactNode
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: "applied-jobs",
         element: <AppliedJobs />,
+      },
+      {
+        path: "jobs/addJob",
+        element: <AddJob />,
       },
       {
         path: "chat",

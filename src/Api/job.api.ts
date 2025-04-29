@@ -35,3 +35,8 @@ export const applyJob = async (payload: any): Promise<any> => {
   const response = await axios.post<any>(`job/applyJob`, payload);
   return response.data;
 };
+
+export const addJob = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>(`job/addJob`, payload);
+  return response.data;
+};
