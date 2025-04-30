@@ -45,3 +45,8 @@ export const getJobStatics = async (): Promise<any> => {
   const response = await axios.get<any>(`/job/fetchJobStatistics`);
   return response.data;
 };
+
+export const getCompanyJobs = async (): Promise<any> => {
+  const response = await axios.get<any>(`/job/fetchSingleUserJob`);
+  return response.data;
+};

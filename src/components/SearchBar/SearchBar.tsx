@@ -1,13 +1,13 @@
-import { Input, InputProps } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { Search, X } from "lucide-react"
-import { useState } from "react"
-import { useDebouncedCallback } from "use-debounce"
-import { Button } from "../ui/button"
+import { Input, InputProps } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { Search, X } from "lucide-react";
+import { useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
+import { Button } from "../ui/button";
 
 interface Props extends InputProps {
-  search: string
-  setSearch: (value: string) => void
+  search: string;
+  setSearch: (value: string) => void;
 }
 
 export const SearchBar = ({
@@ -16,10 +16,10 @@ export const SearchBar = ({
   className,
   ...props
 }: Props) => {
-  const [value, setValue] = useState(search)
+  const [value, setValue] = useState(search);
   const debounced = useDebouncedCallback((value) => {
-    setSearch(value)
-  }, 300)
+    setSearch(value);
+  }, 300);
 
   return (
     <div className="relative flex">
@@ -29,8 +29,8 @@ export const SearchBar = ({
         className={cn("flex-grow pr-12", className)}
         value={value}
         onChange={(e) => {
-          setValue(e.target.value)
-          debounced(e.target.value)
+          setValue(e.target.value);
+          debounced(e.target.value);
         }}
         {...props}
       />
@@ -47,5 +47,5 @@ export const SearchBar = ({
         </Button>
       )}
     </div>
-  )
-}
+  );
+};

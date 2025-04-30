@@ -1,4 +1,4 @@
-import { getJobs, getJobStatics } from "@/Api/job.api";
+import { getCompanyJobs, getJobs, getJobStatics } from "@/Api/job.api";
 import {
   Card,
   CardContent,
@@ -14,6 +14,11 @@ function CompanyJob() {
   const { data } = useQuery({
     queryKey: ["jobStatics"],
     queryFn: getJobStatics,
+  });
+
+  const { data: jobs } = useQuery({
+    queryKey: ["comapnyJobs"],
+    queryFn: getCompanyJobs,
   });
 
   const stats = [
