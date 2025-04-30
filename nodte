@@ -1,7 +1,1 @@
-1, Can't find /api/job/fetchSingleJob/66aaa3621c8fb437e6e89862
-2, Can't find https://awema.co/api/userProfile/fetchSingle/6807281670880c5943b57f2a
-3, Can't find https://awema.co/api/userPost/deactivateUserPost/6807d13670880c5943b582de
-4, to add Cetificate on Eduction tab - is it api/organization/addOrganization
-5, Edit Profile - https://awema.co/api/userProfile/updateUserProfile
-6, payload structure for - https://awema.co/api/share/addShare
-7, endpoint to delete skill
+1, - endpoint to get the posted job for the comapnay

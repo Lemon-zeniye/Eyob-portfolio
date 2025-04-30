@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { getUserFromToken } from "@/lib/utils";
+import { useRole } from "./RoleContext";
+import { useNavigate } from "react-router-dom";
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -14,11 +17,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { setRole } = useRole();
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
+
     if (token) {
       setAccessToken(token);
+      const userInfo = getUserFromToken(token);
+      if (userInfo?.role) {
+        setRole(userInfo.role);
+      }
     }
   }, []);
 
@@ -26,17 +36,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     Cookies.set("accessToken", accessToken);
     Cookies.set("refreshToken", refreshToken);
     setAccessToken(accessToken);
+    setIsAuthenticated(true);
   };
 
   const logout = () => {
     Cookies.remove("accessToken");
     Cookies.remove("refreshToken");
     setAccessToken(null);
+    setIsAuthenticated(false);
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated: !!accessToken, accessToken, login, logout }}
+      value={{ isAuthenticated, accessToken, login, logout }}
     >
       {children}
     </AuthContext.Provider>

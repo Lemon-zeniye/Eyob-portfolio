@@ -54,11 +54,16 @@
 
 import user from "../../assets/user.jpg";
 import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/Context/AuthContext";
 
 const UserDropdown = () => {
+  const navigate = useNavigate();
   const { logout } = useAuth();
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <div className="relative group inline-block">
@@ -79,7 +84,7 @@ const UserDropdown = () => {
             View Profile
           </Link>
           <Button
-            onClick={logout}
+            onClick={() => handleLogout()}
             variant="link"
             className="text-red-500 w-full hover:underline"
           >

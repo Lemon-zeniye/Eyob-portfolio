@@ -1,7 +1,10 @@
 import axios from "./axios";
 import {
   ActiveUserResponse,
+  CompanyAboutResponse,
+  CompanyProfileRes,
   EducationResponse,
+  EmployeeRes,
   ExperienceResponse,
   FetchSkillsResponse,
   FileResponse,
@@ -182,5 +185,46 @@ export const shareProfile = async (
 
 export const addCertificate = async (payload: any): Promise<any> => {
   const response = await axios.post("/organization/addCertificate", payload);
+  return response.data;
+};
+
+export const getCompanyProfile = async (): Promise<CompanyProfileRes> => {
+  const response = await axios.get(`/companyProfile/fetch`);
+  return response.data;
+};
+
+export const getCompanyEmployees = async (): Promise<EmployeeRes> => {
+  const response = await axios.get("company/fetchEmployee");
+  return response.data;
+};
+
+export const addEmployee = async (payload: any): Promise<any> => {
+  const response = await axios.post("/company/addEmployee", payload);
+  return response.data;
+};
+
+export const getCompanyAbout = async (): Promise<CompanyAboutResponse> => {
+  const response = await axios.get("companyAbout/fetch");
+  return response.data;
+};
+
+export const addAbout = async (payload: any): Promise<any> => {
+  const response = await axios.post("companyAbout/addCompanyAbout", payload);
+  return response.data;
+};
+
+export const updateCompanyProfile = async (payload: any): Promise<any> => {
+  const response = await axios.put(
+    "/companyProfile/updateCompanyProfile",
+    payload
+  );
+  return response.data;
+};
+
+export const addCompanyProfile = async (payload: any): Promise<any> => {
+  const response = await axios.put(
+    "/companyProfile/addCompanyProfile",
+    payload
+  );
   return response.data;
 };

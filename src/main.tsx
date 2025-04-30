@@ -7,16 +7,19 @@ import Providers from "./Providers/providers.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "sonner";
 import { RoleProvider } from "./Context/RoleContext.tsx";
+import { AuthProvider } from "./Context/AuthContext";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId="195047541516-ihgd0pebuld9h8le27mdpogiq7c5d5fn.apps.googleusercontent.com">
       <RoleProvider>
-        <Providers>
-          <App />
-          <Toaster />
-          <CustomToaster />
-        </Providers>
+        <AuthProvider>
+          <Providers>
+            <App />
+            <Toaster />
+            <CustomToaster />
+          </Providers>
+        </AuthProvider>
       </RoleProvider>
     </GoogleOAuthProvider>
   </StrictMode>

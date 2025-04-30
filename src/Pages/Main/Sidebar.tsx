@@ -25,7 +25,7 @@ const routes: Route[] = [
   { id: 4, icon: Settings, name: "Settings", path: "/settings" },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -79,7 +79,7 @@ const Sidebar = () => {
 
       <div className="flex flex-col gap-3 md:pl-24 sm-phone:pl-3 w-full">
         <Navbar name={selectedName} />
-        <Outlet />
+        {children}
       </div>
 
       <div className="w-full fixed bottom-0 md:hidden">

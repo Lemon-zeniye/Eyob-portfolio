@@ -27,7 +27,7 @@ export const getAppliedJobs = async (): Promise<AppliedJobsResponse> => {
 export const getFetchSingleJob = async (
   id: string
 ): Promise<SingleJobResponse> => {
-  const response = await axios.get<any>(`/job/fetchSingleJob/${id}`);
+  const response = await axios.get<any>(`job/fetchSingle/${id}`);
   return response.data;
 };
 
@@ -38,5 +38,10 @@ export const applyJob = async (payload: any): Promise<any> => {
 
 export const addJob = async (payload: any): Promise<any> => {
   const response = await axios.post<any>(`job/addJob`, payload);
+  return response.data;
+};
+
+export const getJobStatics = async (): Promise<any> => {
+  const response = await axios.get<any>(`/job/fetchJobStatistics`);
   return response.data;
 };

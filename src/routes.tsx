@@ -1,0 +1,78 @@
+import { createBrowserRouter } from "react-router-dom";
+
+import Login from "./Pages/Authentication/Login";
+import Signup from "./Pages/Authentication/Signup";
+import Settings from "./Pages/Settings";
+import Profile from "./Pages/Profile";
+import Chat from "./Pages/Chat";
+import CreateProfile from "./Pages/CreateProfile";
+import Home from "./Pages/Home";
+import AppliedJobs from "./Pages/AppliedJobs";
+import AddJob from "./components/Jobs/AddJob";
+import JobPage from "./Pages/JobPage";
+import AppLayout from "./Pages/AppLayout";
+import PrivateRoute from "./Context/PrivateRoute";
+
+export const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
+  {
+    path: "/create-profile",
+    element: <CreateProfile />,
+  },
+  {
+    path: "/",
+    element: <AppLayout />,
+    children: [
+      {
+        element: <PrivateRoute allowedRoles={["user", "company"]} />,
+        children: [
+          {
+            path: "home",
+            element: <Home />,
+          },
+          {
+            path: "settings",
+            element: <Settings />,
+          },
+          {
+            path: "profile",
+            element: <Profile />,
+          },
+          {
+            path: "jobs",
+            element: <JobPage />,
+          },
+          {
+            path: "chat",
+            element: <Chat />,
+          },
+        ],
+      },
+      {
+        element: <PrivateRoute allowedRoles={["user"]} />,
+        children: [
+          {
+            path: "applied-jobs",
+            element: <AppliedJobs />,
+          },
+        ],
+      },
+      {
+        element: <PrivateRoute allowedRoles={["company"]} />,
+        children: [
+          {
+            path: "jobs/addJob",
+            element: <AddJob />,
+          },
+        ],
+      },
+    ],
+  },
+]);

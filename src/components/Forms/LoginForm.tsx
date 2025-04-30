@@ -102,8 +102,10 @@ const LoginForm = () => {
         const userInfo = getUserFromToken(accessToken);
         if (userInfo?.role) {
           setRole(userInfo.role);
+          Cookies.set("role", userInfo.role);
         } else {
           setRole("user");
+          Cookies.set("role", "user");
         }
         navigate("/home");
         toast({

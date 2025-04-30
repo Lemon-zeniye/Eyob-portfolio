@@ -135,3 +135,52 @@ export interface ActiveUserResponse {
   meg: string;
   data: ActiveUser[];
 }
+
+export interface Employee {
+  companyId: string;
+  createdAt: string;
+  empPosition: string;
+  name: string;
+  status: string;
+  __v: number;
+  _id: string;
+}
+
+export interface EmployeeRes {
+  data: Employee[];
+  msg: string;
+  success: boolean;
+}
+
+export interface CompanyAbout {
+  _id: string;
+  userid: string;
+  history: string;
+  website: string[];
+  socialMedia: string[];
+  createdAt: string;
+  __v: number;
+}
+
+export interface CompanyAboutResponse {
+  success: boolean;
+  msg: string;
+  data: CompanyAbout;
+}
+
+export interface CompanyProfileRes {
+  success: boolean;
+  msg: string;
+  data: CompanyProfile;
+}
+
+export interface CompanyProfile {
+  _id: string;
+  userid: string;
+  name: string;
+  industry: string;
+  location: string;
+  companyBio: string;
+  createdAt: string;
+  __v: number;
+}

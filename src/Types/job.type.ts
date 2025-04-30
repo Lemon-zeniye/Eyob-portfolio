@@ -68,3 +68,15 @@ export type CheckboxWithLabelProps = {
   checked: boolean;
   onChange: () => void;
 };
+
+export interface JobStatics {
+  pending: number;
+  accepted: number;
+  declined: number;
+}
+
+export interface JobStaticsRes {
+  success: boolean;
+  msg: string;
+  data: JobStatics;
+}
