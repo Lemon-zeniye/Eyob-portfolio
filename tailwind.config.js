@@ -72,6 +72,9 @@ module.exports = {
         "4xl": "1920px",
       },
     },
+    fontFamily: {
+      sans: ["Outfit", "sans-serif"],
+    },
   },
   plugins: [require("tailwindcss-animate")],
 };

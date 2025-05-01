@@ -59,7 +59,7 @@ const JobsDetail = ({
     <Sheet open={open} onOpenChange={onChange}>
       <SheetContent
         side={"bottom"}
-        className="h-[80vh] flex flex-col gap-2 overflow-y-scroll"
+        className="h-[70vh] flex flex-col gap-2 overflow-y-scroll"
       >
         <SheetHeader>
           <SheetDescription className="text-xl text-black font-bold">

@@ -1,11 +1,11 @@
-import { Checkbox } from "@/components/ui/checkbox"
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CheckboxWithLabelProps {
-  id: string
-  label: string
-  checked?: boolean
-  onChange?: (checked: boolean) => void
-  disabled?: boolean
+  id: string;
+  label: string;
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
+  disabled?: boolean;
 }
 
 export function CheckboxWithLabel({
@@ -26,11 +26,11 @@ export function CheckboxWithLabel({
         />
         <label
           htmlFor={id}
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="eading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
           {label}
         </label>
       </div>
     </div>
-  )
+  );
 }
