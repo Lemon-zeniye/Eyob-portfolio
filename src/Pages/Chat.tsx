@@ -1,5 +1,4 @@
 import { SearchBar } from "@/components/SearchBar/SearchBar";
-import { ChatType } from "@/components/Types";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect, useRef } from "react";
 import user from "../assets/user.jpg";
@@ -16,16 +15,16 @@ import { useSocket } from "../Context/SocketProvider";
 import { getUserFromToken } from "@/lib/utils";
 import Cookies from "js-cookie";
 
-const ChatUrl = [
-  {
-    imgUrl: "",
-    name: "Kebede Tasew",
-    lastchat: "Hey man give me my ",
-    date: "20/10/2024",
-    seen: false,
-  },
-  // Add more chat list items as needed
-];
+// const ChatUrl = [
+//   {
+//     imgUrl: "",
+//     name: "Kebede Tasew",
+//     lastchat: "Hey man give me my ",
+//     date: "20/10/2024",
+//     seen: false,
+//   },
+//   // Add more chat list items as needed
+// ];
 
 interface Message {
   id: number;
@@ -35,8 +34,8 @@ interface Message {
 }
 
 const Chat = () => {
-  const [type, setType] = useState<ChatType>("all");
-  const [messages, setMessages] = useState<Message[]>([]);
+  // const [type, setType] = useState<ChatType>("all");
+  const [messages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const [selectedUser, setSelectedUser] = useState<ActiveUsers | undefined>(
@@ -59,6 +58,8 @@ const Chat = () => {
     },
     enabled: !!userInfo?.id,
   });
+
+  console.log("message", newMessages);
 
   useEffect(() => {
     if (selectedUser?._id) {

@@ -7,8 +7,6 @@ interface Props {
 }
 
 const UserCard: React.FC<Props> = ({ user, onClick }) => {
-  const getRando = () => Math.floor(Math.random() * 20) + 1;
-
   return (
     <div
       className="flex cursor-pointer items-center space-x-4  px-3 py-2 rounded-lg border border-white bg-white hover:border-gray-100 transition"

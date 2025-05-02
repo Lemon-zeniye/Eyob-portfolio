@@ -1,6 +1,5 @@
 import { useRole } from "@/Context/RoleContext";
 import CompanyJob from "./CompanyJob";
-import Jobs from "./Jobs";
 import NewJobPage from "./NewJobPage";
 
 function JobPage() {

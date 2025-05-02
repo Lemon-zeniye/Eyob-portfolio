@@ -1,9 +1,6 @@
 import EmptyCard from "../Card/EmptyCard";
 import user from "../../assets/user.jpg";
 import Tabs from "../Tabs/TabsLine";
-import ExperienceCard from "../Card/ExperienceCard";
-import EducationCard from "../Card/EducationCard";
-import SkillCard from "../Card/SkillCard";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import ActivityNew from "./ActivityNew";
@@ -11,7 +8,6 @@ import {
   deleteUserPicture,
   getCompanyProfile,
   getUserPicture,
-  getUserProfile,
   uploadUserPicture,
 } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
@@ -20,7 +16,6 @@ import { X } from "lucide-react";
 import CustomVideoPlayer from "../Video/Video";
 import { UserInfo } from "@/Types/profile.type";
 import { getUserFromToken, tos } from "@/lib/utils";
-import OrganizationCard from "../Card/OrganizationCard";
 import { Button } from "../ui/button";
 import { IoMdShare } from "react-icons/io";
 import ShareProfile from "./ShareProfile";
@@ -31,7 +26,7 @@ import EditCompanyProfile from "./EditCompanyProfile";
 const CompanyProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [, setUserInfo] = useState<UserInfo | null>(null);
   const { data: userPicture } = useQuery({
     queryKey: ["userPicture"],
     queryFn: getUserPicture,

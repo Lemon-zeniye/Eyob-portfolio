@@ -43,7 +43,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const socketRef = useRef<Socket | null>(null);
-  const [connected, setConnected] = useState(false);
+  const [, setConnected] = useState(false);
 
   useEffect(() => {
     const socket = io("http://194.5.159.228:3002/", {

@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { getUserFromToken } from "@/lib/utils";
 import { useRole } from "./RoleContext";
-import { useNavigate } from "react-router-dom";
 
 type AuthContextType = {
   isAuthenticated: boolean;
