@@ -228,3 +228,8 @@ export const addCompanyProfile = async (payload: any): Promise<any> => {
   );
   return response.data;
 };
+
+export const updateCompanyAbout = async (payload: any): Promise<any> => {
+  const response = await axios.put("/companyAbout/updateCompanyAbout", payload);
+  return response.data;
+};

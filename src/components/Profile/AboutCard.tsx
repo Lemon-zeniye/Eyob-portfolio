@@ -22,7 +22,7 @@ function AboutCard() {
           }`}
           onClick={() => setOpen(!open)}
         >
-          {open ? "Cancel" : "Add"}
+          {open ? "Cancel" : aboutCompany?.data ? "Edit" : "Add"}
         </Button>
       </div>
       <div className="">
@@ -66,9 +66,12 @@ function AboutCard() {
               transition={{ type: "tween", ease: "easeInOut" }}
             >
               <h1 className="text-lg py-2 items-center font-semibold">
-                Add About
+                {aboutCompany?.data ? "Edit About" : "Add About"}
               </h1>
-              <AddAbout onSuccess={() => setOpen(false)} />
+              <AddAbout
+                initialData={aboutCompany?.data}
+                onSuccess={() => setOpen(false)}
+              />
             </motion.div>
           )}
         </AnimatePresence>
