@@ -236,3 +236,51 @@ export const countries = [
   { code: "ZM", name: "Zambia", dialCode: "+260" },
   { code: "ZW", name: "Zimbabwe", dialCode: "+263" },
 ];
+
+export const routeMeta = [
+  { path: "/", headerName: "Feed", backRoute: "", isChildRoute: false },
+  { path: "/home", headerName: "Home", backRoute: "", isChildRoute: false },
+  {
+    path: "/settings",
+    headerName: "Settings",
+    backRoute: "/home",
+    isChildRoute: false,
+  },
+  {
+    path: "/profile",
+    headerName: "Profile",
+    backRoute: "/home",
+    isChildRoute: false,
+  },
+  {
+    path: "/jobs",
+    headerName: "Find Jobs",
+    backRoute: "/home",
+    isChildRoute: false,
+  },
+  // Put more specific (static) routes before dynamic ones
+  {
+    path: "/jobs/add-job",
+    headerName: "Post a Job",
+    backRoute: "/jobs",
+    isChildRoute: true,
+  },
+  {
+    path: "/jobs/applied-jobs",
+    headerName: "Applied Jobs",
+    backRoute: "/jobs",
+    isChildRoute: true,
+  },
+  {
+    path: "/jobs/:id",
+    headerName: "Job Information",
+    backRoute: "/jobs",
+    isChildRoute: true,
+  },
+  {
+    path: "/chat",
+    headerName: "Chat",
+    backRoute: "/chat",
+    isChildRoute: false,
+  },
+];

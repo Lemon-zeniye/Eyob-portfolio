@@ -2,25 +2,28 @@ import { getJobs } from "@/Api/job.api";
 import { CheckboxWithLabel } from "@/components/Jobs/CheckBox";
 import JobCard from "@/components/Jobs/JobCard";
 import { Button } from "@/components/ui/button";
-import { FilterCategory, Job } from "@/Types/job.type";
+import { FilterCategory, SelectedValues } from "@/Types/job.type";
 import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { FiChevronDown, FiFilter, FiMapPin, FiSearch } from "react-icons/fi";
+import { FiChevronDown, FiFilter, FiSearch } from "react-icons/fi";
 import { useQuery } from "react-query";
-import { CaretDownIcon } from "@radix-ui/react-icons";
 import JobCardTwo from "@/components/Jobs/JobCardGrid";
 import { PiColumnsFill } from "react-icons/pi";
 import { TbLayoutGridFilled } from "react-icons/tb";
 import { motion, AnimatePresence } from "framer-motion";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
-import JobsDetail from "@/components/Jobs/JobsDetail";
 import { useIsMobile } from "@/hooks/use-isMobile";
 import MobileFilter from "@/components/Jobs/MobileFiltter";
+import JobCardSkeleton from "@/components/Jobs/JobCardSkeleton";
+import JobCardTwoSkeleton from "@/components/Jobs/JobCardTwoSkeleton";
+import { IoBusinessOutline } from "react-icons/io5";
+import { CiCircleRemove } from "react-icons/ci";
+import { useNavigate } from "react-router-dom";
 
 function NewJobPage() {
   const filterValues: FilterCategory[] = [
     {
-      category: { label: "Employment Type", value: "jobTitle" },
+      category: { label: "Employment Type", value: "jobType" },
       options: [
         { id: 1, name: "Full Time", value: "full-time" },
         { id: 2, name: "Part Time", value: "part-time" },
@@ -45,18 +48,70 @@ function NewJobPage() {
       ],
     },
   ];
+
   const [openCategories, setOpenCategories] = useState<string[]>(
     filterValues.map((filter) => filter.category.value)
   );
 
   const [gridOne, setGridOne] = useState(true);
-  const [selectedJob, setSelectedJob] = useState<Job | undefined>(undefined);
-  const [openJobDetail, setOpenJobDetail] = useState<boolean>(false);
+  // const [selectedJob, setSelectedJob] = useState<Job | undefined>(undefined);
+  // const [openJobDetail, setOpenJobDetail] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+  const [selectedValues, setSelectedValues] = useState<SelectedValues>({
+    jobTitle: "",
+    jobType: null,
+    jobLocation: null,
+    payment: null,
+    company: "",
+  });
+
+  const [selectedFilter, setSelectedFilter] = useState({});
 
   const [mobileFilter, setMobileFilter] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<{
     [key: string]: string[];
   }>({});
+
+  const applyFilters = () => {
+    const filters = Object.entries(selectedValues).reduce(
+      (acc: { [key: string]: string }, [key, value]) => {
+        if (value !== "" && value !== null) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {}
+    );
+
+    setSelectedFilter(filters);
+  };
+
+  const cancelRadioFilters = () => {
+    setSelectedValues((prev) => ({
+      ...prev,
+      jobType: null,
+      jobLocation: null,
+      payment: null,
+    }));
+
+    const filtered = Object.entries(selectedValues).reduce(
+      (acc: { [key: string]: string }, [key, value]) => {
+        if (
+          value !== "" &&
+          value !== null &&
+          !["jobType", "jobLocation", "payment"].includes(key)
+        ) {
+          if (value !== "" && value !== null) {
+            acc[key] = value;
+          }
+        }
+        return acc;
+      },
+      {}
+    );
+    setSelectedFilter(filtered);
+  };
 
   const handleChangeFilter = (category: string, value: string) => {
     setSelectedFilters((prev) => {
@@ -64,6 +119,13 @@ function NewJobPage() {
       current.has(value) ? current.delete(value) : current.add(value);
       return { ...prev, [category]: Array.from(current) };
     });
+  };
+
+  const handleCheckboxChange = (category: string, value: string) => {
+    setSelectedValues((prev) => ({
+      ...prev,
+      [category]: prev[category] === value ? null : value,
+    }));
   };
 
   const handleApplyFilters = () => {
@@ -76,9 +138,30 @@ function NewJobPage() {
   };
 
   const { data: jobsData, isLoading } = useQuery({
-    queryKey: ["jobs"],
-    queryFn: () => getJobs(),
+    queryKey: ["jobs", selectedFilter],
+    queryFn: () => getJobs(selectedFilter),
   });
+
+  useEffect(() => {
+    console.log("selected value", selectedValues);
+  }, [selectedValues]);
+
+  const applyFilteredValues = (values: SelectedValues) => {
+    const cleaned = Object.entries(values).reduce(
+      (acc: { [key: string]: string }, [key, value]) => {
+        if (value !== "" && value !== null) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {}
+    );
+    setSelectedFilter(cleaned);
+  };
+
+  // useEffect(() => {
+  //   queryClient.invalidateQueries({ queryKey: ["jobs"] });
+  // }, [selectedFilter]);
 
   const isMobile = useIsMobile();
 
@@ -101,31 +184,59 @@ function NewJobPage() {
           <FiSearch className="text-gray-500 mr-2 text-lg" />
           <input
             type="text"
+            value={selectedValues["jobTitle"] ?? ""}
+            onChange={(e) => handleCheckboxChange("jobTitle", e.target.value)}
             placeholder="Job title or keyword"
             className="w-full py-2 border-b outline-none bg-transparent text-sm text-gray-700 placeholder-gray-400"
           />
+          {selectedValues["jobTitle"] ? (
+            <span
+              className="ml-1 cursor-pointer text-gray-600"
+              onClick={() => {
+                const updatedValues = { ...selectedValues, jobTitle: "" };
+                setSelectedValues(updatedValues);
+                applyFilteredValues(updatedValues);
+              }}
+            >
+              <CiCircleRemove size={20} />
+            </span>
+          ) : null}
         </div>
 
         {/* Location input */}
         <div className="flex items-center flex-1 px-4">
-          <FiMapPin className="text-gray-500 mr-2 text-lg" />
+          <IoBusinessOutline className="text-gray-500 mr-2 text-lg" />
           <input
             type="text"
-            placeholder="Addis Ababa, Ethiopia"
+            value={selectedValues["company"] ?? ""}
+            onChange={(e) => handleCheckboxChange("company", e.target.value)}
+            placeholder="Amazon"
             className="w-full border-b py-2 outline-none bg-transparent text-sm text-gray-700 placeholder-gray-400"
           />
-          <span className="ml-1 text-gray-400">
-            <CaretDownIcon />
-          </span>{" "}
+          {selectedValues["company"] ? (
+            <span
+              className="ml-1 cursor-pointer text-gray-600"
+              onClick={() => {
+                const updatedValues = { ...selectedValues, company: "" };
+                setSelectedValues(updatedValues);
+                applyFilteredValues(updatedValues);
+              }}
+            >
+              <CiCircleRemove size={20} />
+            </span>
+          ) : null}
         </div>
 
-        <Button className="bg-[#05A9A9] px-8 rounded-none py-2  text-white focus:outline-none focus:ring-2 focus:ring-[#05A9A9]">
+        <Button
+          onClick={() => applyFilters()}
+          className="bg-[#05A9A9] px-8 rounded-none py-2  text-white focus:outline-none focus:ring-2 focus:ring-[#05A9A9]"
+        >
           Search
         </Button>
       </div>
 
       <div className="grid grid-cols-6">
-        <div className="hidden md:block md:col-span-1 p-4 space-y-6">
+        <div className="hidden md:block md:col-span-1 p-4 space-y-3">
           {filterValues.map((filter) => {
             const isOpen = openCategories.includes(filter.category.value);
             return (
@@ -156,12 +267,33 @@ function NewJobPage() {
                       key={option.id}
                       id={`${filter.category.value}-${option.value}`}
                       label={option.name}
+                      onChange={() =>
+                        handleCheckboxChange(
+                          filter.category.value,
+                          option.value
+                        )
+                      }
+                      checked={
+                        selectedValues[filter.category.value] === option.value
+                      }
                     />
                   ))}
                 </div>
               </div>
             );
           })}
+          <div className="flex gap-2">
+            <Button
+              onClick={() => cancelRadioFilters()}
+              className="rounded-none "
+              variant="outline"
+            >
+              Clear
+            </Button>
+            <Button onClick={() => applyFilters()} className="rounded-none ">
+              Apply Filter
+            </Button>
+          </div>
         </div>
         <div className="col-span-6 md:col-span-5 mr-2 md:pr-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -216,16 +348,31 @@ function NewJobPage() {
                       transition={{ duration: 0.3 }}
                       className="w-full space-y-4"
                     >
-                      {jobsData?.data.map((job) => (
-                        <JobCard
-                          key={job._id}
-                          job={job}
-                          onClick={() => {
-                            setOpenJobDetail(true);
-                            setSelectedJob(job);
-                          }}
-                        />
-                      ))}
+                      {isLoading ? (
+                        Array.from({ length: 4 }).map((_, idx) => (
+                          <JobCardSkeleton key={idx} />
+                        ))
+                      ) : jobsData?.data && jobsData?.data?.length > 0 ? (
+                        jobsData.data.map((job) => (
+                          <JobCard
+                            key={job._id}
+                            job={job}
+                            onClick={() => {
+                              // setOpenJobDetail(true);
+                              // setSelectedJob(job);
+                            }}
+                          />
+                        ))
+                      ) : (
+                        <div className="w-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
+                          <h2 className="text-xl font-semibold">
+                            No jobs found
+                          </h2>
+                          <p className="text-sm text-gray-400 mt-1">
+                            Try adjusting your filters or check back later.
+                          </p>
+                        </div>
+                      )}
                     </motion.div>
                   ) : (
                     <motion.div
@@ -234,37 +381,53 @@ function NewJobPage() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="w-full  grid gap-y-2 md:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                      className="w-full grid gap-y-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                     >
-                      {jobsData?.data.map((job) => (
-                        <JobCardTwo
-                          key={job._id}
-                          job={job}
-                          onClick={() => {
-                            setOpenJobDetail(true);
-                            setSelectedJob(job);
-                          }}
-                        />
-                      ))}
+                      {isLoading ? (
+                        Array.from({ length: 6 }).map((_, i) => (
+                          <JobCardTwoSkeleton key={i} />
+                        ))
+                      ) : jobsData?.data && jobsData?.data?.length > 0 ? (
+                        jobsData.data.map((job) => (
+                          <JobCardTwo
+                            key={job._id}
+                            job={job}
+                            onClick={() => {
+                              // setOpenJobDetail(true);
+                              // setSelectedJob(job);
+                              navigate(`/jobs/${job._id}`);
+                            }}
+                          />
+                        ))
+                      ) : (
+                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
+                          <h2 className="text-xl font-semibold">
+                            No jobs found
+                          </h2>
+                          <p className="text-sm text-gray-400 mt-1">
+                            Try adjusting your filters or check back later.
+                          </p>
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
               </ScrollArea.Viewport>
               <ScrollArea.Scrollbar
                 orientation="vertical"
-                className="w-2 bg-gray-200"
+                className="w-1 bg-gray-200"
               >
-                <ScrollArea.Thumb className="bg-gray-500 rounded" />
+                <ScrollArea.Thumb className="bg-primary" />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
           </div>
         </div>
-        <div className="w-full">
+        {/* <div className="w-full">
           {selectedJob && (
             <JobsDetail
               id={selectedJob._id}
               open={openJobDetail}
-              onChange={(isOpen) => setOpenJobDetail(isOpen)}
+              onChange={(o) => setOpenJobDetail(o)}
               selectedJob={selectedJob}
               FollowClicked={function (): void {
                 throw new Error("Function not implemented.");
@@ -274,7 +437,7 @@ function NewJobPage() {
               }}
             />
           )}
-        </div>
+        </div> */}
 
         <div className="w-full">
           <MobileFilter

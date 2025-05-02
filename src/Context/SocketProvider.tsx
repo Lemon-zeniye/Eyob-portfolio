@@ -1,203 +1,130 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+// src/context/SocketContext.tsx
+
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { io, Socket } from "socket.io-client";
-import { useAuth } from "./AuthContext"; // Assuming you have an auth context
-import { getUserFromToken } from "@/lib/utils";
-import Cookies from "js-cookie";
-// Define types for socket events and payloads
-type MessagePayload = {
+
+// ==== Interfaces ==== //
+interface MessagePayload {
   senderId: string;
   receiverId: string;
   content: string;
-};
-
-type GroupMessagePayload = {
-  groupId: string;
-  memberId: string;
-  content: string;
-};
-
-type TypingPayload = {
-  senderId: string;
-  receiverId: string;
-};
-
-type GroupTypingPayload = {
-  groupId: string;
-  memberId: string;
-};
-
-type JoinGroupPayload = {
-  groupId: string;
-  memberId: string;
-};
-
-type UserStatusPayload = {
-  userId: string;
-  status: "online" | "offline";
-};
-
-// Define the context value type
-interface SocketContextValue {
-  socket: Socket | null;
-  isConnected: boolean;
-  joinGroup: (groupId: string) => void;
-  leaveGroup: (groupId: string) => void;
-  sendMessage: (receiverId: string, content: string) => void;
-  sendGroupMessage: (groupId: string, content: string) => void;
-  notifyTyping: (receiverId: string) => void;
-  notifyGroupTyping: (groupId: string) => void;
-  subscribe: <T>(event: string, callback: (data: T) => void) => void;
-  unsubscribe: (event: string, callback?: (...args: any[]) => void) => void;
 }
 
-const SocketContext = createContext<SocketContextValue | undefined>(undefined);
+interface GroupMessagePayload {
+  memberId: string;
+  groupId: string;
+  content: string;
+}
+
+interface SocketContextType {
+  socket: Socket | null;
+  join: (userId: string) => void;
+  sendMessage: (data: MessagePayload) => void;
+  joinGroup: (data: { groupId: string; memberId: string }) => void;
+  sendGroupMessage: (data: GroupMessagePayload) => void;
+  leaveGroup: (data: { groupId: string; memberId: string }) => void;
+  setOnline: (userId: string) => void;
+  setOffline: (userId: string) => void;
+  onReceiveMessage: (cb: (data: MessagePayload) => void) => void;
+  onGroupMessage: (cb: (data: GroupMessagePayload) => void) => void;
+  emitTyping: (data: { senderId: string; receiverId: string }) => void;
+  emitGroupTyping: (data: { memberId: string; groupId: string }) => void;
+}
+
+const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const tocken = Cookies.get("accessToken");
-  const user = getUserFromToken(tocken ?? null);
-  const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef<Socket | null>(null);
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-
-    // Initialize socket connection
-    const newSocket = io("http://194.5.159.228:3002/" as string, {
-      withCredentials: true,
-      autoConnect: false,
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+    const socket = io("http://194.5.159.228:3002/", {
       transports: ["websocket"],
-      query: {
-        userId: user.id,
-      },
+      autoConnect: true,
     });
 
-    setSocket(newSocket);
+    socketRef.current = socket;
 
-    // Connection events
-    newSocket.on("connect", () => {
-      setIsConnected(true);
-      console.log("Socket connected");
-
-      // Join user's personal room
-      newSocket.emit("join", user.id);
-
-      // Notify server user is online
-      newSocket.emit("online", user.id);
+    socket.on("connect", () => {
+      setConnected(true);
+      console.log("Socket connected:", socket.id);
     });
 
-    newSocket.on("disconnect", () => {
-      setIsConnected(false);
+    socket.on("disconnect", () => {
+      setConnected(false);
       console.log("Socket disconnected");
-
-      // Notify server user is offline
-      newSocket.emit("offline", user.id);
     });
 
-    // Cleanup on unmount
     return () => {
-      if (newSocket.connected) {
-        newSocket.emit("offline", user.id);
-        newSocket.disconnect();
-      }
+      socket.disconnect();
     };
-  }, [user]);
+  }, []);
 
-  // Join a group room
-  const joinGroup = (groupId: string) => {
-    if (socket && isConnected && user) {
-      socket.emit("join_group", {
-        groupId,
-        memberId: user.id,
-      } as JoinGroupPayload);
-    }
+  const join = (userId: string) => {
+    socketRef.current?.emit("join", userId);
   };
 
-  // Leave a group room
-  const leaveGroup = (groupId: string) => {
-    if (socket && isConnected && user) {
-      socket.emit("leave_group", {
-        groupId,
-        memberId: user.id,
-      } as JoinGroupPayload);
-    }
+  const sendMessage = (data: MessagePayload) => {
+    socketRef.current?.emit("send_message", data);
   };
 
-  // Send private message
-  const sendMessage = (receiverId: string, content: string) => {
-    if (socket && isConnected && user) {
-      socket.emit("send_message", {
-        senderId: user.id,
-        receiverId,
-        content,
-      } as MessagePayload);
-    }
+  const joinGroup = (data: { groupId: string; memberId: string }) => {
+    socketRef.current?.emit("join_group", data);
   };
 
-  // Send group message
-  const sendGroupMessage = (groupId: string, content: string) => {
-    if (socket && isConnected && user) {
-      socket.emit("send_group_message", {
-        groupId,
-        memberId: user.id,
-        content,
-      } as GroupMessagePayload);
-    }
+  const sendGroupMessage = (data: GroupMessagePayload) => {
+    socketRef.current?.emit("send_group_message", data);
   };
 
-  // Notify typing in private chat
-  const notifyTyping = (receiverId: string) => {
-    if (socket && isConnected && user) {
-      socket.emit("typing", {
-        senderId: user.id,
-        receiverId,
-      } as TypingPayload);
-    }
+  const leaveGroup = (data: { groupId: string; memberId: string }) => {
+    socketRef.current?.emit("leave_group", data);
   };
 
-  // Notify typing in group chat
-  const notifyGroupTyping = (groupId: string) => {
-    if (socket && isConnected && user) {
-      socket.emit("group_typing", {
-        groupId,
-        memberId: user.id,
-      } as GroupTypingPayload);
-    }
+  const setOnline = (userId: string) => {
+    socketRef.current?.emit("online", userId);
   };
 
-  // Subscribe to an event
-  const subscribe = <T,>(event: string, callback: (data: T) => void) => {
-    if (socket) {
-      socket.on(event, callback);
-    }
+  const setOffline = (userId: string) => {
+    socketRef.current?.emit("offline", userId);
   };
 
-  // Unsubscribe from an event
-  const unsubscribe = (event: string, callback?: (...args: any[]) => void) => {
-    if (socket) {
-      if (callback) {
-        socket.off(event, callback);
-      } else {
-        socket.off(event);
-      }
-    }
+  const onReceiveMessage = (cb: (data: MessagePayload) => void) => {
+    socketRef.current?.on("receive_message", cb);
   };
 
-  const value: SocketContextValue = {
-    socket,
-    isConnected,
-    joinGroup,
-    leaveGroup,
+  const onGroupMessage = (cb: (data: GroupMessagePayload) => void) => {
+    socketRef.current?.on("receive_message2", cb);
+  };
+
+  const emitTyping = (data: { senderId: string; receiverId: string }) => {
+    socketRef.current?.emit("typing", data);
+  };
+
+  const emitGroupTyping = (data: { memberId: string; groupId: string }) => {
+    socketRef.current?.emit("group_typing", data);
+  };
+
+  const value: SocketContextType = {
+    socket: socketRef.current,
+    join,
     sendMessage,
+    joinGroup,
     sendGroupMessage,
-    notifyTyping,
-    notifyGroupTyping,
-    subscribe,
-    unsubscribe,
+    leaveGroup,
+    setOnline,
+    setOffline,
+    onReceiveMessage,
+    onGroupMessage,
+    emitTyping,
+    emitGroupTyping,
   };
 
   return (
@@ -205,7 +132,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export const useSocket = (): SocketContextValue => {
+// Custom hook
+export const useSocket = (): SocketContextType => {
   const context = useContext(SocketContext);
   if (!context) {
     throw new Error("useSocket must be used within a SocketProvider");

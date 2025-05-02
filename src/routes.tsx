@@ -12,6 +12,8 @@ import AddJob from "./components/Jobs/AddJob";
 import JobPage from "./Pages/JobPage";
 import AppLayout from "./Pages/AppLayout";
 import PrivateRoute from "./Context/PrivateRoute";
+import { SocketProvider } from "./Context/SocketProvider";
+import JobDetailNew from "./components/Jobs/JobDetailNew";
 
 export const router = createBrowserRouter([
   {
@@ -50,8 +52,16 @@ export const router = createBrowserRouter([
             element: <JobPage />,
           },
           {
+            path: "jobs/:id",
+            element: <JobDetailNew />,
+          },
+          {
             path: "chat",
-            element: <Chat />,
+            element: (
+              <SocketProvider>
+                <Chat />
+              </SocketProvider>
+            ),
           },
         ],
       },
@@ -59,7 +69,7 @@ export const router = createBrowserRouter([
         element: <PrivateRoute allowedRoles={["user"]} />,
         children: [
           {
-            path: "applied-jobs",
+            path: "jobs/applied-jobs",
             element: <AppliedJobs />,
           },
         ],
@@ -68,7 +78,7 @@ export const router = createBrowserRouter([
         element: <PrivateRoute allowedRoles={["company"]} />,
         children: [
           {
-            path: "jobs/addJob",
+            path: "jobs/add-job",
             element: <AddJob />,
           },
         ],

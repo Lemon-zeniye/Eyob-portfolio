@@ -35,7 +35,7 @@ const JobsDetail = ({
   ReportClicked,
 }: JobsDetailProps) => {
   const queryClient = useQueryClient();
-  const { data } = useQuery({
+  const {} = useQuery({
     queryKey: ["singleJob", id],
     queryFn: () => {
       if (id) {
@@ -52,8 +52,6 @@ const JobsDetail = ({
       queryClient.invalidateQueries("appliedJobs");
     },
   });
-
-  console.log(data);
 
   return (
     <Sheet open={open} onOpenChange={onChange}>

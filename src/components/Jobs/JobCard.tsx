@@ -1,7 +1,14 @@
 import { Job } from "@/Types/job.type";
 import { Button } from "../ui/button";
 import googleLogo from "../../assets/icons8-google-48.png";
+import { useNavigate } from "react-router-dom";
+import { useMutation } from "react-query";
+import { applyJob } from "@/Api/job.api";
+import { tos } from "@/lib/utils";
+import { Spinner } from "../ui/Spinner";
+import { getAxiosErrorMessage } from "@/Api/axios";
 const JobCard = ({ job, onClick }: { job: Job; onClick: () => void }) => {
+  const navigate = useNavigate();
   // Fill in dummy data for missing fields
   const jobData = {
     jobTitle: job.jobTitle || "Social Media Assistant",
@@ -16,16 +23,30 @@ const JobCard = ({ job, onClick }: { job: Job; onClick: () => void }) => {
     degree: job.degree || "Degree",
   };
 
+  const { mutate, isLoading } = useMutation({
+    mutationFn: applyJob,
+    onSuccess: () => {
+      tos.success("Application submitted successfully!");
+    },
+    onError: (err) => {
+      const message = getAxiosErrorMessage(err);
+      tos.error(message);
+    },
+  });
+
   return (
     <div
       className="border bg-white border-gray-300  p-4 cursor-pointer"
       onClick={onClick}
     >
       <div className="flex gap-4">
-        <div className="flex-none px-2">
+        <div
+          onClick={() => navigate(`/jobs/${job._id}`)}
+          className="flex-none px-2"
+        >
           <img src={googleLogo} />
         </div>
-        <div className="flex-1">
+        <div onClick={() => navigate(`/jobs/${job._id}`)} className="flex-1">
           <div className="mb-3 space-y-2">
             <h3 className="text-xl font-semibold text-gray-900">
               {jobData.jobTitle}
@@ -55,8 +76,15 @@ const JobCard = ({ job, onClick }: { job: Job; onClick: () => void }) => {
         </div>
 
         <div className="flex-none flex flex-col space-y-2">
-          <Button className="bg-[#05A9A9] px-11 rounded-none py-4  text-white focus:outline-none focus:ring-2 focus:ring-[#05A9A9]">
-            Apply
+          <Button
+            className="bg-[#05A9A9] px-11 rounded-none py-4  text-white focus:outline-none focus:ring-2 focus:ring-[#05A9A9]"
+            onClick={() =>
+              mutate({
+                jobId: job._id,
+              })
+            }
+          >
+            {isLoading ? <Spinner /> : "Apply"}
           </Button>
 
           {/* Progress Bar */}

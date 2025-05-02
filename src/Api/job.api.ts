@@ -13,7 +13,7 @@ import axios from "./axios";
 export const getJobs = async (
   filters: Record<string, string> = {}
 ): Promise<JobResponse> => {
-  const response = await axios.get<any>("job/fetchJob", {
+  const response = await axios.get<any>("job/findJob", {
     params: filters,
   });
   return response.data;

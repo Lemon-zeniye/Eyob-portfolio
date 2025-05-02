@@ -1,5 +1,3 @@
-import { ChatTab } from "@/components/Chat/ChatTabs";
-import PersonalChat from "@/components/Chat/PersonalChat";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
 import { ChatType } from "@/components/Types";
 import { Card } from "@/components/ui/card";
@@ -11,8 +9,12 @@ import { Paperclip, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Tabs from "@/components/Tabs/TabsLine";
 import { useQuery } from "react-query";
-import { getActiveUsers } from "@/Api/chat.api";
+import { getActiveUsers, getChatWithX } from "@/Api/chat.api";
 import UserCard from "@/components/Chat/ActiveUsers";
+import { ActiveUsers } from "@/Types/chat.type";
+import { useSocket } from "../Context/SocketProvider";
+import { getUserFromToken } from "@/lib/utils";
+import Cookies from "js-cookie";
 
 const ChatUrl = [
   {
@@ -37,28 +39,42 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const [selectedUser, setSelectedUser] = useState<ActiveUsers | undefined>(
+    undefined
+  );
+  const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
+  const { join, sendMessage, onReceiveMessage, setOnline } = useSocket();
 
   const { data: activeUsers } = useQuery({
     queryKey: ["activeUser"],
     queryFn: getActiveUsers,
   });
 
+  const { data: newMessages, refetch } = useQuery({
+    queryKey: ["newMessage", userInfo?.id],
+    queryFn: () => {
+      if (userInfo?.id) {
+        return getChatWithX(userInfo.id);
+      }
+    },
+    enabled: !!userInfo?.id,
+  });
+
+  useEffect(() => {
+    if (selectedUser?._id) {
+      refetch();
+    }
+  }, [selectedUser?._id]);
+
   const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
-
-    const timestamp = new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    const message: Message = {
-      id: messages.length + 1,
-      content: newMessage,
-      sender: "me",
-      timestamp,
-    };
-
-    setMessages((prev) => [...prev, message]);
-    setNewMessage("");
+    if (newMessage?.trim() && userInfo?.id && selectedUser) {
+      const message: any = {
+        senderId: userInfo.id,
+        content: newMessage.trim(),
+        receiverId: selectedUser._id,
+      };
+      sendMessage(message);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -66,11 +82,28 @@ const Chat = () => {
   };
 
   useEffect(() => {
+    if (userInfo?.id) {
+      const userId = userInfo.id;
+      join(userId);
+      setOnline(userId);
+    }
+
+    onReceiveMessage((data) => {
+      console.log("Message received:", data);
+    });
+  }, []);
+
+  useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const startChat = (user: ActiveUsers) => {
+    setSelectedUser(user);
+    // join(user._id);
+  };
 
   return (
     <div className="flex flex-row justify-between pr-4">
@@ -88,7 +121,7 @@ const Chat = () => {
                 />
                 <div className="flex flex-col mt-4 gap-3 h-[80vh] overflow-y-scroll">
                   {activeUsers?.data.map((user) => (
-                    <UserCard user={user} />
+                    <UserCard key={user._id} user={user} onClick={startChat} />
                   ))}
                 </div>
               </div>
@@ -105,8 +138,8 @@ const Chat = () => {
             <img className="w-12 h-12 rounded-full" src={user} alt="" />
             <div className="w-3 h-3 absolute left-10 bottom-1 bg-green-500 rounded-full" />
             <div className="flex flex-col gap-1">
-              <p className="font-semibold">Kebede Tassew</p>
-              <p className="text-[#7a7a7a]">UI/UX Designer</p>
+              <p className="font-semibold">{selectedUser?.name}</p>
+              <p className="text-[#7a7a7a]">{selectedUser?.role}</p>
             </div>
           </div>
           <ChatDetailDropdown />
@@ -147,7 +180,7 @@ const Chat = () => {
 
         <div className="flex flex-row justify-between items-center">
           <Button variant={"ghost"}>
-            <Paperclip className="text-[#666666]" />
+            <Paperclip className="text-gray-500" />
           </Button>
           <Input
             value={newMessage}
@@ -156,7 +189,7 @@ const Chat = () => {
             placeholder="Type a message..."
           />
           <Button variant={"ghost"} onClick={handleSendMessage}>
-            <Send className="text-[#666666]" />
+            <Send className="text-gray-500" />
           </Button>
         </div>
       </Card>

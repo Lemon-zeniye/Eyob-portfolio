@@ -1,4 +1,4 @@
-import { getCompanyJobs, getJobs, getJobStatics } from "@/Api/job.api";
+import { getJobStatics } from "@/Api/job.api";
 import {
   Card,
   CardContent,
@@ -9,6 +9,8 @@ import { useQuery } from "react-query";
 import { GoStar } from "react-icons/go";
 import { HiOutlineBriefcase } from "react-icons/hi2";
 import { IoPeopleOutline } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 function CompanyJob() {
   const { data } = useQuery({
@@ -16,10 +18,12 @@ function CompanyJob() {
     queryFn: getJobStatics,
   });
 
-  const { data: jobs } = useQuery({
-    queryKey: ["comapnyJobs"],
-    queryFn: getCompanyJobs,
-  });
+  const navigate = useNavigate();
+
+  // const { data: jobs } = useQuery({
+  //   queryKey: ["comapnyJobs"],
+  //   queryFn: getCompanyJobs,
+  // });
 
   const stats = [
     {
@@ -45,6 +49,14 @@ function CompanyJob() {
   return (
     <div className="grid grid-cols-4">
       <div className="col-span-3">
+        <div className="col-span-1">
+          <Button
+            className="rounded-none mb-4"
+            onClick={() => navigate("/jobs/add-job")}
+          >
+            Add Job
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 w-full">
           {stats.map((stat) => (
             <Card key={stat.label} className="shadow-md border border-gray-200">

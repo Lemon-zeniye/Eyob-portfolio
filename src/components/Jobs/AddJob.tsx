@@ -26,13 +26,12 @@ import { PiListChecksFill } from "react-icons/pi";
 import { FaPlus } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaArrowLeft } from "react-icons/fa6";
 
 function AddJob() {
   const [isRange, setIsRange] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
   const [skill, setSkill] = useState("");
-  const [step, setStep] = useState(false);
+  const [step, setStep] = useState(true);
   const [degree, setDegree] = useState("");
   const [degrees, setDegrees] = useState<string[]>([]);
   const [showEducationError, setShowEducationError] = useState(false);
@@ -104,6 +103,7 @@ function AddJob() {
       const payload = {
         ...data,
         degree: degrees[0],
+        skills: skills,
         range: [{ ...data.range }],
       };
       mutate(payload);
@@ -130,11 +130,6 @@ function AddJob() {
 
   return (
     <div className="mb-10 px-2">
-      <h1 className="text-2xl font-bold flex items-center gap-2 mb-4">
-        {" "}
-        <FaArrowLeft /> Post a Job
-      </h1>
-
       {/* custom tab */}
       <div className="py-4 border-2 border-gray-200  flex justify-center">
         <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-6 sm:gap-20 w-full max-w-3xl">

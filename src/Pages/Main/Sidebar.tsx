@@ -6,8 +6,7 @@ import {
   Settings,
 } from "lucide-react";
 import logo from "../../assets/Bevy.png";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar/Navbar";
 import SidebarSm from "@/components/Sidebar/SidebarSm";
 
@@ -28,13 +27,6 @@ const routes: Route[] = [
 const Sidebar = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const activeRoute = routes.find((route) => route.path === location.pathname);
-  const [selectedName, setSelectedName] = useState(activeRoute?.name || "");
-
-  useEffect(() => {
-    setSelectedName(activeRoute?.name || "");
-  }, [activeRoute]);
 
   const handleSelected = (path: string) => {
     navigate(path);
@@ -78,7 +70,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       <div className="flex flex-col gap-3 md:pl-24 sm-phone:pl-3 w-full">
-        <Navbar name={selectedName} />
+        <Navbar />
         {children}
       </div>
 
