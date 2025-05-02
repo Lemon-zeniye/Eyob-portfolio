@@ -184,3 +184,15 @@ export interface CompanyProfile {
   createdAt: string;
   __v: number;
 }
+
+export interface UserProfileRes {
+  success: boolean;
+  msg: string;
+  data: UserProfile;
+}
+
+export interface UserProfile {
+  position: string;
+  location: string;
+  bio: string;
+}

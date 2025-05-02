@@ -51,9 +51,7 @@ const ExperienceCard = () => {
   const { data: userCV } = useQuery({
     queryKey: ["userCV"],
     queryFn: getUserCV,
-    onSuccess: () => {
-      tos.success("CV uploaded successfully");
-    },
+    onSuccess: () => {},
   });
 
   const { data: experiences } = useQuery({

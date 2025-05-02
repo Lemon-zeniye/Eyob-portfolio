@@ -27,7 +27,7 @@ const CustomVideoPlayer = () => {
 
   const [open, setOpen] = useState(false);
 
-  const { data: userVedio } = useQuery({
+  const {} = useQuery({
     queryKey: ["userVedio"],
     queryFn: getUserVideo,
     onSuccess: (response) => {
@@ -40,8 +40,6 @@ const CustomVideoPlayer = () => {
       }
     },
   });
-
-  console.log(userVedio);
 
   const togglePlayPause = () => {
     const video = videoRef.current;

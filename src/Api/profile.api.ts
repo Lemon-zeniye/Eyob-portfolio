@@ -12,14 +12,8 @@ import {
   JobCategoriesResponse,
   PostPayload,
   UserPostResponse,
+  UserProfileRes,
 } from "@/Types/profile.type";
-
-export const getUserProfile = async (
-  id: string
-): Promise<EducationResponse> => {
-  const response = await axios.get<any>(`/userProfile/fetchSingle/${id}`);
-  return response.data;
-};
 
 export const getUserJob = async (): Promise<EducationResponse> => {
   const response = await axios.get<any>("/job/fetch");
@@ -163,14 +157,6 @@ export const deleteSkill = async (id: string): Promise<any> => {
   return response.data;
 };
 
-export const updateUserProfile = async (payload: any): Promise<any> => {
-  const response = await axios.patch<any>(
-    `userProfile/updateUserProfile`,
-    payload
-  );
-  return response.data;
-};
-
 export const getActiveUsers = async (): Promise<ActiveUserResponse> => {
   const response = await axios.get("user/getActiveUsers");
   return response.data;
@@ -231,5 +217,23 @@ export const addCompanyProfile = async (payload: any): Promise<any> => {
 
 export const updateCompanyAbout = async (payload: any): Promise<any> => {
   const response = await axios.put("/companyAbout/updateCompanyAbout", payload);
+  return response.data;
+};
+
+export const getUserProfile = async (): Promise<UserProfileRes> => {
+  const response = await axios.get<any>(`/userProfile/fetch`);
+  return response.data;
+};
+
+export const updateUserProfile = async (payload: any): Promise<any> => {
+  const response = await axios.put<any>(
+    `userProfile/updateUserProfile`,
+    payload
+  );
+  return response.data;
+};
+
+export const addUserProfile = async (payload: any): Promise<any> => {
+  const response = await axios.post("/userProfile/addUserProfile", payload);
   return response.data;
 };

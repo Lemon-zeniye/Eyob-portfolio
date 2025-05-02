@@ -8,6 +8,8 @@ import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
+import { getUserFromToken, tos } from "@/lib/utils";
+import Cookies from "js-cookie";
 
 const UserCard = ({
   user,
@@ -16,14 +18,14 @@ const UserCard = ({
 }: {
   user: ActiveUser;
   selected: boolean;
-  onSelect: (userId: string) => void;
+  onSelect: (user: ActiveUser) => void;
 }) => {
   return (
     <div
       className={`w-full p-4 border rounded-lg transition-colors cursor-pointer ${
         selected ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"
       }`}
-      onClick={() => onSelect(user._id)}
+      onClick={() => onSelect(user)}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="w-12 h-12 rounded-full overflow-hidden">
@@ -40,7 +42,7 @@ const UserCard = ({
         <Checkbox.Root
           className="flex-shrink-0 w-5 h-5 rounded border border-gray-300 flex items-center justify-center hover:border-primary transition-colors"
           checked={selected}
-          onCheckedChange={() => onSelect(user._id)}
+          onCheckedChange={() => onSelect(user)}
           onClick={(e) => e.stopPropagation()} // Prevent card click from triggering twice
         >
           <Checkbox.Indicator className="text-primary">
@@ -57,8 +59,8 @@ function ShareProfile({ onSuccess }: { onSuccess: () => void }) {
     queryKey: ["activeUser"],
     queryFn: getActiveUsers,
   });
-
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
+  const [selectedUsers, setSelectedUsers] = useState<ActiveUser[]>([]);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -79,18 +81,19 @@ function ShareProfile({ onSuccess }: { onSuccess: () => void }) {
     );
   }, [activeUsers?.data, debouncedSearch]);
 
-  const handleSelectUser = (userId: string) => {
-    setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
-    );
+  const handleSelectUser = (user: ActiveUser) => {
+    setSelectedUsers((prev) => {
+      const isSelected = prev.some((u) => u._id === user._id);
+      return isSelected
+        ? prev.filter((u) => u._id !== user._id)
+        : [...prev, user];
+    });
   };
 
   const { mutate, isLoading } = useMutation({
     mutationFn: shareProfile,
     onSuccess: () => {
-      toast.success("Success");
+      tos.success("Success");
       onSuccess();
     },
     onError: (error: any) => {
@@ -100,7 +103,21 @@ function ShareProfile({ onSuccess }: { onSuccess: () => void }) {
   });
 
   const submit = () => {
-    mutate(selectedUsers);
+    if (
+      userInfo?.id &&
+      userInfo?.role &&
+      selectedUsers &&
+      selectedUsers.length > 0
+    ) {
+      const payload = {
+        subject: [{ id: userInfo.id, type: userInfo.role }],
+        recipient: selectedUsers.map((user) => ({
+          id: user._id,
+          type: user.role,
+        })),
+      };
+      mutate(payload);
+    }
   };
 
   return (
@@ -119,7 +136,7 @@ function ShareProfile({ onSuccess }: { onSuccess: () => void }) {
           <UserCard
             key={user._id}
             user={user}
-            selected={selectedUsers.includes(user._id)}
+            selected={selectedUsers.some((u) => u._id === user._id)}
             onSelect={handleSelectUser}
           />
         ))}

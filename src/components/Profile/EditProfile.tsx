@@ -9,20 +9,25 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "../ui/input";
-import { useMutation } from "react-query";
-import { updateUserProfile } from "@/Api/profile.api";
+import { useMutation, useQueryClient } from "react-query";
+import { addUserProfile, updateUserProfile } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
+import { UserProfile } from "@/Types/profile.type";
+import { tos } from "@/lib/utils";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 type PostFormProps = {
   onSuccess: () => void;
+  initialData: UserProfile | undefined;
 };
 
-function EditProfile({ onSuccess }: PostFormProps) {
+function EditProfile({ initialData, onSuccess }: PostFormProps) {
+  const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
-      position: "",
-      location: "",
-      bio: "",
+      position: initialData?.position ?? "",
+      location: initialData?.location ?? "",
+      bio: initialData?.bio ?? "",
     },
   });
 
@@ -30,11 +35,34 @@ function EditProfile({ onSuccess }: PostFormProps) {
     mutationFn: updateUserProfile,
     onSuccess: () => {
       onSuccess();
+      tos.success("Profile Updated!");
+      queryClient.invalidateQueries("userProfile");
+    },
+    onError: (err) => {
+      const message = getAxiosErrorMessage(err);
+      tos.error(message);
+    },
+  });
+
+  const { mutate: addProfile, isLoading: isAdding } = useMutation({
+    mutationFn: addUserProfile,
+    onSuccess: () => {
+      onSuccess();
+      tos.success("Profile Added!");
+      queryClient.invalidateQueries("userProfile");
+    },
+    onError: (err) => {
+      const message = getAxiosErrorMessage(err);
+      tos.error(message);
     },
   });
 
   const onSubmit = (data: any) => {
-    mutate(data);
+    if (initialData) {
+      mutate(data);
+    } else {
+      addProfile(data);
+    }
   };
 
   return (
@@ -90,7 +118,13 @@ function EditProfile({ onSuccess }: PostFormProps) {
           />
 
           <Button type="submit" className="w-full">
-            {isLoading ? <Spinner /> : "Add Profile"}
+            {isLoading || isAdding ? (
+              <Spinner />
+            ) : initialData ? (
+              "Edit Profile"
+            ) : (
+              "Add Profile"
+            )}
           </Button>
         </form>
       </FormProvider>
