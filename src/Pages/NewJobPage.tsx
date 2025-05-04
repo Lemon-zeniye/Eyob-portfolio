@@ -353,7 +353,7 @@ function NewJobPage() {
                           <JobCardSkeleton key={idx} />
                         ))
                       ) : jobsData?.data && jobsData?.data?.length > 0 ? (
-                        jobsData.data.map((job) => (
+                        jobsData.data?.reverse().map((job) => (
                           <JobCard
                             key={job._id}
                             job={job}
@@ -388,7 +388,7 @@ function NewJobPage() {
                           <JobCardTwoSkeleton key={i} />
                         ))
                       ) : jobsData?.data && jobsData?.data?.length > 0 ? (
-                        jobsData.data.map((job) => (
+                        jobsData.data?.reverse().map((job) => (
                           <JobCardTwo
                             key={job._id}
                             job={job}

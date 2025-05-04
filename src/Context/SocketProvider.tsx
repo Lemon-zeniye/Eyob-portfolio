@@ -22,8 +22,14 @@ interface GroupMessagePayload {
   content: string;
 }
 
+interface UserStatusPayload {
+  userId: string;
+  status: "online" | "offline";
+}
+
 interface SocketContextType {
   socket: Socket | null;
+  isConnected: boolean;
   join: (userId: string) => void;
   sendMessage: (data: MessagePayload) => void;
   joinGroup: (data: { groupId: string; memberId: string }) => void;
@@ -33,6 +39,12 @@ interface SocketContextType {
   setOffline: (userId: string) => void;
   onReceiveMessage: (cb: (data: MessagePayload) => void) => void;
   onGroupMessage: (cb: (data: GroupMessagePayload) => void) => void;
+  onUserJoinedGroup: (cb: (memberId: string) => void) => void;
+  onUserLeftGroup: (cb: (memberId: string) => void) => void;
+  onTyping: (cb: (data: { senderId: string }) => void) => void;
+  onGroupTyping: (cb: (data: { memberId: string }) => void) => void;
+  onUserOnline: (cb: (data: UserStatusPayload) => void) => void;
+  onUserOffline: (cb: (data: UserStatusPayload) => void) => void;
   emitTyping: (data: { senderId: string; receiverId: string }) => void;
   emitGroupTyping: (data: { memberId: string; groupId: string }) => void;
 }
@@ -43,7 +55,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const socketRef = useRef<Socket | null>(null);
-  const [, setConnected] = useState(false);
+  const [isConnected, setConnected] = useState(false);
 
   useEffect(() => {
     const socket = io("http://194.5.159.228:3002/", {
@@ -70,6 +82,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const join = (userId: string) => {
     socketRef.current?.emit("join", userId);
+    console.log("Joined user room:", userId);
   };
 
   const sendMessage = (data: MessagePayload) => {
@@ -104,6 +117,30 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     socketRef.current?.on("receive_message2", cb);
   };
 
+  const onUserJoinedGroup = (cb: (memberId: string) => void) => {
+    socketRef.current?.on("user-joined", cb);
+  };
+
+  const onUserLeftGroup = (cb: (memberId: string) => void) => {
+    socketRef.current?.on("user_left", cb);
+  };
+
+  const onTyping = (cb: (data: { senderId: string }) => void) => {
+    socketRef.current?.on("typing", cb);
+  };
+
+  const onGroupTyping = (cb: (data: { memberId: string }) => void) => {
+    socketRef.current?.on("group_typing", cb);
+  };
+
+  const onUserOnline = (cb: (data: UserStatusPayload) => void) => {
+    socketRef.current?.on("userOnline", cb);
+  };
+
+  const onUserOffline = (cb: (data: UserStatusPayload) => void) => {
+    socketRef.current?.on("userOffline", cb);
+  };
+
   const emitTyping = (data: { senderId: string; receiverId: string }) => {
     socketRef.current?.emit("typing", data);
   };
@@ -114,6 +151,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const value: SocketContextType = {
     socket: socketRef.current,
+    isConnected,
     join,
     sendMessage,
     joinGroup,
@@ -123,6 +161,12 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     setOffline,
     onReceiveMessage,
     onGroupMessage,
+    onUserJoinedGroup,
+    onUserLeftGroup,
+    onTyping,
+    onGroupTyping,
+    onUserOnline,
+    onUserOffline,
     emitTyping,
     emitGroupTyping,
   };

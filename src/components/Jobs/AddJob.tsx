@@ -28,7 +28,6 @@ import { IoMdClose } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
 
 function AddJob() {
-  const [isRange, setIsRange] = useState(false);
   const [skills, setSkills] = useState<string[]>([]);
   const [skill, setSkill] = useState("");
   const [step, setStep] = useState(true);
@@ -44,10 +43,10 @@ function AddJob() {
       jobType: "",
       salaryType: "",
       range: {
-        minimum: undefined,
-        maximum: undefined,
+        minimum: "",
+        maximum: "",
       },
-      salary: undefined,
+      salary: 0,
       skills: [],
 
       // step 2
@@ -63,7 +62,7 @@ function AddJob() {
     mutationFn: addJob,
     onSuccess: () => {
       tos.success("Job Added Successfully!");
-      setIsRange(false);
+      // form.reset();
     },
     onError: (err) => {
       const mes = getAxiosErrorMessage(err);
@@ -84,6 +83,7 @@ function AddJob() {
     if (!degree) {
       return;
     }
+    setShowEducationError(false);
 
     setDegrees((pre) => [...pre, degree]);
     setDegree("");
@@ -96,18 +96,14 @@ function AddJob() {
     }
     setShowEducationError(false);
 
-    if (!isRange) {
-      const { range, ...result } = data;
-      mutate(result);
-    } else {
-      const payload = {
-        ...data,
-        degree: degrees[0],
-        skills: skills,
-        range: [{ ...data.range }],
-      };
-      mutate(payload);
-    }
+    const payload = {
+      ...data,
+      degree: degrees[0],
+      skills: skills,
+      salary: data.range.minimum,
+      range: [{ ...data.range }],
+    };
+    mutate(payload);
   };
 
   const nextStep = async () => {
@@ -379,7 +375,13 @@ function AddJob() {
                       {/* Salary Range - Min */}
                       <FormField
                         control={form.control}
-                        rules={{ required: "Required" }}
+                        rules={{
+                          required: "Required",
+                          min: {
+                            value: 0,
+                            message: "Minimum must be 0 or more",
+                          },
+                        }}
                         name="range.minimum"
                         render={({ field }) => (
                           <FormItem>
@@ -399,7 +401,6 @@ function AddJob() {
 
                       <FormField
                         control={form.control}
-                        rules={{ required: "Required" }}
                         name="range.maximum"
                         render={({ field }) => (
                           <FormItem>
@@ -514,8 +515,11 @@ function AddJob() {
                       />
                     </div>
                     <div className="flex flex-wrap items-start mt-2 gap-2">
-                      {skills?.map((skill) => (
-                        <div className="bg-[#f1f1fc]  py-1 px-2 gap-4 flex items-center text-primary font-medium">
+                      {skills?.map((skill, index) => (
+                        <div
+                          key={skill + index}
+                          className="bg-[#f1f1fc]  py-1 px-2 gap-4 flex items-center text-primary font-medium"
+                        >
                           <span>{skill}</span>
                           <IoMdClose
                             size={20}
@@ -762,8 +766,11 @@ function AddJob() {
                       </span>
                     ) : null}
                     <div className="flex flex-wrap items-start mt-2 gap-2">
-                      {degrees?.map((degree) => (
-                        <div className="bg-[#F8F8FD]  py-1 px-2 gap-4 flex items-center text-primary font-medium">
+                      {degrees?.map((degree, index) => (
+                        <div
+                          key={degree + index}
+                          className="bg-[#F8F8FD]  py-1 px-2 gap-4 flex items-center text-primary font-medium"
+                        >
                           <span>{degree}</span>
                           <IoMdClose
                             className="cursor-pointer"

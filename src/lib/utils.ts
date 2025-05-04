@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { JwtPayload, UserInfo } from "@/Types/profile.type";
 import { toast } from "sonner";
 import { Role } from "@/Types/auth.type";
+import { format, isToday, isYesterday } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -100,3 +101,36 @@ export const tos = {
       },
     }),
 };
+
+export function formatMessageTime(timestamp: string) {
+  return new Date(timestamp).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+interface HasCreatedAt {
+  createdAt: string;
+}
+
+export function groupMessagesByDate<T extends HasCreatedAt>(messages: T[]) {
+  const groups: { [key: string]: T[] } = {};
+
+  messages.forEach((message) => {
+    const date = new Date(message.createdAt);
+    let label = format(date, "yyyy-MM-dd");
+
+    if (isToday(date)) {
+      label = "Today";
+    } else if (isYesterday(date)) {
+      label = "Yesterday";
+    }
+
+    if (!groups[label]) {
+      groups[label] = [];
+    }
+    groups[label].push(message);
+  });
+
+  return groups;
+}

@@ -1,80 +1,135 @@
 import { SearchBar } from "@/components/SearchBar/SearchBar";
-import { Card } from "@/components/ui/card";
 import { useState, useEffect, useRef } from "react";
 import user from "../assets/user.jpg";
-import ChatDetailDropdown from "@/components/Chat/ChatDetailDropdown";
 import { Button } from "@/components/ui/button";
 import { Paperclip, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Tabs from "@/components/Tabs/TabsLine";
-import { useQuery } from "react-query";
-import { getActiveUsers, getChatWithX } from "@/Api/chat.api";
+import { useQuery, useQueryClient } from "react-query";
+import {
+  getActiveUsers,
+  getChatWithX,
+  getGroupChats,
+  getGroups,
+  getPreviousChat,
+} from "@/Api/chat.api";
 import UserCard from "@/components/Chat/ActiveUsers";
-import { ActiveUsers } from "@/Types/chat.type";
+import { ActiveUsers, Group } from "@/Types/chat.type";
 import { useSocket } from "../Context/SocketProvider";
-import { getUserFromToken } from "@/lib/utils";
+import {
+  formatMessageTime,
+  getUserFromToken,
+  groupMessagesByDate,
+} from "@/lib/utils";
 import Cookies from "js-cookie";
+import GroupCard from "@/components/Chat/GroupCard";
+import * as Dialog from "@radix-ui/react-dialog";
+import AddGroup from "@/components/Chat/AddGroup";
+import { FiMessageSquare } from "react-icons/fi";
+import { Menu, X } from "lucide-react";
+import GroupDetail from "@/components/Chat/GroupDetail";
 
-// const ChatUrl = [
-//   {
-//     imgUrl: "",
-//     name: "Kebede Tasew",
-//     lastchat: "Hey man give me my ",
-//     date: "20/10/2024",
-//     seen: false,
-//   },
-//   // Add more chat list items as needed
-// ];
-
-interface Message {
-  id: number;
-  content: string;
-  sender: "me" | "other";
-  timestamp: string;
+export function NoChatSelected() {
+  return (
+    <div className="flex flex-col items-center justify-center h-full text-center p-6 text-gray-500">
+      <FiMessageSquare className="text-6xl mb-4 text-gray-400" />
+      <h2 className="text-xl font-semibold">No Chat Selected</h2>
+      <p className="mt-2 text-sm text-gray-400">
+        Select a person from the chat list to start a conversation.
+      </p>
+    </div>
+  );
 }
 
 const Chat = () => {
-  // const [type, setType] = useState<ChatType>("all");
-  const [messages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState<string>("");
+  const [messages, setMessage] = useState<string>("");
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const [selectedUser, setSelectedUser] = useState<ActiveUsers | undefined>(
     undefined
   );
+  const [openGroup, setOpenGroup] = useState(false);
+  const [groupDetail, setGroupDetail] = useState(false);
+  const [search, setSearch] = useState("");
+  const queryClient = useQueryClient();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // socket
   const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
-  const { join, sendMessage, onReceiveMessage, setOnline } = useSocket();
+  const {
+    join,
+    sendMessage,
+    onReceiveMessage,
+    setOnline,
+    onUserOnline,
+    emitTyping,
+    joinGroup,
+    onTyping,
+    sendGroupMessage,
+    onGroupMessage,
+    emitGroupTyping,
+    onGroupTyping,
+  } = useSocket();
+  const [selectedGroup, setSelectedGroup] = useState<Group | undefined>(
+    undefined
+  );
 
   const { data: activeUsers } = useQuery({
     queryKey: ["activeUser"],
     queryFn: getActiveUsers,
   });
 
-  const { data: newMessages, refetch } = useQuery({
-    queryKey: ["newMessage", userInfo?.id],
-    queryFn: () => {
-      if (userInfo?.id) {
-        return getChatWithX(userInfo.id);
-      }
-    },
-    enabled: !!userInfo?.id,
+  const { data: previousChatUsers } = useQuery({
+    queryKey: ["getPreviousChat"],
+    queryFn: getPreviousChat,
   });
 
-  console.log("message", newMessages);
+  const filteredUsers = activeUsers?.data?.filter(
+    (user: ActiveUsers) =>
+      user._id !== userInfo?.id &&
+      (user.name.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase()))
+  );
 
-  useEffect(() => {
-    if (selectedUser?._id) {
-      refetch();
-    }
-  }, [selectedUser?._id]);
+  const { data: groups } = useQuery({
+    queryKey: ["groups"],
+    queryFn: getGroups,
+  });
+
+  const { data: newMessages } = useQuery({
+    queryKey: ["newMessage", selectedUser?._id],
+    queryFn: () => {
+      if (selectedUser) {
+        return getChatWithX(selectedUser._id);
+      }
+    },
+    enabled: !!selectedUser?._id,
+  });
+
+  const { data: groupChats } = useQuery({
+    queryKey: ["groupChats", selectedGroup?._id],
+    queryFn: () => {
+      if (selectedGroup) {
+        return getGroupChats(selectedGroup._id);
+      }
+    },
+    enabled: !!selectedGroup?._id,
+  });
 
   const handleSendMessage = () => {
-    if (newMessage?.trim() && userInfo?.id && selectedUser) {
+    if (messages?.trim() && userInfo?.id && selectedUser) {
       const message: any = {
         senderId: userInfo.id,
-        content: newMessage.trim(),
+        content: messages.trim(),
         receiverId: selectedUser._id,
       };
       sendMessage(message);
+    }
+    if (messages?.trim() && userInfo?.id && selectedGroup) {
+      const groupMessage: any = {
+        memberId: userInfo.id,
+        content: messages.trim(),
+        groupId: selectedGroup._id,
+      };
+      sendGroupMessage(groupMessage);
     }
   };
 
@@ -82,118 +137,374 @@ const Chat = () => {
     if (e.key === "Enter") handleSendMessage();
   };
 
+  const groupedMessages = newMessages
+    ? groupMessagesByDate(newMessages.data)
+    : {};
+
+  const groupedGroupMessages = groupChats
+    ? groupMessagesByDate(groupChats.data)
+    : {};
+
+  // socket related
+
   useEffect(() => {
     if (userInfo?.id) {
       const userId = userInfo.id;
-      join(userId);
       setOnline(userId);
     }
-
-    onReceiveMessage((data) => {
-      console.log("Message received:", data);
-    });
   }, []);
+
+  useEffect(() => {
+    onReceiveMessage(() => {
+      queryClient.invalidateQueries({ queryKey: ["newMessage"], exact: false });
+
+      setMessage("");
+    });
+
+    onUserOnline(() => {
+      // Handle user coming online
+      // console.log("online users", data);
+    });
+
+    onGroupMessage(() => {
+      queryClient.invalidateQueries(["groupChats"]);
+      setMessage("");
+    });
+  }, [onReceiveMessage, onUserOnline, onGroupMessage]);
+
+  useEffect(() => {
+    onTyping((data) => {
+      console.log("who is typing", data);
+    });
+    onGroupTyping((data) => {
+      console.log("group is typing", data);
+    });
+  }, [onGroupTyping]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [newMessages, groupChats]);
 
   const startChat = (user: ActiveUsers) => {
+    join(user._id);
     setSelectedUser(user);
-    // join(user._id);
+    setSelectedGroup(undefined);
+  };
+  const startGroupChat = (group: Group) => {
+    setSelectedGroup(group);
+    setSelectedUser(undefined);
+    if (userInfo?.id) {
+      joinGroup({ groupId: group._id, memberId: userInfo.id });
+    }
   };
 
   return (
-    <div className="flex flex-row justify-between pr-4">
-      <div className="w-1/5 flex px-1 h-[90vh] flex-col gap-5">
-        <div className="flex flex-col gap-5">
-          {/* <ChatTab type={type} setType={setType} /> */}
-
-          <div className="">
-            <Tabs tabs={["All", "Chat", "Group"]}>
-              <div>
-                <SearchBar
-                  className="focus:outline-none"
-                  search=""
-                  setSearch={() => {}}
-                />
-                <div className="flex flex-col mt-4 gap-3 h-[80vh] overflow-y-scroll">
-                  {activeUsers?.data.map((user) => (
-                    <UserCard key={user._id} user={user} onClick={startChat} />
+    <div className="grid grid-cols-1 md:grid-cols-4 h-[calc(100vh-4.3rem)] max-h-screen overflow-hidden">
+      {/* Sidebar - Contacts/Groups with toggle button */}
+      <div
+        className={`${
+          sidebarOpen ? "block" : "hidden"
+        } md:block col-span-1 border-r flex flex-col h-full bg-white z-10 absolute md:relative w-full md:w-auto`}
+      >
+        <div className="flex flex-col gap-4 p-2 h-full">
+          <Tabs tabs={["All", "Chat", "Group"]}>
+            {/* All Tab */}
+            <div className="h-full flex flex-col">
+              <SearchBar
+                className="w-full focus:outline-none p-2"
+                search={search}
+                setSearch={setSearch}
+              />
+              <div className="h-[calc(100vh-4rem)] mt-3 overflow-y-auto flex flex-col">
+                <div className="space-y-2">
+                  {filteredUsers?.map((user) => (
+                    <UserCard
+                      key={user._id}
+                      user={user}
+                      onClick={() => {
+                        startChat(user);
+                        setSidebarOpen(false); // Close sidebar on mobile when user is selected
+                      }}
+                      isSelected={user._id === selectedUser?._id}
+                    />
                   ))}
                 </div>
               </div>
-              <div>chat</div>
-              <div>Group</div>
-            </Tabs>
-          </div>
+            </div>
+
+            {/* Chat Tab */}
+            <div className="h-full mt-3 overflow-y-auto flex flex-col">
+              <div className="space-y-2">
+                {previousChatUsers?.data.map((user) => (
+                  <UserCard
+                    key={user.userId}
+                    user={{
+                      _id: user.userId,
+                      name: user.name,
+                      email: user.email,
+                      role: "user",
+                    }}
+                    onClick={() => {
+                      startChat({
+                        _id: user.userId,
+                        name: user.name,
+                        email: user.email,
+                        role: "user",
+                      });
+                      setSidebarOpen(false); // Close sidebar on mobile when user is selected
+                    }}
+                    isSelected={user.userId === selectedUser?._id}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Group Tab */}
+            <div className="h-full flex flex-col">
+              <div className="flex justify-center p-2">
+                <Button
+                  onClick={() => setOpenGroup(true)}
+                  className="w-full border-primary"
+                  variant="outline"
+                >
+                  New Group
+                </Button>
+              </div>
+              <div className="flex-1 overflow-y-auto mt-2 space-y-2">
+                {groups?.data.map((group) => (
+                  <GroupCard
+                    key={group._id}
+                    group={group}
+                    onClick={() => {
+                      startGroupChat(group);
+                      setSidebarOpen(false); // Close sidebar on mobile when group is selected
+                    }}
+                    isSelected={group._id === selectedGroup?._id}
+                  />
+                ))}
+              </div>
+            </div>
+          </Tabs>
         </div>
       </div>
 
-      <Card className="w-4/5 h-[90vh] flex flex-col px-4 py-4 gap-4">
-        <div className="flex flex-row justify-between">
-          <div className="flex flex-row gap-3 items-center relative">
-            <img className="w-12 h-12 rounded-full" src={user} alt="" />
-            <div className="w-3 h-3 absolute left-10 bottom-1 bg-green-500 rounded-full" />
-            <div className="flex flex-col gap-1">
-              <p className="font-semibold">{selectedUser?.name}</p>
-              <p className="text-[#7a7a7a]">{selectedUser?.role}</p>
-            </div>
-          </div>
-          <ChatDetailDropdown />
-        </div>
+      {/* Chat Area */}
+      <div
+        className={`col-span-1 md:col-span-3 flex flex-col h-full overflow-hidden bg-gray-50 ${
+          !sidebarOpen ? "block" : "hidden md:block"
+        }`}
+      >
+        {/* Sidebar toggle button (visible on mobile) */}
 
-        <div
-          className="w-full overflow-y-scroll h-[72vh] pr-2 scroll-smooth flex flex-col gap-3"
-          ref={chatContainerRef}
-        >
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${
-                message.sender === "me" ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`p-3 max-w-xs rounded-lg ${
-                  message.sender === "me"
-                    ? "bg-primary text-white"
-                    : "bg-gray-200 text-black"
-                }`}
-              >
-                <p>{message.content}</p>
-                <div className="flex items-end justify-end w-full">
-                  <p
-                    className={`text-xs ${
-                      message.sender === "me" ? "text-white" : "text-black"
-                    }`}
-                  >
-                    {message.timestamp}
-                  </p>
+        {selectedGroup || selectedUser ? (
+          <div className="flex flex-col  h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)] overflow-hidden">
+            {/* Chat Header */}
+            <div className="flex justify-between items-center p-4 border-b">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="md:hidden p-2 rounded-none bg-white shadow-md"
+                >
+                  {sidebarOpen ? (
+                    <X className="w-5 h-5" />
+                  ) : (
+                    <Menu className="w-5 h-5" />
+                  )}
+                </button>
+                <div
+                  className="flex items-center space-x-3 cursor-pointer"
+                  onClick={() => {
+                    if (selectedGroup) {
+                      setGroupDetail(true);
+                    }
+                  }}
+                >
+                  <div className="relative ">
+                    <img
+                      className="w-10 h-10 md:w-12 md:h-12 rounded-full"
+                      src={selectedGroup ? user : user}
+                      alt=""
+                    />
+                    {!selectedGroup && (
+                      <div
+                        className={`w-3 h-3 absolute right-0 bottom-0 ${
+                          "online" === "online" ? "bg-green-500" : "bg-gray-400"
+                        } rounded-full border-2 border-white`}
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold">
+                      {selectedGroup
+                        ? selectedGroup.groupName
+                        : selectedUser?.name}
+                    </p>
+                    <p className="text-gray-500 text-sm">
+                      {selectedGroup
+                        ? `${selectedGroup.members.length} members`
+                        : selectedUser?.role}
+                    </p>
+                  </div>
                 </div>
               </div>
+              <div>{/* <ChatDetailDropdown /> */}</div>
             </div>
-          ))}
-        </div>
 
-        <div className="flex flex-row justify-between items-center">
-          <Button variant={"ghost"}>
-            <Paperclip className="text-gray-500" />
-          </Button>
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-          />
-          <Button variant={"ghost"} onClick={handleSendMessage}>
-            <Send className="text-gray-500" />
-          </Button>
-        </div>
-      </Card>
+            {/* Messages */}
+            <div
+              className="flex-1 overflow-y-auto p-4 space-y-3"
+              ref={chatContainerRef}
+            >
+              {/* Single Chat Messages */}
+              {selectedUser &&
+                Object.entries(groupedMessages).map(([dateLabel, messages]) => (
+                  <div key={dateLabel}>
+                    <div className="text-center my-4 text-sm text-gray-500">
+                      {dateLabel}
+                    </div>
+                    {messages.map((message) => (
+                      <div
+                        key={message._id}
+                        className={`flex ${
+                          message.sender._id === userInfo?.id
+                            ? "justify-end"
+                            : "justify-start"
+                        }`}
+                      >
+                        <div
+                          className={`p-3 my-2 max-w-xs md:max-w-md rounded-lg ${
+                            message.sender._id === userInfo?.id
+                              ? "bg-primary text-white"
+                              : "bg-gray-200 text-black"
+                          }`}
+                        >
+                          <p>{message.content}</p>
+                          <div className="flex justify-end w-full">
+                            <p
+                              className={`text-xs ${
+                                message.sender._id === userInfo?.id
+                                  ? "text-white"
+                                  : "text-gray-500"
+                              }`}
+                            >
+                              {formatMessageTime(message.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+
+              {/* Group Chat Messages */}
+              {selectedGroup &&
+                Object.entries(groupedGroupMessages).map(
+                  ([dateLabel, messages]) => (
+                    <div key={dateLabel}>
+                      <div className="text-center my-4 text-sm text-gray-500">
+                        {dateLabel}
+                      </div>
+                      {messages.map((message) => (
+                        <div
+                          key={message._id}
+                          className={`flex ${
+                            message.memberId._id === userInfo?.id
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`p-3 my-1 max-w-xs md:max-w-md rounded-lg ${
+                              message.memberId._id === userInfo?.id
+                                ? "bg-primary text-white"
+                                : "bg-gray-200 text-black"
+                            }`}
+                          >
+                            {/* Show sender name in group chats */}
+                            {message.memberId._id !== userInfo?.id && (
+                              <p className="font-semibold text-sm mb-1">
+                                {message.memberId.name}
+                              </p>
+                            )}
+                            <p>{message.content}</p>
+                            <div className="flex justify-end w-full">
+                              <p
+                                className={`text-xs ${
+                                  message.memberId._id === userInfo?.id
+                                    ? "text-white"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                {formatMessageTime(message.createdAt)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                )}
+            </div>
+
+            {/* Message Input */}
+            <div className="p-3  flex-shrink-0 border-t bg-white">
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="icon">
+                  <Paperclip className="text-gray-500" />
+                </Button>
+                <Input
+                  className="flex-1"
+                  value={messages}
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    if (userInfo?.id && selectedUser?._id) {
+                      emitTyping({
+                        senderId: userInfo.id,
+                        receiverId: selectedUser._id,
+                      });
+                      if (selectedGroup?._id && userInfo?.id) {
+                        emitGroupTyping({
+                          memberId: userInfo.id,
+                          groupId: selectedGroup._id,
+                        });
+                      }
+                    }
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type a message..."
+                />
+                <Button variant="ghost" size="icon" onClick={handleSendMessage}>
+                  <Send className="text-gray-500" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="h-full flex items-center justify-center">
+            <NoChatSelected />
+          </div>
+        )}
+      </div>
+      <Dialog.Root open={openGroup} onOpenChange={setOpenGroup}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[60%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
+            <Dialog.Title className="text-lg font-semibold text-gray-900">
+              Add Group
+            </Dialog.Title>
+            <Dialog.Description></Dialog.Description>
+            <AddGroup onSuccess={() => setOpenGroup(false)} />
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+      <GroupDetail
+        userGroup={selectedGroup}
+        groupDetail={groupDetail}
+        setGroupDetail={setGroupDetail}
+      />
     </div>
   );
 };

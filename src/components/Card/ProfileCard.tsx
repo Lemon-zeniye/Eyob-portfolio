@@ -24,6 +24,7 @@ import { Button } from "../ui/button";
 import { IoMdShare } from "react-icons/io";
 import EditProfile from "../Profile/EditProfile";
 import ShareProfile from "../Profile/ShareProfile";
+import Cookies from "js-cookie";
 
 const ProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -50,8 +51,8 @@ const ProfileCard = () => {
   }, [userPicture]);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const userData = getUserFromToken(token);
+    const token = Cookies.get("accessToken");
+    const userData = token && getUserFromToken(token);
 
     if (userData) {
       setUserInfo(userData);
@@ -175,13 +176,13 @@ const ProfileCard = () => {
             <div className="flex flex-col gap-1">
               <p className="text-2xl font-bold">{userInfo?.name}</p>
               <p className="font-extralight">
-                {userData?.data.position ?? "No Position specified"}
+                {userData?.data?.position ?? "No Position specified"}
               </p>
               <p className="font-extralight">
-                {userData?.data.location ?? "No Location specified"}
+                {userData?.data?.location ?? "No Location specified"}
               </p>
               <p className="md:text-base font-extralight">
-                {userData?.data.bio ?? "No bio yet"}
+                {userData?.data?.bio ?? "No bio yet"}
               </p>
             </div>
           </div>
