@@ -84,6 +84,29 @@ export function formatDateToMonthYear(dateString: string): string {
   return date.toLocaleDateString("en-US", options);
 }
 
+export function formatDateSmart(dateString: string): string {
+  const date = new Date(dateString);
+  const today = new Date();
+
+  // Normalize both dates to ignore time
+  const normalize = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+  const dayDiff =
+    (normalize(today).getTime() - normalize(date).getTime()) /
+    (1000 * 60 * 60 * 24);
+
+  if (dayDiff === 0) return "Today";
+  if (dayDiff === 1) return "Yesterday";
+
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+  };
+
+  return date.toLocaleDateString("en-US", options);
+}
+
 export const tos = {
   success: (message: string) =>
     toast.success(message, {
@@ -133,4 +156,11 @@ export function groupMessagesByDate<T extends HasCreatedAt>(messages: T[]) {
   });
 
   return groups;
+}
+
+export function getImageUrl(image: string | undefined): string {
+  if (typeof image === "string") {
+    return `https://awema.co/${image?.replace("public/", "")}`;
+  }
+  return "image";
 }

@@ -55,6 +55,7 @@ const Chat = () => {
   // socket
   const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
   const {
+    isConnected,
     join,
     sendMessage,
     onReceiveMessage,
@@ -71,6 +72,8 @@ const Chat = () => {
   const [selectedGroup, setSelectedGroup] = useState<Group | undefined>(
     undefined
   );
+
+  const [onlineUser, setOnlineUser] = useState("");
 
   const { data: activeUsers } = useQuery({
     queryKey: ["activeUser"],
@@ -148,11 +151,13 @@ const Chat = () => {
   // socket related
 
   useEffect(() => {
-    if (userInfo?.id) {
+    const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
+    if (userInfo?.id && isConnected) {
       const userId = userInfo.id;
       setOnline(userId);
+      console.log("setting user to online", userId);
     }
-  }, []);
+  }, [isConnected]); // Empty dependency array to run only once on mount
 
   useEffect(() => {
     onReceiveMessage(() => {
@@ -161,9 +166,9 @@ const Chat = () => {
       setMessage("");
     });
 
-    onUserOnline(() => {
-      // Handle user coming online
-      // console.log("online users", data);
+    onUserOnline((data) => {
+      console.log("online user listen", data);
+      setOnlineUser(data.userId);
     });
 
     onGroupMessage(() => {
@@ -224,6 +229,7 @@ const Chat = () => {
                     <UserCard
                       key={user._id}
                       user={user}
+                      onlineUser={onlineUser}
                       onClick={() => {
                         startChat(user);
                         setSidebarOpen(false); // Close sidebar on mobile when user is selected
@@ -247,6 +253,7 @@ const Chat = () => {
                       email: user.email,
                       role: "user",
                     }}
+                    onlineUser={onlineUser}
                     onClick={() => {
                       startChat({
                         _id: user.userId,
@@ -331,7 +338,9 @@ const Chat = () => {
                     {!selectedGroup && (
                       <div
                         className={`w-3 h-3 absolute right-0 bottom-0 ${
-                          "online" === "online" ? "bg-green-500" : "bg-gray-400"
+                          onlineUser === selectedUser?._id
+                            ? "bg-green-500"
+                            : "bg-gray-400"
                         } rounded-full border-2 border-white`}
                       />
                     )}
@@ -483,7 +492,17 @@ const Chat = () => {
             </div>
           </div>
         ) : (
-          <div className="h-full flex items-center justify-center">
+          <div className="h-full  flex items-center justify-center">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="md:hidden p-2 rounded-none bg-white shadow-md"
+            >
+              {sidebarOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
             <NoChatSelected />
           </div>
         )}

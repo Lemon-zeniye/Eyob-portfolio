@@ -77,7 +77,7 @@ const LoginForm = () => {
         Cookies.set("refreshToken", refreshToken);
         authLogin(accessToken, refreshToken);
 
-        navigate("/home");
+        navigate("/");
         toast({
           title: "Logged In",
           description: "Successfully logged in!",
@@ -107,7 +107,7 @@ const LoginForm = () => {
           setRole("user");
           Cookies.set("role", "user");
         }
-        navigate("/home");
+        navigate("/");
         toast({
           title: "Logged In",
           description: "Successfully logged in!",

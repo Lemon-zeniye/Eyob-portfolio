@@ -133,8 +133,15 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     socketRef.current?.on("group_typing", cb);
   };
 
+  // const onUserOnline = (cb: (data: UserStatusPayload) => void) => {
+  //   socketRef.current?.on("userOnline", cb);
+  // };
+
   const onUserOnline = (cb: (data: UserStatusPayload) => void) => {
     socketRef.current?.on("userOnline", cb);
+    return () => {
+      socketRef.current?.off("userOnline", cb);
+    };
   };
 
   const onUserOffline = (cb: (data: UserStatusPayload) => void) => {

@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
         element: <PrivateRoute allowedRoles={["user", "company"]} />,
         children: [
           {
-            path: "home",
+            index: true,
             element: <Home />,
           },
           {

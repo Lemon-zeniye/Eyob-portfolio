@@ -239,23 +239,23 @@ export const countries = [
 
 export const routeMeta = [
   { path: "/", headerName: "Feed", backRoute: "", isChildRoute: false },
-  { path: "/home", headerName: "Home", backRoute: "", isChildRoute: false },
+  { path: "/", headerName: "Home", backRoute: "", isChildRoute: false },
   {
     path: "/settings",
     headerName: "Settings",
-    backRoute: "/home",
+    backRoute: "/",
     isChildRoute: false,
   },
   {
     path: "/profile",
     headerName: "Profile",
-    backRoute: "/home",
+    backRoute: "/",
     isChildRoute: false,
   },
   {
     path: "/jobs",
     headerName: "Find Jobs",
-    backRoute: "/home",
+    backRoute: "/",
     isChildRoute: false,
   },
   // Put more specific (static) routes before dynamic ones

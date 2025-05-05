@@ -3,11 +3,17 @@ import React from "react";
 
 interface Props {
   user: ActiveUsers;
+  onlineUser: string;
   onClick: (user: ActiveUsers) => void;
   isSelected: boolean;
 }
 
-const UserCard: React.FC<Props> = ({ user, onClick, isSelected }) => {
+const UserCard: React.FC<Props> = ({
+  user,
+  onClick,
+  onlineUser,
+  isSelected,
+}) => {
   return (
     <div
       className={`flex cursor-pointer items-center space-x-4 px-3 py-2 rounded-lg border transition 
@@ -18,11 +24,18 @@ const UserCard: React.FC<Props> = ({ user, onClick, isSelected }) => {
   }`}
       onClick={() => onClick(user)}
     >
-      <img
-        src={`https://i.pravatar.cc/100?img=10`}
-        alt={user.name}
-        className="w-12 h-12 rounded-full object-cover"
-      />
+      <div className="relative">
+        <img
+          src={`https://i.pravatar.cc/100?img=10`}
+          alt={user.name}
+          className="w-12 h-12 rounded-full object-cover"
+        />
+        <div
+          className={`w-3 h-3 absolute right-0 bottom-0 ${
+            onlineUser === user._id ? "bg-green-500" : "bg-gray-400"
+          } rounded-full border-2 border-white`}
+        />
+      </div>
       <div className="flex flex-col">
         <span className="text-sm font-medium">{user.name}</span>
         <span
