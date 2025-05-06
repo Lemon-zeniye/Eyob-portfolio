@@ -177,14 +177,24 @@ const Chat = () => {
     });
   }, [onReceiveMessage, onUserOnline, onGroupMessage]);
 
+  // useEffect(() => {
+  //   onTyping((data) => {
+  //     console.log("who is typing", data);
+  //   });
+  //   onGroupTyping((data) => {
+  //     console.log("group is typing", data);
+  //   });
+  // }, [onGroupTyping, onTyping]);
+
   useEffect(() => {
-    onTyping((data) => {
-      console.log("who is typing", data);
-    });
-    onGroupTyping((data) => {
-      console.log("group is typing", data);
-    });
-  }, [onGroupTyping]);
+    const handleTyping = (data: { senderId: string }) => {
+      console.log("Typing event received:", data);
+    };
+
+    const cleanup = onTyping(handleTyping);
+
+    return cleanup; // Ensures listener is removed on unmount
+  }, [onTyping]);
 
   useEffect(() => {
     if (chatContainerRef.current) {

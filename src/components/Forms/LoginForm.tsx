@@ -11,7 +11,6 @@ import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/Context/AuthContext";
 import { useMutation } from "react-query";
 import { getAxiosErrorMessage, login } from "@/Api/auth.api";
@@ -21,7 +20,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import axiosInstance from "@/Api/axios";
 import { useRole } from "@/Context/RoleContext";
-import { getUserFromToken } from "@/lib/utils";
+import { getUserFromToken, tos } from "@/lib/utils";
 
 interface GooglePayload {
   name: string;
@@ -40,7 +39,6 @@ const LoginForm = () => {
     },
   });
 
-  const { toast } = useToast();
   const navigate = useNavigate();
   // const { login } = useAuth();
 
@@ -78,15 +76,13 @@ const LoginForm = () => {
         authLogin(accessToken, refreshToken);
 
         navigate("/");
-        toast({
-          title: "Logged In",
-          description: "Successfully logged in!",
-        });
+        tos.success("Successfully logged in!");
       } else {
         throw new Error("Login failed, tokens missing");
       }
     } catch (error) {
-      console.error("Backend error:", error);
+      const mes = getAxiosErrorMessage(error);
+      tos.error(mes);
     }
   };
 
@@ -108,20 +104,14 @@ const LoginForm = () => {
           Cookies.set("role", "user");
         }
         navigate("/");
-        toast({
-          title: "Logged In",
-          description: "Successfully logged in!",
-        });
+        tos.success("Successfully logged in!");
       } else {
         throw new Error("Login failed, tokens missing");
       }
     },
     onError: (error: any) => {
       const message = getAxiosErrorMessage(error);
-      toast({
-        title: "❌ Error",
-        description: error?.msg || message,
-      });
+      tos.error(error?.msg || message);
     },
   });
 

@@ -125,8 +125,15 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     socketRef.current?.on("user_left", cb);
   };
 
-  const onTyping = (cb: (data: { senderId: string }) => void) => {
-    socketRef.current?.on("typing", cb);
+  // const onTyping = (cb: (data: { senderId: string }) => void) => {
+  //   socketRef.current?.on("typing", cb);
+  // };
+
+  const onTyping = (callback: (data: { senderId: string }) => void) => {
+    socketRef.current?.on("typing", callback);
+    return () => {
+      socketRef.current?.off("typing", callback); // Cleanup
+    };
   };
 
   const onGroupTyping = (cb: (data: { memberId: string }) => void) => {

@@ -1,6 +1,7 @@
 import {
   AppliedJobsResponse,
   JobResponse,
+  JobStaticsRes,
   SingleJobResponse,
 } from "@/Types/job.type";
 import axios from "./axios";
@@ -41,12 +42,12 @@ export const addJob = async (payload: any): Promise<any> => {
   return response.data;
 };
 
-export const getJobStatics = async (): Promise<any> => {
+export const getJobStatics = async (): Promise<JobStaticsRes> => {
   const response = await axios.get<any>(`/job/fetchJobStatistics`);
   return response.data;
 };
 
-export const getCompanyJobs = async (): Promise<any> => {
+export const getCompanyJobs = async (): Promise<JobResponse> => {
   const response = await axios.get<any>(`/job/fetchSingleUserJob`);
   return response.data;
 };

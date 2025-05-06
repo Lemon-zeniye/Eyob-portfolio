@@ -1,6 +1,9 @@
 export interface Job {
   _id: string;
-  userid: string | null;
+  userid: {
+    _id: string;
+    name: string;
+  };
   company: string;
   jobTitle: string;
   jobType: string;

@@ -1,10 +1,12 @@
 import { useRole } from "@/Context/RoleContext";
-import CompanyJob from "./CompanyJob";
 import NewJobPage from "./NewJobPage";
+import CompanyDashboard from "./CompanyDashboard";
 
 function JobPage() {
   const { role } = useRole();
-  return <div>{role === "company" ? <CompanyJob /> : <NewJobPage />}</div>;
+  return (
+    <div>{role === "company" ? <CompanyDashboard /> : <NewJobPage />}</div>
+  );
 }
 
 export default JobPage;
