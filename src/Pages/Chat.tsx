@@ -25,9 +25,15 @@ import { FiMessageSquare } from "react-icons/fi";
 import { Menu, X } from "lucide-react";
 import GroupDetail from "@/components/Chat/GroupDetail";
 
-export function NoChatSelected() {
+export function NoChatSelected({ onClick }: { onClick: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center p-6 text-gray-500">
+    <div className="relative flex flex-col items-center justify-center h-full text-center p-6 text-gray-500">
+      <button
+        onClick={onClick}
+        className="md:hidden absolute top-2 left-1 border p-2 rounded-none bg-white shadow-md"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
       <FiMessageSquare className="text-6xl mb-4 text-gray-400" />
       <h2 className="text-xl font-semibold">No Chat Selected</h2>
       <p className="mt-2 text-sm text-gray-400">
@@ -497,17 +503,7 @@ const Chat = () => {
           </div>
         ) : (
           <div className="h-full  flex items-center justify-center">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="md:hidden p-2 rounded-none bg-white shadow-md"
-            >
-              {sidebarOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </button>
-            <NoChatSelected />
+            <NoChatSelected onClick={() => setSidebarOpen(!sidebarOpen)} />
           </div>
         )}
       </div>

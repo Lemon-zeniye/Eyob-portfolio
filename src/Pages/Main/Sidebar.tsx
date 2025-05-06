@@ -74,7 +74,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
         {children}
       </div>
 
-      <div className="w-full fixed bottom-0 md:hidden">
+      <div className="w-full fixed bottom-0 z-50 md:hidden">
         <SidebarSm routes={routes} handleSelected={handleSelected} />
       </div>
     </div>

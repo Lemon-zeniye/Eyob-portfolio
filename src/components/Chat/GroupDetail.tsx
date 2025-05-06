@@ -300,16 +300,18 @@ function GroupDetail({
                 <h2 className="text-lg font-semibold mb-3 text-gray-700">
                   Members
                 </h2>
-                <button
-                  className={`${
-                    open
-                      ? "text-black hover:text-gray-500"
-                      : "text-red-500 hover:text-red-400"
-                  } `}
-                  onClick={() => setOpen(!open)}
-                >
-                  {open ? "Add Members" : "Cancel"}
-                </button>
+                {userId === userGroup?.createdBy && (
+                  <button
+                    className={`${
+                      open
+                        ? "text-black hover:text-gray-500"
+                        : "text-red-500 hover:text-red-400"
+                    } `}
+                    onClick={() => setOpen(!open)}
+                  >
+                    {open ? "Add Members" : "Cancel"}
+                  </button>
+                )}
               </div>
               {open ? (
                 <div className="space-y-2 h-64 overflow-y-auto">
