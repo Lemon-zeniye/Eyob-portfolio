@@ -53,7 +53,7 @@ export type PostCom = {
   status: string;
   postDate: string;
   createdAt: string;
-  comments?: Comment; // Optional, since it's missing in one post
+  comments?: Comment[]; // Optional, since it's missing in one post
   commenterDetails: CommenterDetail[];
   userPicturePath: string;
   isLikedByUser: boolean;

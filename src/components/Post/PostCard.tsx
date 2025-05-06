@@ -159,24 +159,33 @@ export function Post({ post }: { post: PostCom }) {
           </div>
 
           {/* Existing comments */}
-          {/* {post.comments?.map((comment) => (
+          {post.comments?.map((comment) => (
             <div key={comment._id} className="flex gap-2">
               <img
                 src="https://i.pravatar.cc/100?img=1"
                 className="w-8 h-8 object-cover rounded-full"
                 alt="Commenter avatar"
               />
-              <div className="flex-1 bg-gray-100 rounded-lg p-2">
-                <div className="font-semibold">{comment.user.name}</div>
-                <div>{comment.text}</div>
+              <div className="flex-1 border p-2">
+                <div className="font-semibold">
+                  {
+                    post.commenterDetails?.find(
+                      (com) => com._id === comment.commentedBy
+                    )?.name
+                  }
+                </div>
+                <div>{comment.comment}</div>
                 <div className="flex gap-4 text-xs text-gray-500 mt-1">
-                  <span>{formatMessageTime(comment.createdAt)}</span>
+                  <span>
+                    {formatDateSmart(comment.createdAt)} at{" "}
+                    {formatMessageTime(comment.createdAt)}
+                  </span>
                   <button>Like</button>
                   <button>Reply</button>
                 </div>
               </div>
             </div>
-          ))} */}
+          ))}
         </div>
       )}
     </div>
