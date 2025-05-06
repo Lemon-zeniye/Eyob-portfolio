@@ -68,9 +68,6 @@ const LoginForm = () => {
       const accessToken = response.data?.access_token;
       const refreshToken = response.data?.refresh_token;
       if (accessToken && refreshToken) {
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-
         Cookies.set("accessToken", accessToken);
         Cookies.set("refreshToken", refreshToken);
         authLogin(accessToken, refreshToken);
@@ -96,9 +93,10 @@ const LoginForm = () => {
         Cookies.set("refreshToken", refreshToken);
         authLogin(accessToken, refreshToken);
         const userInfo = getUserFromToken(accessToken);
-        if (userInfo?.role) {
+        if (userInfo?.role && userInfo?.id) {
           setRole(userInfo.role);
           Cookies.set("role", userInfo.role);
+          Cookies.set("userId", userInfo.id);
         } else {
           setRole("user");
           Cookies.set("role", "user");

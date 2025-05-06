@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
-import { getUserFromToken, tos } from "@/lib/utils";
+import { tos } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { useForm, FormProvider } from "react-hook-form";
 import * as Select from "@radix-ui/react-select";
@@ -33,13 +33,13 @@ function AddGroup({ onSuccess }: { onSuccess: () => void }) {
     queryFn: getActiveUsers,
   });
   const queryClient = useQueryClient();
-  const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
+  const userId = Cookies.get("userId");
   const [selectedUsers, setSelectedUsers] = useState<ActiveUser[]>([]);
   const [search, setSearch] = useState("");
 
   const filteredUsers = activeUsers?.data.filter(
     (user) =>
-      user._id !== userInfo?.id &&
+      user._id !== userId &&
       user.name.toLowerCase().includes(search.toLowerCase())
   );
 

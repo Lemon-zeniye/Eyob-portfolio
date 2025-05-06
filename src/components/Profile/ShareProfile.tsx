@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
-import { getUserFromToken, tos } from "@/lib/utils";
+import { tos } from "@/lib/utils";
 import Cookies from "js-cookie";
 
 const UserCard = ({
@@ -59,7 +59,8 @@ function ShareProfile({ onSuccess }: { onSuccess: () => void }) {
     queryKey: ["activeUser"],
     queryFn: getActiveUsers,
   });
-  const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
+  const userId = Cookies.get("userId");
+  const role = Cookies.get("role");
   const [selectedUsers, setSelectedUsers] = useState<ActiveUser[]>([]);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -103,14 +104,9 @@ function ShareProfile({ onSuccess }: { onSuccess: () => void }) {
   });
 
   const submit = () => {
-    if (
-      userInfo?.id &&
-      userInfo?.role &&
-      selectedUsers &&
-      selectedUsers.length > 0
-    ) {
+    if (userId && role && selectedUsers && selectedUsers.length > 0) {
       const payload = {
-        subject: [{ id: userInfo.id, type: userInfo.role }],
+        subject: [{ id: userId, type: role }],
         recipient: selectedUsers.map((user) => ({
           id: user._id,
           type: user.role,

@@ -17,7 +17,7 @@ import {
   getGroupMembersList,
   removeMember,
 } from "@/Api/chat.api";
-import { getUserFromToken, tos } from "@/lib/utils";
+import { tos } from "@/lib/utils";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import Cookies from "js-cookie";
@@ -40,7 +40,7 @@ function GroupDetail({
 }) {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const queryClient = useQueryClient();
-  const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
+  const userId = Cookies.get("userId");
   const toggleSection = (section: string) => {
     setOpenSection((prev) => (prev === section ? null : section));
   };
@@ -87,7 +87,7 @@ function GroupDetail({
 
   const filteredUsers = activeUsers?.data.filter(
     (user) =>
-      user._id !== userInfo?.id &&
+      user._id !== userId &&
       !membersIds?.includes(user?._id) &&
       user.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -407,7 +407,7 @@ function GroupDetail({
                 Danger Zone
               </h2>
               <div className="space-y-2">
-                {userInfo?.id !== userGroup?.createdBy ? (
+                {userId !== userGroup?.createdBy ? (
                   <button className="w-full flex items-center gap-3 p-3 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
                     <FaSignOutAlt />
                     <span className="text-sm font-medium">Leave Group</span>

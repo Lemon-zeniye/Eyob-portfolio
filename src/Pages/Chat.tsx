@@ -16,11 +16,7 @@ import {
 import UserCard from "@/components/Chat/ActiveUsers";
 import { ActiveUsers, Group } from "@/Types/chat.type";
 import { useSocket } from "../Context/SocketProvider";
-import {
-  formatMessageTime,
-  getUserFromToken,
-  groupMessagesByDate,
-} from "@/lib/utils";
+import { formatMessageTime, groupMessagesByDate } from "@/lib/utils";
 import Cookies from "js-cookie";
 import GroupCard from "@/components/Chat/GroupCard";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -53,7 +49,7 @@ const Chat = () => {
   const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // socket
-  const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
+  const userId = Cookies.get("userId");
   const {
     isConnected,
     join,
@@ -87,7 +83,7 @@ const Chat = () => {
 
   const filteredUsers = activeUsers?.data?.filter(
     (user: ActiveUsers) =>
-      user._id !== userInfo?.id &&
+      user._id !== userId &&
       (user.name.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase()))
   );
@@ -118,17 +114,17 @@ const Chat = () => {
   });
 
   const handleSendMessage = () => {
-    if (messages?.trim() && userInfo?.id && selectedUser) {
+    if (messages?.trim() && userId && selectedUser) {
       const message: any = {
-        senderId: userInfo.id,
+        senderId: userId,
         content: messages.trim(),
         receiverId: selectedUser._id,
       };
       sendMessage(message);
     }
-    if (messages?.trim() && userInfo?.id && selectedGroup) {
+    if (messages?.trim() && userId && selectedGroup) {
       const groupMessage: any = {
-        memberId: userInfo.id,
+        memberId: userId,
         content: messages.trim(),
         groupId: selectedGroup._id,
       };
@@ -151,9 +147,7 @@ const Chat = () => {
   // socket related
 
   useEffect(() => {
-    const userInfo = getUserFromToken(Cookies.get("accessToken") ?? null);
-    if (userInfo?.id && isConnected) {
-      const userId = userInfo.id;
+    if (userId && isConnected) {
       setOnline(userId);
       console.log("setting user to online", userId);
     }
@@ -177,24 +171,24 @@ const Chat = () => {
     });
   }, [onReceiveMessage, onUserOnline, onGroupMessage]);
 
-  // useEffect(() => {
-  //   onTyping((data) => {
-  //     console.log("who is typing", data);
-  //   });
-  //   onGroupTyping((data) => {
-  //     console.log("group is typing", data);
-  //   });
-  // }, [onGroupTyping, onTyping]);
-
   useEffect(() => {
-    const handleTyping = (data: { senderId: string }) => {
-      console.log("Typing event received:", data);
-    };
+    onTyping((data) => {
+      console.log("who is typing", data);
+    });
+    onGroupTyping((data) => {
+      console.log("group is typing", data);
+    });
+  }, [onGroupTyping, onTyping]);
 
-    const cleanup = onTyping(handleTyping);
+  // useEffect(() => {
+  //   const handleTyping = (data: { senderId: string }) => {
+  //     console.log("Typing event received:", data);
+  //   };
 
-    return cleanup; // Ensures listener is removed on unmount
-  }, [onTyping]);
+  //   const cleanup = onTyping(handleTyping);
+
+  //   return cleanup; // Ensures listener is removed on unmount
+  // }, [onTyping]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -211,8 +205,8 @@ const Chat = () => {
   const startGroupChat = (group: Group) => {
     setSelectedGroup(group);
     setSelectedUser(undefined);
-    if (userInfo?.id) {
-      joinGroup({ groupId: group._id, memberId: userInfo.id });
+    if (userId) {
+      joinGroup({ groupId: group._id, memberId: userId });
     }
   };
 
@@ -388,14 +382,14 @@ const Chat = () => {
                       <div
                         key={message._id}
                         className={`flex ${
-                          message.sender._id === userInfo?.id
+                          message.sender._id === userId
                             ? "justify-end"
                             : "justify-start"
                         }`}
                       >
                         <div
                           className={`p-3 my-2 max-w-xs md:max-w-md rounded-lg ${
-                            message.sender._id === userInfo?.id
+                            message.sender._id === userId
                               ? "bg-primary text-white"
                               : "bg-gray-200 text-black"
                           }`}
@@ -404,7 +398,7 @@ const Chat = () => {
                           <div className="flex justify-end w-full">
                             <p
                               className={`text-xs ${
-                                message.sender._id === userInfo?.id
+                                message.sender._id === userId
                                   ? "text-white"
                                   : "text-gray-500"
                               }`}
@@ -430,20 +424,20 @@ const Chat = () => {
                         <div
                           key={message._id}
                           className={`flex ${
-                            message.memberId._id === userInfo?.id
+                            message.memberId._id === userId
                               ? "justify-end"
                               : "justify-start"
                           }`}
                         >
                           <div
                             className={`p-3 my-1 max-w-xs md:max-w-md rounded-lg ${
-                              message.memberId._id === userInfo?.id
+                              message.memberId._id === userId
                                 ? "bg-primary text-white"
                                 : "bg-gray-200 text-black"
                             }`}
                           >
                             {/* Show sender name in group chats */}
-                            {message.memberId._id !== userInfo?.id && (
+                            {message.memberId._id !== userId && (
                               <p className="font-semibold text-sm mb-1">
                                 {message.memberId.name}
                               </p>
@@ -452,7 +446,7 @@ const Chat = () => {
                             <div className="flex justify-end w-full">
                               <p
                                 className={`text-xs ${
-                                  message.memberId._id === userInfo?.id
+                                  message.memberId._id === userId
                                     ? "text-white"
                                     : "text-gray-500"
                                 }`}
@@ -479,14 +473,14 @@ const Chat = () => {
                   value={messages}
                   onChange={(e) => {
                     setMessage(e.target.value);
-                    if (userInfo?.id && selectedUser?._id) {
+                    if (userId && selectedUser?._id) {
                       emitTyping({
-                        senderId: userInfo.id,
+                        senderId: userId,
                         receiverId: selectedUser._id,
                       });
-                      if (selectedGroup?._id && userInfo?.id) {
+                      if (selectedGroup?._id && userId) {
                         emitGroupTyping({
-                          memberId: userInfo.id,
+                          memberId: userId,
                           groupId: selectedGroup._id,
                         });
                       }
