@@ -160,7 +160,7 @@ const CustomVideoPlayer = () => {
         <Dialog.Root open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay className="fixed inset-0 z-[40] bg-black/10" />
-            <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-2xl border border-[#BFBFBF] focus:outline-none">
+            <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[94%] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-2xl border border-[#BFBFBF] focus:outline-none">
               <div className="flex items-center justify-between mb-6">
                 <Dialog.Title className="text-2xl font-bold">
                   Upload Video

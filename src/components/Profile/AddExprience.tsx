@@ -19,7 +19,7 @@ import { Button } from "../ui/button";
 import { useMutation, useQueryClient } from "react-query";
 import { addExperience } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
-import { toast } from "sonner";
+import { tos } from "@/lib/utils";
 
 function AddExprience({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient();
@@ -42,14 +42,14 @@ function AddExprience({ onSuccess }: { onSuccess: () => void }) {
     onSuccess: () => {
       onSuccess();
       queryClient.invalidateQueries("experiences");
-      toast.success("Success");
+      tos.success("Success");
     },
   });
   const onSubmit = (data: any) => {
     mutate({ expRequest: [data] });
   };
   return (
-    <div>
+    <div className="p-2 md:p-0">
       <FormProvider {...form}>
         <form className="" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField

@@ -146,9 +146,7 @@ export const deleteOrganization = async (id: string): Promise<any> => {
 };
 
 export const deletePost = async (id: string): Promise<any> => {
-  const response = await axios.delete<any>(
-    `/userPost/deactivateUserPost/${id}`
-  );
+  const response = await axios.patch<any>(`/userPost/deactivateUserPost/${id}`);
   return response.data;
 };
 

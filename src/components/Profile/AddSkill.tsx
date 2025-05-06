@@ -14,7 +14,7 @@ import { addSkill, getJobCategory } from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import { Textarea } from "../ui/textarea";
-import { toast } from "sonner";
+import { tos } from "@/lib/utils";
 
 function AddSkill({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient();
@@ -35,13 +35,13 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
   const { mutate, isLoading } = useMutation({
     mutationFn: addSkill,
     onSuccess: () => {
-      toast.success("Education added Successfully");
+      tos.success("Education added Successfully");
       queryClient.invalidateQueries("skills");
       onSuccess();
     },
     onError: (error: any) => {
       const message = getAxiosErrorMessage(error);
-      toast.error(message);
+      tos.error(message);
     },
   });
 
@@ -54,7 +54,7 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
     mutate(payload);
   };
   return (
-    <div>
+    <div className="p-2 md:p-0">
       <FormProvider {...form}>
         <form className="" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField

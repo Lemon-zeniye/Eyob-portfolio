@@ -16,7 +16,7 @@ import { addUserOrganization } from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import { useState } from "react";
-import { toast } from "sonner";
+import { tos } from "@/lib/utils";
 
 function AddOrganization({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient();
@@ -43,14 +43,14 @@ function AddOrganization({ onSuccess }: { onSuccess: () => void }) {
   const { mutate, isLoading } = useMutation({
     mutationFn: addUserOrganization,
     onSuccess: () => {
-      toast.success("Organization added Successfully");
+      tos.success("Organization added Successfully");
 
       onSuccess();
       queryClient.invalidateQueries("organization");
     },
     onError: (error: any) => {
       const message = getAxiosErrorMessage(error);
-      toast.error(message);
+      tos.error(message);
     },
   });
 
@@ -69,7 +69,7 @@ function AddOrganization({ onSuccess }: { onSuccess: () => void }) {
   };
 
   return (
-    <div>
+    <div className="p-2 md:p-0">
       <FormProvider {...form}>
         <form className="" onSubmit={form.handleSubmit(onSubmit)}>
           <FormItem>

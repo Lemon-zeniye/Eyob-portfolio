@@ -5,7 +5,6 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useMemo } from "react";
-import { toast } from "sonner";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import { tos } from "@/lib/utils";
@@ -99,7 +98,7 @@ function ShareProfile({ onSuccess }: { onSuccess: () => void }) {
     },
     onError: (error: any) => {
       const message = getAxiosErrorMessage(error);
-      toast.error(message);
+      tos.error(message);
     },
   });
 

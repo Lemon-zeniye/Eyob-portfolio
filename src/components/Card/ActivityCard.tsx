@@ -1,11 +1,10 @@
 import EmptyCard from "./EmptyCard";
 import { Post } from "@/Types/profile.type";
-import { formatDateToMonthYear } from "@/lib/utils";
+import { formatDateToMonthYear, tos } from "@/lib/utils";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { deletePost } from "@/Api/profile.api";
-import { toast } from "sonner";
 import { CiCalendar } from "react-icons/ci";
 
 interface ActivityCardProps {
@@ -32,7 +31,7 @@ const ActivityCard = ({ post, classname, onclick }: ActivityCardProps) => {
     mutationFn: deletePost,
     onSuccess: () => {
       queryClient.invalidateQueries("singleUserPost");
-      toast.success("Success");
+      tos.success("Success");
     },
   });
 

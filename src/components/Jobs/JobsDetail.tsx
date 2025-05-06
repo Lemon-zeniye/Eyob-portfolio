@@ -15,7 +15,7 @@ import { HiOutlineBriefcase } from "react-icons/hi2";
 import { AiOutlineDollar } from "react-icons/ai";
 import { IoBriefcaseOutline } from "react-icons/io5";
 import { Spinner } from "../ui/Spinner";
-import { toast } from "sonner";
+import { tos } from "@/lib/utils";
 
 interface JobsDetailProps {
   id: string | undefined;
@@ -48,7 +48,7 @@ const JobsDetail = ({
   const { mutate, isLoading } = useMutation({
     mutationFn: applyJob,
     onSuccess: () => {
-      toast.success("Application submitted successfully!");
+      tos.success("Application submitted successfully!");
       queryClient.invalidateQueries("appliedJobs");
     },
   });

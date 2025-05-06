@@ -89,7 +89,7 @@ const EducationCard = () => {
               exit={{ x: "100%" }}
               transition={{ type: "tween", ease: "easeInOut" }}
             >
-              <h1 className="text-lg py-2 items-center font-semibold">
+              <h1 className="text-lg p-2 items-center font-semibold">
                 {open ? "Add Education" : "Add Certification"}
               </h1>
 
