@@ -24,6 +24,7 @@ import AddGroup from "@/components/Chat/AddGroup";
 import { FiMessageSquare } from "react-icons/fi";
 import { Menu, X } from "lucide-react";
 import GroupDetail from "@/components/Chat/GroupDetail";
+import { useIsMobile } from "@/hooks/use-isMobile";
 
 export function NoChatSelected({ onClick }: { onClick: () => void }) {
   return (
@@ -54,6 +55,8 @@ const Chat = () => {
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
+
   // socket
   const userId = Cookies.get("userId");
   const {
@@ -76,6 +79,12 @@ const Chat = () => {
   );
 
   const [onlineUser, setOnlineUser] = useState("");
+
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(true);
+    }
+  }, [isMobile]);
 
   const { data: activeUsers } = useQuery({
     queryKey: ["activeUser"],
