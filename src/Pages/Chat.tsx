@@ -13,7 +13,7 @@ import {
   getGroups,
   getPreviousChat,
 } from "@/Api/chat.api";
-import UserCard from "@/components/Chat/ActiveUsers";
+import UserCard, { UserCardSkeleton } from "@/components/Chat/ActiveUsers";
 import { ActiveUsers, Group } from "@/Types/chat.type";
 import { useSocket } from "../Context/SocketProvider";
 import { formatMessageTime, groupMessagesByDate } from "@/lib/utils";
@@ -43,6 +43,28 @@ export function NoChatSelected({ onClick }: { onClick: () => void }) {
     </div>
   );
 }
+
+const ChatSkeleton: React.FC = () => {
+  return (
+    <div className="space-y-4 px-4 py-2 animate-pulse">
+      {[...Array(5)].map((_, i) => (
+        <div
+          key={i}
+          className={`flex ${i % 2 === 0 ? "justify-end" : "justify-start"}`}
+        >
+          <div
+            className={`p-3 rounded-lg ${
+              i % 2 === 0 ? "bg-primary/20" : "bg-gray-200"
+            } max-w-xs md:max-w-md w-1/4`}
+          >
+            <div className="h-4 bg-gray-300 rounded w-full mb-2" />
+            <div className="h-3 bg-gray-300 rounded w-1/3 ml-auto" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const Chat = () => {
   const [messages, setMessage] = useState<string>("");
@@ -86,7 +108,7 @@ const Chat = () => {
     }
   }, [isMobile]);
 
-  const { data: activeUsers } = useQuery({
+  const { data: activeUsers, isLoading } = useQuery({
     queryKey: ["activeUser"],
     queryFn: getActiveUsers,
   });
@@ -108,7 +130,7 @@ const Chat = () => {
     queryFn: getGroups,
   });
 
-  const { data: newMessages } = useQuery({
+  const { data: newMessages, isLoading: isMessageLoading } = useQuery({
     queryKey: ["newMessage", selectedUser?._id],
     queryFn: () => {
       if (selectedUser) {
@@ -118,7 +140,7 @@ const Chat = () => {
     enabled: !!selectedUser?._id,
   });
 
-  const { data: groupChats } = useQuery({
+  const { data: groupChats, isLoading: isGroupChatLoading } = useQuery({
     queryKey: ["groupChats", selectedGroup?._id],
     queryFn: () => {
       if (selectedGroup) {
@@ -244,18 +266,20 @@ const Chat = () => {
               />
               <div className="h-[calc(100vh-4rem)] mt-3 overflow-y-auto flex flex-col">
                 <div className="space-y-2">
-                  {filteredUsers?.map((user) => (
-                    <UserCard
-                      key={user._id}
-                      user={user}
-                      onlineUser={onlineUser}
-                      onClick={() => {
-                        startChat(user);
-                        setSidebarOpen(false); // Close sidebar on mobile when user is selected
-                      }}
-                      isSelected={user._id === selectedUser?._id}
-                    />
-                  ))}
+                  {isLoading
+                    ? [...Array(7)].map((_, i) => <UserCardSkeleton key={i} />)
+                    : filteredUsers?.map((user) => (
+                        <UserCard
+                          key={user._id}
+                          user={user}
+                          onlineUser={onlineUser}
+                          onClick={() => {
+                            startChat(user);
+                            setSidebarOpen(false); // Close sidebar on mobile when user is selected
+                          }}
+                          isSelected={user._id === selectedUser?._id}
+                        />
+                      ))}
                 </div>
               </div>
             </div>
@@ -387,94 +411,110 @@ const Chat = () => {
               ref={chatContainerRef}
             >
               {/* Single Chat Messages */}
-              {selectedUser &&
-                Object.entries(groupedMessages).map(([dateLabel, messages]) => (
-                  <div key={dateLabel}>
-                    <div className="text-center my-4 text-sm text-gray-500">
-                      {dateLabel}
-                    </div>
-                    {messages.map((message) => (
-                      <div
-                        key={message._id}
-                        className={`flex ${
-                          message.sender._id === userId
-                            ? "justify-end"
-                            : "justify-start"
-                        }`}
-                      >
-                        <div
-                          className={`p-3 my-2 max-w-xs md:max-w-md rounded-lg ${
-                            message.sender._id === userId
-                              ? "bg-primary text-white"
-                              : "bg-gray-200 text-black"
-                          }`}
-                        >
-                          <p>{message.content}</p>
-                          <div className="flex justify-end w-full">
-                            <p
-                              className={`text-xs ${
+              {selectedUser && (
+                <>
+                  {isMessageLoading ? (
+                    <ChatSkeleton />
+                  ) : (
+                    Object.entries(groupedMessages).map(
+                      ([dateLabel, messages]) => (
+                        <div key={dateLabel}>
+                          <div className="text-center my-4 text-sm text-gray-500">
+                            {dateLabel}
+                          </div>
+                          {messages.map((message) => (
+                            <div
+                              key={message._id}
+                              className={`flex ${
                                 message.sender._id === userId
-                                  ? "text-white"
-                                  : "text-gray-500"
+                                  ? "justify-end"
+                                  : "justify-start"
                               }`}
                             >
-                              {formatMessageTime(message.createdAt)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-
-              {/* Group Chat Messages */}
-              {selectedGroup &&
-                Object.entries(groupedGroupMessages).map(
-                  ([dateLabel, messages]) => (
-                    <div key={dateLabel}>
-                      <div className="text-center my-4 text-sm text-gray-500">
-                        {dateLabel}
-                      </div>
-                      {messages.map((message) => (
-                        <div
-                          key={message._id}
-                          className={`flex ${
-                            message.memberId._id === userId
-                              ? "justify-end"
-                              : "justify-start"
-                          }`}
-                        >
-                          <div
-                            className={`p-3 my-1 max-w-xs md:max-w-md rounded-lg ${
-                              message.memberId._id === userId
-                                ? "bg-primary text-white"
-                                : "bg-gray-200 text-black"
-                            }`}
-                          >
-                            {/* Show sender name in group chats */}
-                            {message.memberId._id !== userId && (
-                              <p className="font-semibold text-sm mb-1">
-                                {message.memberId.name}
-                              </p>
-                            )}
-                            <p>{message.content}</p>
-                            <div className="flex justify-end w-full">
-                              <p
-                                className={`text-xs ${
-                                  message.memberId._id === userId
-                                    ? "text-white"
-                                    : "text-gray-500"
+                              <div
+                                className={`p-3 my-2 max-w-xs md:max-w-md rounded-lg ${
+                                  message.sender._id === userId
+                                    ? "bg-primary text-white"
+                                    : "bg-gray-200 text-black"
                                 }`}
                               >
-                                {formatMessageTime(message.createdAt)}
-                              </p>
+                                <p>{message.content}</p>
+                                <div className="flex justify-end w-full">
+                                  <p
+                                    className={`text-xs ${
+                                      message.sender._id === userId
+                                        ? "text-white"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    {formatMessageTime(message.createdAt)}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )
-                )}
+                      )
+                    )
+                  )}
+                </>
+              )}
+
+              {/* Group Chat Messages */}
+              {selectedGroup && (
+                <>
+                  {isGroupChatLoading ? (
+                    <ChatSkeleton />
+                  ) : (
+                    Object.entries(groupedGroupMessages).map(
+                      ([dateLabel, messages]) => (
+                        <div key={dateLabel}>
+                          <div className="text-center my-4 text-sm text-gray-500">
+                            {dateLabel}
+                          </div>
+                          {messages.map((message) => (
+                            <div
+                              key={message._id}
+                              className={`flex ${
+                                message.memberId._id === userId
+                                  ? "justify-end"
+                                  : "justify-start"
+                              }`}
+                            >
+                              <div
+                                className={`p-3 my-1 max-w-xs md:max-w-md rounded-lg ${
+                                  message.memberId._id === userId
+                                    ? "bg-primary text-white"
+                                    : "bg-gray-200 text-black"
+                                }`}
+                              >
+                                {/* Show sender name in group chats */}
+                                {message.memberId._id !== userId && (
+                                  <p className="font-semibold text-sm mb-1">
+                                    {message.memberId.name}
+                                  </p>
+                                )}
+                                <p>{message.content}</p>
+                                <div className="flex justify-end w-full">
+                                  <p
+                                    className={`text-xs ${
+                                      message.memberId._id === userId
+                                        ? "text-white"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    {formatMessageTime(message.createdAt)}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    )
+                  )}
+                </>
+              )}
             </div>
 
             {/* Message Input */}

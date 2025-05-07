@@ -18,7 +18,9 @@ const JobsCard = ({ size, job, onClick, classname }: JobsCardProps) => {
   return (
     <div>
       <EmptyCard
-        cardClassname={`${isSmall ? "bg-[#f5f5f5]" : ""} ${classname} `}
+        cardClassname={`${
+          isSmall ? "bg-[#f5f5f5]" : ""
+        } ${classname} rounded-none `}
       >
         <div
           onClick={onClick}

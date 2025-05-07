@@ -303,10 +303,21 @@ function NewJobPage() {
                 <span className="text-gray-600">Showing 73 results</span>
               </div>
 
-              <div className="hidden md:flex items-center mt-2 md:mt-0">
-                <span className="mr-2">Sort by:</span>
-                <span className="font-semibold mr-1">Most relevant</span>
-                <FiChevronDown />
+              <div className="flex items-center justify-between gap-4">
+                {/* <div className="hidden md:flex items-center mt-2 md:mt-0">
+                  <span className="mr-2">Sort by:</span>
+                  <span className="font-semibold mr-1">Most relevant</span>
+                  <FiChevronDown />
+                </div> */}
+                <div className="hidden md:flex items-center mt-2 md:mt-0">
+                  <button
+                    type="button"
+                    className="text-primary hover:text-primary/70 font-medium transition-colors duration-200"
+                    onClick={() => navigate("/jobs/applied-jobs")}
+                  >
+                    Applied Jobs
+                  </button>
+                </div>
               </div>
             </div>
 

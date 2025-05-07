@@ -14,11 +14,16 @@ export interface Job {
   experience: string;
   locationType: string;
   skills: string[];
-  range: any[];
+  range: Range[];
   jobPostDate: string;
   salaryType: string;
   salary: number;
   __v: number;
+}
+
+interface Range {
+  minimum: number;
+  maximum: number;
 }
 
 export interface JobApplication {

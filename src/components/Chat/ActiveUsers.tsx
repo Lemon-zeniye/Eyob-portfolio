@@ -8,6 +8,21 @@ interface Props {
   isSelected: boolean;
 }
 
+export const UserCardSkeleton: React.FC = () => {
+  return (
+    <div className="flex items-center space-x-4 px-3 py-2 rounded-lg border border-white bg-white animate-pulse">
+      <div className="relative">
+        <div className="w-12 h-12 rounded-full bg-gray-200" />
+        <div className="w-3 h-3 absolute right-0 bottom-0 bg-gray-300 rounded-full border-2 border-white" />
+      </div>
+      <div className="flex flex-col space-y-1">
+        <div className="h-4 w-24 bg-gray-200 rounded" />
+        <div className="h-3 w-36 bg-gray-200 rounded" />
+      </div>
+    </div>
+  );
+};
+
 const UserCard: React.FC<Props> = ({
   user,
   onClick,

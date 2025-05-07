@@ -22,24 +22,14 @@ const AppliedJobs = () => {
   return (
     <div className="flex flex-col gap-6 pr-5">
       <div className="flex sm-phone:flex-col sm:flex-row justify-between sm-phone:gap-8">
-        <div className="flex flex-row gap-1 items-center">
-          <Button
-            onClick={() => navigate(-1)}
-            className="p-0 text-primary"
-            variant={"ghost"}
-          >
-            <ChevronLeft size={30} />
-          </Button>
-          <p className="text-xl font-bold">Applied Jobs</p>
-        </div>
-        <div className="flex flex-row gap-4 sm-phone:justify-center sm-phone:items-center">
+        <div className="flex flex-row gap-4 sm-phone:justify-center sm-phone:items-center ">
           <SearchBar search="" setSearch={() => {}} />
-          <Button>
+          {/* <Button>
             <div className="flex flex-row gap-2">
               <ListFilter />
               <p>Filter</p>
             </div>
-          </Button>
+          </Button> */}
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 flex-wrap w-full gap-5">

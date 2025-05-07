@@ -9,6 +9,7 @@ import { Job } from "@/Types/job.type";
 import { tos } from "@/lib/utils";
 import { Spinner } from "../ui/Spinner";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import { useRole } from "@/Context/RoleContext";
 
 const RelatedJobSkeleton = () => {
   return (
@@ -53,7 +54,10 @@ const RelatedJob = ({ job }: { job: Job }) => {
         </div>
       </div>
       <div className="text-xl mt-6 font-semibold flex gap-2 items-center">
-        <HiOutlineCurrencyDollar size={22} /> {job.salary}
+        <HiOutlineCurrencyDollar size={22} />{" "}
+        {job?.range?.length === 0
+          ? job.salary
+          : job.range[0]?.minimum + "-" + job.range[0]?.maximum}
       </div>
     </div>
   );
@@ -72,6 +76,7 @@ function JobDetailNew() {
   });
 
   const company = jobDetail?.data?.company;
+  const { role } = useRole();
 
   const { data: jobsData, isLoading } = useQuery({
     queryKey: ["jobFilter", company],
@@ -119,18 +124,33 @@ function JobDetailNew() {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full md:w-auto">
-          <h1 className="text-base sm:text-lg">$ {jobDetail?.data.salary}</h1>
-          <Button
-            onClick={() =>
-              mutate({
-                jobId: id,
-              })
-            }
-            className="py-2 px-6 bg-primary rounded-none w-full sm:w-auto"
-          >
-            {jobApplyIsLoading ? <Spinner /> : "Apply"}
-          </Button>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-center gap-2 w-full md:w-auto">
+          <div className="text-xl font-semibold flex items-center gap-2 text-gray-800">
+            <HiOutlineCurrencyDollar size={22} />
+            <span>
+              {jobDetail?.data?.range &&
+              jobDetail?.data?.range?.length > 0 &&
+              jobDetail?.data?.range[0]?.minimum != null &&
+              jobDetail?.data?.range[0]?.maximum != null
+                ? `$${jobDetail.data.range[0].minimum} - $${jobDetail.data.range[0].maximum}`
+                : jobDetail?.data?.salary
+                ? `$${jobDetail.data.salary}`
+                : "N/A"}
+            </span>
+          </div>
+
+          {role === "user" && (
+            <Button
+              onClick={() =>
+                mutate({
+                  jobId: id,
+                })
+              }
+              className="py-2 px-6 bg-primary rounded-none w-full sm:w-auto"
+            >
+              {jobApplyIsLoading ? <Spinner /> : "Apply"}
+            </Button>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mx-2 mt-4">
@@ -229,47 +249,53 @@ function JobDetailNew() {
               </li>
             </ul>
           </div>
-          <div className="flex gap-2 ">
-            <Button
-              onClick={() =>
-                mutate({
-                  jobId: id,
-                })
-              }
-              className="py-2 px-10 bg-primary rounded-none"
-            >
-              {jobApplyIsLoading ? <Spinner /> : "Applay"}
-            </Button>
-            <div className="w-10 h-10 border flex items-center justify-center">
-              <CiBookmark size={24} />
+          {role === "user" && (
+            <div className="flex gap-2 ">
+              <Button
+                onClick={() =>
+                  mutate({
+                    jobId: id,
+                  })
+                }
+                className="py-2 px-10 bg-primary rounded-none"
+              >
+                {jobApplyIsLoading ? <Spinner /> : "Applay"}
+              </Button>
+              <div className="w-10 h-10 border flex items-center justify-center">
+                <CiBookmark size={24} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <div className="lg:col-span-1 ">
-          <h1 className="text-xl font-semibold pl-4 mb-4">
-            Jobs from {jobDetail?.data.company}
-          </h1>
-          <div className="flex flex-col gap-y-2 md:items-center justify-between">
-            <div className="flex flex-col gap-y-2 md:items-center justify-between">
-              {isLoading
-                ? ["1", "2", "3"].map((_, index) => (
-                    <RelatedJobSkeleton key={index} />
-                  ))
-                : jobsToShow?.map((job) => (
-                    <RelatedJob key={job._id} job={job} />
-                  ))}
+          {role === "user" ? (
+            <>
+              <h1 className="text-xl font-semibold pl-4 mb-4">
+                Jobs from {jobDetail?.data.company}
+              </h1>
+              <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                  {isLoading
+                    ? ["1", "2", "3"].map((_, index) => (
+                        <RelatedJobSkeleton key={index} />
+                      ))
+                    : jobsToShow?.map((job) => (
+                        <RelatedJob key={job._id} job={job} />
+                      ))}
 
-              {!isLoading && jobsData?.data && jobsData?.data.length > 3 && (
-                <Button
-                  className="px-4 py-2 rounded-none bg-primary w-[94%] mx-6"
-                  onClick={() => setShowAll((prev) => !prev)}
-                >
-                  {showAll ? "Show Less" : "Explore More"}
-                </Button>
-              )}
-            </div>
-          </div>
-          {/* <h1 className="text-2xl font-semibold pl-4 my-4">Related Jobs</h1>
+                  {!isLoading &&
+                    jobsData?.data &&
+                    jobsData?.data.length > 3 && (
+                      <Button
+                        className="px-4 py-2 rounded-none bg-primary w-[94%] mx-6"
+                        onClick={() => setShowAll((prev) => !prev)}
+                      >
+                        {showAll ? "Show Less" : "Explore More"}
+                      </Button>
+                    )}
+                </div>
+              </div>
+              {/* <h1 className="text-2xl font-semibold pl-4 my-4">Related Jobs</h1>
           <div className="flex flex-col gap-y-2 items-center justify-between">
             {["1", "2", "3"].map((_) => (
               <RelatedJob />
@@ -278,6 +304,13 @@ function JobDetailNew() {
               Explor More
             </Button>
           </div> */}
+            </>
+          ) : (
+            <div>
+              <h1 className="text-xl font-semibold pl-4 mb-4">Applicants</h1>
+              <div>List of applicants for this job</div>
+            </div>
+          )}
         </div>
       </div>
     </div>
