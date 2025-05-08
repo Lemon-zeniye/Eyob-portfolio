@@ -11,9 +11,9 @@ import { Textarea } from "../ui/textarea";
 import * as Select from "@radix-ui/react-select";
 import { CalendarIcon, ChevronDownIcon } from "lucide-react";
 import { Button } from "../ui/button";
-import { useState } from "react";
-import { useMutation } from "react-query";
-import { addJob } from "@/Api/job.api";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import { addJob, getFetchSingleJob, updateJob } from "@/Api/job.api";
 import { tos } from "@/lib/utils";
 import { Spinner } from "../ui/Spinner";
 import { getAxiosErrorMessage } from "@/Api/axios";
@@ -26,6 +26,7 @@ import { PiListChecksFill } from "react-icons/pi";
 import { FaPlus } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
+import { useParams } from "react-router-dom";
 
 function AddJob() {
   const [skills, setSkills] = useState<string[]>([]);
@@ -35,26 +36,46 @@ function AddJob() {
   const [degrees, setDegrees] = useState<string[]>([]);
   const [showEducationError, setShowEducationError] = useState(false);
 
+  const { id } = useParams();
+  const { data: jobDetail } = useQuery({
+    queryKey: ["jobDetail", id],
+    queryFn: () => {
+      if (id) {
+        return getFetchSingleJob(id);
+      }
+    },
+    enabled: !!id,
+  });
+
+  useEffect(() => {
+    if (jobDetail) {
+      setSkills(jobDetail?.data.skills);
+      setDegrees([jobDetail?.data.degree]);
+    }
+  }, [jobDetail]);
+
   const form = useForm({
     mode: "onChange",
     defaultValues: {
       // step 1
-      jobTitle: "",
-      jobType: "",
-      salaryType: "",
+      jobTitle: jobDetail?.data.jobTitle ?? "",
+      jobType: jobDetail?.data.jobType ?? "",
+      salaryType: jobDetail?.data.salaryType ?? "",
       range: {
-        minimum: "",
-        maximum: "",
+        minimum: jobDetail?.data?.range[0]?.minimum ?? "",
+        maximum: jobDetail?.data?.range[0]?.maximum ?? "",
       },
-      salary: 0,
+      salary: jobDetail?.data.salary ?? 0,
       skills: [],
 
       // step 2
-      deadLine: new Date(),
-      jobLocation: "",
-      experience: "",
-      locationType: "",
-      jobDescription: "",
+      deadLine: jobDetail?.data.deadLine
+        ? new Date(jobDetail?.data.deadLine)
+        : new Date(),
+      jobLocation: jobDetail?.data.jobLocation ?? "",
+      experience: jobDetail?.data.experience ?? "",
+      locationType: jobDetail?.data.locationType ?? "",
+      jobDescription: jobDetail?.data.jobDescription ?? "",
     },
   });
 
@@ -62,6 +83,18 @@ function AddJob() {
     mutationFn: addJob,
     onSuccess: () => {
       tos.success("Job Added Successfully!");
+      // form.reset();
+    },
+    onError: (err) => {
+      const mes = getAxiosErrorMessage(err);
+      tos.error(mes);
+    },
+  });
+
+  const { mutate: updateJobMut, isLoading: jobEditLoading } = useMutation({
+    mutationFn: updateJob,
+    onSuccess: () => {
+      tos.success("Job Updated Successfully!");
       // form.reset();
     },
     onError: (err) => {
@@ -103,7 +136,11 @@ function AddJob() {
       salary: data.range.minimum,
       range: [{ ...data.range }],
     };
-    mutate(payload);
+    if (id) {
+      updateJobMut({ id, payload });
+    } else {
+      mutate(payload);
+    }
   };
 
   const nextStep = async () => {
@@ -789,7 +826,7 @@ function AddJob() {
 
                 <div className="my-4 flex items-center justify-end">
                   <Button className="px-4 py-2 rounded-none">
-                    {isLoading ? <Spinner /> : "Save"}{" "}
+                    {isLoading || jobEditLoading ? <Spinner /> : "Save"}
                   </Button>
                 </div>
               </motion.div>

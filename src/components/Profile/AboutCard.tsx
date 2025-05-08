@@ -43,16 +43,16 @@ function AboutCard() {
               <div>
                 <h1 className="text-lg font-semibold">Website</h1>
                 <div>
-                  {aboutCompany?.data.website?.map((d) => (
-                    <p>{d}</p>
+                  {aboutCompany?.data.website?.map((d, index) => (
+                    <p key={d + index}>{d}</p>
                   ))}
                 </div>
               </div>
               <div>
                 <h1 className="text-lg font-semibold">Social Media</h1>
                 <div>
-                  {aboutCompany?.data.website?.map((d) => (
-                    <p>{d}</p>
+                  {aboutCompany?.data.website?.map((d, index) => (
+                    <p key={d + index}>{d}</p>
                   ))}
                 </div>
               </div>

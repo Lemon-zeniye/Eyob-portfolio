@@ -11,6 +11,7 @@ import {
   GetOrganizationsResponse,
   JobCategoriesResponse,
   PostPayload,
+  UserFullProfileRes,
   UserPostResponse,
   UserProfileRes,
 } from "@/Types/profile.type";
@@ -233,5 +234,12 @@ export const updateUserProfile = async (payload: any): Promise<any> => {
 
 export const addUserProfile = async (payload: any): Promise<any> => {
   const response = await axios.post("/userProfile/addUserProfile", payload);
+  return response.data;
+};
+
+export const getUserFullProfile = async (
+  id: string
+): Promise<UserFullProfileRes> => {
+  const response = await axios.get<any>(`/user/getFullUserProfile/${id}`);
   return response.data;
 };

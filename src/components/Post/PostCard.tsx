@@ -1,19 +1,41 @@
 import { FaThumbsUp, FaComment, FaShare } from "react-icons/fa";
 import { useState } from "react";
-import { formatDateSmart, formatMessageTime, getImageUrl } from "@/lib/utils";
+import {
+  formatDateSmart,
+  formatMessageTime,
+  getImageUrl,
+  tos,
+} from "@/lib/utils";
 import { useMutation, useQueryClient } from "react-query";
 import { addComment, likeOrDeslike } from "@/Api/post.api";
 import { PostCom } from "@/Types/post.type";
+import Cookies from "js-cookie";
+import { MdDelete } from "react-icons/md";
+import * as Dialog from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
+import { Button } from "../ui/button";
+import { deletePost } from "@/Api/profile.api";
+import { Spinner } from "../ui/Spinner";
 
 export function Post({ post }: { post: PostCom }) {
   const [comment, setComment] = useState("");
   const [showComments, setShowComments] = useState(false);
   const queryClient = useQueryClient();
+  const userId = Cookies.get("userId");
+  const [open, setOpen] = useState(false);
 
   const { mutate: likePost } = useMutation({
     mutationFn: likeOrDeslike,
     onSuccess: () => {
       queryClient.invalidateQueries("getAllPostsWithComments");
+    },
+  });
+
+  const { mutate, isLoading } = useMutation({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries("getAllPostsWithComments");
+      tos.success("Success");
     },
   });
 
@@ -41,7 +63,7 @@ export function Post({ post }: { post: PostCom }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4">
+    <div className="bg-white group  shadow p-4 relative">
       {/* Post header */}
       <div className="flex items-center gap-3 mb-4">
         <img
@@ -59,6 +81,17 @@ export function Post({ post }: { post: PostCom }) {
           </p>
         </div>
       </div>
+
+      {/* delete iocn */}
+      {post?.postOwner._id === userId && (
+        <div className="opacity-0 group-hover:opacity-100 absolute top-4 right-4">
+          <MdDelete
+            size={24}
+            className="text-red-600 cursor-pointer"
+            onClick={() => setOpen(true)}
+          />
+        </div>
+      )}
 
       {/* Post content */}
       <div className="mb-4">
@@ -101,7 +134,7 @@ export function Post({ post }: { post: PostCom }) {
           <span>{post.likesCount}</span>
         </div>
         <div>
-          <span>{0} comments</span>
+          <span>{post?.comments && post?.comments.length} comments</span>
         </div>
       </div>
 
@@ -188,6 +221,36 @@ export function Post({ post }: { post: PostCom }) {
           ))}
         </div>
       )}
+      <Dialog.Root open={open} onOpenChange={setOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[94%] md:w-[30%] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-4 shadow-xl focus:outline-none">
+            <div className="flex items-center justify-between mb-2">
+              <Dialog.Title className="text-lg font-semibold">
+                Delete Post
+              </Dialog.Title>
+              <Dialog.Close asChild>
+                <button className="text-gray-500 hover:text-gray-800">
+                  <X className="w-5 h-5" />
+                </button>
+              </Dialog.Close>
+            </div>
+
+            <p>Are you sure you went to delete this post! </p>
+            <div className="flex gap-2 mt-4 justify-end">
+              <Button variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                className="bg-red-500 hover:bg-red-400"
+                onClick={() => mutate(post._id)}
+              >
+                {isLoading ? <Spinner /> : "Submit"}
+              </Button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }

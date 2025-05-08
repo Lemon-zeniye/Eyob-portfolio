@@ -51,3 +51,19 @@ export const getCompanyJobs = async (): Promise<JobResponse> => {
   const response = await axios.get<any>(`/job/fetchSingleUserJob`);
   return response.data;
 };
+
+export const fetchAllApplicants = async (): Promise<AppliedJobsResponse> => {
+  const response = await axios.get<any>(`job/fetchAllApplicants`);
+  return response.data;
+};
+
+export const updateJob = async ({
+  id,
+  payload,
+}: {
+  id: string;
+  payload: any;
+}): Promise<any> => {
+  const response = await axios.put<any>(`/job/updateJob/${id}`, payload);
+  return response.data;
+};

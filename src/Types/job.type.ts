@@ -28,7 +28,7 @@ interface Range {
 
 export interface JobApplication {
   _id: string;
-  userid: string;
+  userid: UserFullProfile;
   name: string;
   jobid: Job;
   jobTitle: string;
@@ -87,4 +87,25 @@ export interface JobStaticsRes {
   success: boolean;
   msg: string;
   data: JobStatics;
+}
+
+export interface UserFullProfile {
+  _id: string;
+  name: string;
+  email: string;
+  googleid: string;
+  password: string;
+  passwordResetNumber: number | null;
+  passwordResetToken: string;
+  passwordResetTokenExpires: string | null;
+  deviceTokens: string[];
+  role: "user" | "admin" | string;
+  lastLoggedIn: string | null;
+  status: "online" | "offline" | string;
+  otp: string;
+  otpExpiresAt: string | null;
+  updatedAt: string;
+  passwordChangedAt: string;
+  createdAt: string;
+  __v: number;
 }

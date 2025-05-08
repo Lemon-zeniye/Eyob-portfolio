@@ -76,7 +76,6 @@ function JobDetailNew() {
   });
 
   const company = jobDetail?.data?.company;
-  const { role } = useRole();
 
   const { data: jobsData, isLoading } = useQuery({
     queryKey: ["jobFilter", company],
@@ -139,18 +138,16 @@ function JobDetailNew() {
             </span>
           </div>
 
-          {role === "user" && (
-            <Button
-              onClick={() =>
-                mutate({
-                  jobId: id,
-                })
-              }
-              className="py-2 px-6 bg-primary rounded-none w-full sm:w-auto"
-            >
-              {jobApplyIsLoading ? <Spinner /> : "Apply"}
-            </Button>
-          )}
+          <Button
+            onClick={() =>
+              mutate({
+                jobId: id,
+              })
+            }
+            className="py-2 px-6 bg-primary rounded-none w-full sm:w-auto"
+          >
+            {jobApplyIsLoading ? <Spinner /> : "Apply"}
+          </Button>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mx-2 mt-4">
@@ -249,53 +246,47 @@ function JobDetailNew() {
               </li>
             </ul>
           </div>
-          {role === "user" && (
-            <div className="flex gap-2 ">
-              <Button
-                onClick={() =>
-                  mutate({
-                    jobId: id,
-                  })
-                }
-                className="py-2 px-10 bg-primary rounded-none"
-              >
-                {jobApplyIsLoading ? <Spinner /> : "Applay"}
-              </Button>
-              <div className="w-10 h-10 border flex items-center justify-center">
-                <CiBookmark size={24} />
-              </div>
+          <div className="flex gap-2 ">
+            <Button
+              onClick={() =>
+                mutate({
+                  jobId: id,
+                })
+              }
+              className="py-2 px-10 bg-primary rounded-none"
+            >
+              {jobApplyIsLoading ? <Spinner /> : "Applay"}
+            </Button>
+            <div className="w-10 h-10 border flex items-center justify-center">
+              <CiBookmark size={24} />
             </div>
-          )}
+          </div>
         </div>
         <div className="lg:col-span-1 ">
-          {role === "user" ? (
-            <>
-              <h1 className="text-xl font-semibold pl-4 mb-4">
-                Jobs from {jobDetail?.data.company}
-              </h1>
-              <div className="flex flex-col gap-y-2 md:items-center justify-between">
-                <div className="flex flex-col gap-y-2 md:items-center justify-between">
-                  {isLoading
-                    ? ["1", "2", "3"].map((_, index) => (
-                        <RelatedJobSkeleton key={index} />
-                      ))
-                    : jobsToShow?.map((job) => (
-                        <RelatedJob key={job._id} job={job} />
-                      ))}
+          <h1 className="text-xl font-semibold pl-4 mb-4">
+            Jobs from {jobDetail?.data.company}
+          </h1>
+          <div className="flex flex-col gap-y-2 md:items-center justify-between">
+            <div className="flex flex-col gap-y-2 md:items-center justify-between">
+              {isLoading
+                ? ["1", "2", "3"].map((_, index) => (
+                    <RelatedJobSkeleton key={index} />
+                  ))
+                : jobsToShow?.map((job) => (
+                    <RelatedJob key={job._id} job={job} />
+                  ))}
 
-                  {!isLoading &&
-                    jobsData?.data &&
-                    jobsData?.data.length > 3 && (
-                      <Button
-                        className="px-4 py-2 rounded-none bg-primary w-[94%] mx-6"
-                        onClick={() => setShowAll((prev) => !prev)}
-                      >
-                        {showAll ? "Show Less" : "Explore More"}
-                      </Button>
-                    )}
-                </div>
-              </div>
-              {/* <h1 className="text-2xl font-semibold pl-4 my-4">Related Jobs</h1>
+              {!isLoading && jobsData?.data && jobsData?.data.length > 3 && (
+                <Button
+                  className="px-4 py-2 rounded-none bg-primary w-[94%] mx-6"
+                  onClick={() => setShowAll((prev) => !prev)}
+                >
+                  {showAll ? "Show Less" : "Explore More"}
+                </Button>
+              )}
+            </div>
+          </div>
+          {/* <h1 className="text-2xl font-semibold pl-4 my-4">Related Jobs</h1>
           <div className="flex flex-col gap-y-2 items-center justify-between">
             {["1", "2", "3"].map((_) => (
               <RelatedJob />
@@ -304,13 +295,6 @@ function JobDetailNew() {
               Explor More
             </Button>
           </div> */}
-            </>
-          ) : (
-            <div>
-              <h1 className="text-xl font-semibold pl-4 mb-4">Applicants</h1>
-              <div>List of applicants for this job</div>
-            </div>
-          )}
         </div>
       </div>
     </div>

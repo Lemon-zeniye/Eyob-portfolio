@@ -14,6 +14,7 @@ import AppLayout from "./Pages/AppLayout";
 import PrivateRoute from "./Context/PrivateRoute";
 import { SocketProvider } from "./Context/SocketProvider";
 import JobDetailNew from "./components/Jobs/JobDetailNew";
+import JobDetailContainer from "./components/Jobs/JobDetailContainer";
 
 export const router = createBrowserRouter([
   {
@@ -53,7 +54,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "jobs/:id",
-            element: <JobDetailNew />,
+            element: <JobDetailContainer />,
           },
           {
             path: "chat",
@@ -79,6 +80,10 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "jobs/add-job",
+            element: <AddJob />,
+          },
+          {
+            path: "jobs/edit/:id",
             element: <AddJob />,
           },
         ],

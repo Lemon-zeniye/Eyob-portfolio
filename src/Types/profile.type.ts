@@ -196,3 +196,31 @@ export interface UserProfile {
   location: string;
   bio: string;
 }
+
+export interface UserData {
+  _id: string;
+  name: string;
+  education: UserEducation[];
+  experience: UserExperience[];
+  skills: SkillNew[];
+  organization: Organization[];
+  certification: any[];
+  id: string;
+  location: string;
+  position: string;
+  bio: string;
+}
+
+export interface UserFullProfileRes {
+  success: boolean;
+  msg: string;
+  data: UserData;
+}
+
+export interface SkillNew {
+  _id: string;
+  userid: string;
+  skill: string[];
+  createdAt: string;
+  __v: number;
+}
