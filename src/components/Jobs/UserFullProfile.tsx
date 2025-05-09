@@ -18,7 +18,7 @@ const UserProfile = ({
     setExpandedSection(expandedSection === section ? null : section);
   };
 
-  const { data: userFullProfile, isLoading } = useQuery({
+  const { data: userFullProfile } = useQuery({
     queryKey: ["getUserFullProfile", id],
     queryFn: () => {
       if (id) {

@@ -2,15 +2,11 @@ import { getAppliedJobs } from "@/Api/job.api";
 import JobsCard from "@/components/Jobs/JobsCard";
 import JobsDetail from "@/components/Jobs/JobsDetail";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
-import { Button } from "@/components/ui/button";
 import { Job } from "@/Types/job.type";
-import { ChevronLeft, ListFilter } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
 
 const AppliedJobs = () => {
-  const navigate = useNavigate();
   const [selectedJob, setSelectedJob] = useState<Job | undefined>(undefined);
   const [openJobDetail, setOpenJobDetail] = useState<boolean>(false);
 

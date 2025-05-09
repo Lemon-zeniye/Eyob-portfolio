@@ -9,7 +9,6 @@ import { Job } from "@/Types/job.type";
 import { tos } from "@/lib/utils";
 import { Spinner } from "../ui/Spinner";
 import { getAxiosErrorMessage } from "@/Api/axios";
-import { useRole } from "@/Context/RoleContext";
 
 const RelatedJobSkeleton = () => {
   return (

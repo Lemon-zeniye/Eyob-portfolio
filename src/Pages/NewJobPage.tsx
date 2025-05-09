@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FilterCategory, SelectedValues } from "@/Types/job.type";
 import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { FiChevronDown, FiFilter, FiSearch } from "react-icons/fi";
+import { FiFilter, FiSearch } from "react-icons/fi";
 import { useQuery } from "react-query";
 import JobCardTwo from "@/components/Jobs/JobCardGrid";
 import { PiColumnsFill } from "react-icons/pi";

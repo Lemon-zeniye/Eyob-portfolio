@@ -13,7 +13,6 @@ import JobPage from "./Pages/JobPage";
 import AppLayout from "./Pages/AppLayout";
 import PrivateRoute from "./Context/PrivateRoute";
 import { SocketProvider } from "./Context/SocketProvider";
-import JobDetailNew from "./components/Jobs/JobDetailNew";
 import JobDetailContainer from "./components/Jobs/JobDetailContainer";
 
 export const router = createBrowserRouter([
