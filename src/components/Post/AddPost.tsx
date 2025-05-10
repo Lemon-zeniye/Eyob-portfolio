@@ -64,6 +64,8 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
     const formData = new FormData();
     if (title) formData.append("postTitle", title);
     if (description) formData.append("postContent", description);
+    // formal
+    formData.append("postType", "social");
 
     // Append images one by one
     images.forEach((file) => {
@@ -142,11 +144,11 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
       <div className="p-3 border-t flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <button
-            className="flex items-center space-x-1 text-gray-500 hover:text-gray-700"
+            className="flex items-center space-x-1 border px-2 py-2 border-primary text-gray-500 hover:text-gray-700"
             onClick={() => fileInputRef.current?.click()}
           >
             <FaImage className={`text-lg text-primary`} />
-            <span>Photo</span>
+            <span>Upload Photo</span>
           </button>
           <input
             type="file"
@@ -158,7 +160,7 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
           />
         </div>
         <button
-          className={`px-4 py-2 rounded-md text-white font-medium flex items-center space-x-2 bg-primary`}
+          className={`px-4 py-2 text-white font-medium flex items-center space-x-2 bg-primary`}
           onClick={handleSubmit}
         >
           <span>Post</span>

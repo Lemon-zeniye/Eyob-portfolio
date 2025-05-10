@@ -1,14 +1,15 @@
-"use client"
-
-import { getAllPostsWithComments } from "@/Api/post.api"
-import { AddPost } from "@/components/Post/AddPost"
-import { useQuery } from "react-query"
-import * as Dialog from "@radix-ui/react-dialog"
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import {
+  addComment,
+  getAllPostsWithComments,
+  likeOrDeslike,
+} from "@/Api/post.api";
+import { AddPost } from "@/components/Post/AddPost";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import * as Dialog from "@radix-ui/react-dialog";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Bookmark,
-  Camera,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -20,37 +21,47 @@ import {
   Send,
   Share2,
   X,
-} from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Textarea } from "@/components/ui/textarea"
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
+import { formatDateSmart, formatMessageTime } from "@/lib/utils";
+import PostGallery from "@/components/Post/PostGallery";
+import Cookies from "js-cookie";
+import { getUserFullProfile } from "@/Api/profile.api";
+import { FaEllipsisH, FaTrash } from "react-icons/fa";
 
 function Home() {
   const { data: allPostsWithComments } = useQuery({
     queryKey: ["getAllPostsWithComments"],
     queryFn: getAllPostsWithComments,
-  })
-  const [open, setOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState("following")
-  const [currentStoryItemIndex, setCurrentStoryItemIndex] = useState(0)
-  const [storyProgress, setStoryProgress] = useState(0)
-  const [expandedComments, setExpandedComments] = useState<string[]>([])
-  const [commentInputs, setCommentInputs] = useState<Record<string, string>>({})
+  });
+  const [open, setOpen] = useState(false);
+  const [currentStoryItemIndex, setCurrentStoryItemIndex] = useState(0);
+  const [storyProgress, setStoryProgress] = useState(0);
+  const [expandedComments, setExpandedComments] = useState<string[]>([]);
+  const [commentInputs, setCommentInputs] = useState<Record<string, string>>(
+    {}
+  );
+  const [viewStory, setViewStory] = useState(false);
+  const queryClient = useQueryClient();
+  const userId = Cookies.get("userId");
 
   const stories = [
     {
       id: 1,
       username: "sarah_j",
       title: "Mountain Trip",
-      avatar: "/placeholder.svg?height=80&width=80",
+      avatar: "https://picsum.photos/seed/avatar1/80/80",
       items: [
         {
           id: "s1-1",
-          image: "/placeholder.svg?height=1280&width=720&text=Mountain%20View",
+          image: "https://picsum.photos/seed/mountainview/720/1280",
         },
         {
           id: "s1-2",
-          image: "/placeholder.svg?height=1280&width=720&text=Hiking%20Trail",
+          image: "https://picsum.photos/seed/hikingtrail/720/1280",
         },
       ],
     },
@@ -58,11 +69,11 @@ function Home() {
       id: 2,
       username: "mike_design",
       title: "New Project",
-      avatar: "/placeholder.svg?height=80&width=80",
+      avatar: "https://picsum.photos/seed/avatar2/80/80",
       items: [
         {
           id: "s2-1",
-          image: "/placeholder.svg?height=1280&width=720&text=Design%20Mockup",
+          image: "https://picsum.photos/seed/designmockup/720/1280",
         },
       ],
     },
@@ -70,19 +81,19 @@ function Home() {
       id: 3,
       username: "travel_lisa",
       title: "Paris",
-      avatar: "/placeholder.svg?height=80&width=80",
+      avatar: "https://picsum.photos/seed/avatar3/80/80",
       items: [
         {
           id: "s3-1",
-          image: "/placeholder.svg?height=1280&width=720&text=Eiffel%20Tower",
+          image: "https://picsum.photos/seed/eiffeltower/720/1280",
         },
         {
           id: "s3-2",
-          image: "/placeholder.svg?height=1280&width=720&text=Louvre%20Museum",
+          image: "https://picsum.photos/seed/louvremuseum/720/1280",
         },
         {
           id: "s3-3",
-          image: "/placeholder.svg?height=1280&width=720&text=Seine%20River",
+          image: "https://picsum.photos/seed/seineriver/720/1280",
         },
       ],
     },
@@ -90,15 +101,15 @@ function Home() {
       id: 4,
       username: "photo_chris",
       title: "Portraits",
-      avatar: "/placeholder.svg?height=80&width=80",
+      avatar: "https://picsum.photos/seed/avatar4/80/80",
       items: [
         {
           id: "s4-1",
-          image: "/placeholder.svg?height=1280&width=720&text=Portrait%201",
+          image: "https://picsum.photos/seed/portrait1/720/1280",
         },
         {
           id: "s4-2",
-          image: "/placeholder.svg?height=1280&width=720&text=Portrait%202",
+          image: "https://picsum.photos/seed/portrait2/720/1280",
         },
       ],
     },
@@ -106,11 +117,11 @@ function Home() {
       id: 5,
       username: "fitness_alex",
       title: "Workout",
-      avatar: "/placeholder.svg?height=80&width=80",
+      avatar: "https://picsum.photos/seed/avatar5/80/80",
       items: [
         {
           id: "s5-1",
-          image: "/placeholder.svg?height=1280&width=720&text=Gym%20Session",
+          image: "https://picsum.photos/seed/gymsession/720/1280",
         },
       ],
     },
@@ -118,91 +129,134 @@ function Home() {
       id: 6,
       username: "food_maria",
       title: "Recipes",
-      avatar: "/placeholder.svg?height=80&width=80",
+      avatar: "https://picsum.photos/seed/avatar6/80/80",
       items: [
         {
           id: "s6-1",
-          image: "/placeholder.svg?height=1280&width=720&text=Pasta%20Recipe",
+          image: "https://picsum.photos/seed/pastarecipe/720/1280",
         },
         {
           id: "s6-2",
-          image: "/placeholder.svg?height=1280&width=720&text=Dessert",
+          image: "https://picsum.photos/seed/dessert/720/1280",
         },
       ],
     },
-  ]
+  ];
 
   const [viewingStory, setViewingStory] = useState<null | {
-    id: number
-    username: string
-    title: string
-    avatar: string
-    items: Array<{ id: string; image: string }>
-  }>(null)
+    id: number;
+    username: string;
+    title: string;
+    avatar: string;
+    items: Array<{ id: string; image: string }>;
+  }>(null);
 
   useEffect(() => {
-    if (!viewingStory) return
+    if (!viewingStory) return;
 
-    const storyDuration = 5000
-    const interval = 100
-    let timer: NodeJS.Timeout
-    let progressTimer: NodeJS.Timeout
+    const storyDuration = 5000;
+    const interval = 100;
+    let timer: NodeJS.Timeout;
+    let progressTimer: NodeJS.Timeout;
 
-    setStoryProgress(0)
+    setStoryProgress(0);
 
     progressTimer = setInterval(() => {
       setStoryProgress((prev) => {
-        if (prev >= 100) return 100
-        return prev + 100 / (storyDuration / interval)
-      })
-    }, interval)
+        if (prev >= 100) return 100;
+        return prev + 100 / (storyDuration / interval);
+      });
+    }, interval);
 
     timer = setTimeout(() => {
       if (currentStoryItemIndex < viewingStory.items.length - 1) {
-        setCurrentStoryItemIndex((prev) => prev + 1)
-        setStoryProgress(0)
+        setCurrentStoryItemIndex((prev) => prev + 1);
+        setStoryProgress(0);
       } else {
-        const currentIndex = stories.findIndex((s) => s.id === viewingStory.id)
-        const nextIndex = (currentIndex + 1) % stories.length
-        setViewingStory(stories[nextIndex])
-        setCurrentStoryItemIndex(0)
-        setStoryProgress(0)
+        const currentIndex = stories.findIndex((s) => s.id === viewingStory.id);
+        const nextIndex = (currentIndex + 1) % stories.length;
+        setViewingStory(stories[nextIndex]);
+        setCurrentStoryItemIndex(0);
+        setStoryProgress(0);
       }
-    }, storyDuration)
+    }, storyDuration);
 
     return () => {
-      clearTimeout(timer)
-      clearInterval(progressTimer)
-    }
-  }, [viewingStory, currentStoryItemIndex])
+      clearTimeout(timer);
+      clearInterval(progressTimer);
+    };
+  }, [viewingStory, currentStoryItemIndex]);
 
   const toggleComments = (postId: string) => {
     setExpandedComments((prev) =>
       prev.includes(postId)
         ? prev.filter((id) => id !== postId)
         : [...prev, postId]
-    )
-  }
+    );
+  };
 
   const handleCommentChange = (postId: string, value: string) => {
     setCommentInputs((prev) => ({
       ...prev,
       [postId]: value,
-    }))
-  }
+    }));
+  };
 
-  const submitComment = (postId: string) => {
-    console.log(`Submitting comment for post ${postId}:`, commentInputs[postId])
+  const { data: userFullProfile } = useQuery({
+    queryKey: ["getUserFullProfile", userId],
+    queryFn: () => {
+      if (userId) {
+        return getUserFullProfile(userId);
+      }
+    },
+    enabled: !!userId,
+  });
+
+  console.log("00000", userFullProfile);
+
+  ///// mutuation
+  const { mutate, isLoading } = useMutation({
+    mutationFn: likeOrDeslike,
+    onSuccess: () => {
+      queryClient.invalidateQueries("getAllPostsWithComments");
+    },
+    onError: () => {},
+  });
+
+  const { mutate: comment } = useMutation({
+    mutationFn: addComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries("getAllPostsWithComments");
+    },
+    onError: () => {},
+  });
+
+  const handleLike = (id: string) => {
+    mutate({ like: "like", postId: id });
+  };
+
+  const submitComment = ({
+    postId,
+    userId,
+  }: {
+    postId: string;
+    userId: string;
+  }) => {
+    comment({
+      postId: postId,
+      comment: commentInputs[postId],
+      commentedTo: userId,
+    });
 
     setCommentInputs((prev) => ({
       ...prev,
       [postId]: "",
-    }))
-  }
+    }));
+  };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc]">
-      <div className="max-w-7xl mx-auto flex gap-8 p-4">
+    <div className="min-h-screen">
+      <div className="w-full mx-auto flex gap-8 p-4">
         <div className="flex-1 space-y-6">
           <div className="bg-white rounded-2xl shadow-sm p-5 overflow-hidden">
             <h2 className="font-semibold  text-lg mb-4">Stories</h2>
@@ -212,9 +266,10 @@ function Home() {
                   key={story.id}
                   className="min-w-[160px] h-[180px] rounded-xl bg-white border border-gray-200 overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => {
-                    setViewingStory(story)
-                    setCurrentStoryItemIndex(0)
-                    setStoryProgress(0)
+                    setViewingStory(story);
+                    setCurrentStoryItemIndex(0);
+                    setViewStory(true);
+                    setStoryProgress(0);
                   }}
                 >
                   <div className="h-24 bg-gray-100 relative">
@@ -271,8 +326,8 @@ function Home() {
             {[...(allPostsWithComments?.data ?? [])]
               .reverse()
               .map((post, index) => {
-                const postId = post._id || `post-${index}`
-                const isCommentsExpanded = expandedComments.includes(postId)
+                const postId = post._id || `post-${index}`;
+                const isCommentsExpanded = expandedComments.includes(postId);
 
                 return (
                   <div
@@ -284,15 +339,15 @@ function Home() {
                         <Avatar className="w-10 h-10 border">
                           <AvatarImage
                             src="/placeholder.svg?height=40&width=40"
-                            alt={post.user?.name || "User"}
+                            alt={post.postOwner?.name || "User"}
                           />
                           <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9]">
-                            {(post.user?.name?.[0] || "U").toUpperCase()}
+                            {(post.postOwner?.name?.[0] || "U").toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="ml-3">
                           <p className="font-medium">
-                            {post.user?.name || "Anonymous"}
+                            {post.postOwner?.name || "Anonymous"}
                           </p>
                           <div className="flex items-center text-xs text-gray-500">
                             <Clock className="w-3 h-3 mr-1" />
@@ -302,31 +357,32 @@ function Home() {
                           </div>
                         </div>
                       </div>
-                      <button className="text-gray-500 hover:text-gray-700">
-                        <MoreHorizontal className="w-5 h-5" />
+
+                      <button className="text-gray-500 hover:text-gray-700 group relative">
+                        <div className="flex items-center gap-1">
+                          {/* Always visible horizontal dots icon */}
+                          <FaEllipsisH className="w-5 h-5" />
+
+                          {/* Delete option that appears on hover */}
+                          <span className="hidden group-hover:flex items-center gap-1 absolute top-1 right-0 ml-2 bg-white px-2 py-1 rounded shadow whitespace-nowrap">
+                            <FaTrash className="w-4 h-4 text-red-500" />
+                            <span className="text-sm text-red-500">Delete</span>
+                          </span>
+                        </div>
                       </button>
                     </div>
 
-                    <div className="aspect-video bg-gray-100">
-                      <img
-                        src={
-                          post.image ||
-                          `/placeholder.svg?height=400&width=800&text=${encodeURIComponent(
-                            post.title || "Post Image"
-                          )}`
-                        }
-                        alt={post.title || "Post"}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="aspect-video w-full h-[58vh]  bg-gray-100">
+                      <PostGallery key={post._id} post={post} index={index} />
                     </div>
 
                     <div className="p-5">
                       <div className="mb-4">
                         <h3 className="font-semibold text-lg mb-2">
-                          {post.title}
+                          {post.postTitle}
                         </h3>
                         <p className="text-gray-600 text-sm">
-                          {post.content || "No description provided."}
+                          {post.postContent || "No description provided."}
                         </p>
                       </div>
 
@@ -346,7 +402,7 @@ function Home() {
                       <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                         <div className="flex items-center gap-1">
                           <Heart className="w-4 h-4" />
-                          <span>{post.likes?.length || 0} likes</span>
+                          <span>{post.likesCount || 0} likes</span>
                         </div>
                         <button
                           className="flex items-center gap-1"
@@ -362,10 +418,35 @@ function Home() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" className="flex-1 h-9">
-                          <Heart className="w-4 h-4 mr-2" />
-                          Like
-                        </Button>
+                        <motion.button
+                          onClick={() => handleLike(post._id)}
+                          disabled={isLoading}
+                          className="flex items-center justify-center flex-1 gap-2 h-9 px-4 rounded border border-gray-300"
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <motion.div
+                            key={post.isLikedByUser ? "liked" : "unliked"}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1.2 }}
+                            exit={{ scale: 0 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 15,
+                            }}
+                          >
+                            <Heart
+                              className={`w-4 h-4 ${
+                                post.isLikedByUser
+                                  ? "text-red-500 fill-red-500"
+                                  : "text-gray-500"
+                              }`}
+                            />
+                          </motion.div>
+                          <span className="text-sm">
+                            {post.isLikedByUser ? "Liked" : "Like"}
+                          </span>
+                        </motion.button>
                         <Button
                           variant="outline"
                           className="flex-1 h-9"
@@ -381,49 +462,6 @@ function Home() {
 
                       {isCommentsExpanded && (
                         <div className="mt-4 pt-4 border-t">
-                          <h4 className="font-medium text-sm mb-3">Comments</h4>
-
-                          <div className="space-y-3 mb-4">
-                            {post.comments && post.comments.length > 0 ? (
-                              post.comments.map((comment: any, i: number) => (
-                                <div key={i} className="flex gap-3">
-                                  <Avatar className="w-8 h-8">
-                                    <AvatarImage
-                                      src={`/placeholder.svg?height=32&width=32&text=${
-                                        comment.user?.name?.[0] || "U"
-                                      }`}
-                                      alt={comment.user?.name || "User"}
-                                    />
-                                    <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9]">
-                                      {(
-                                        comment.user?.name?.[0] || "U"
-                                      ).toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div className="flex-1 bg-gray-50 p-3 rounded-xl">
-                                    <div className="flex justify-between items-start">
-                                      <p className="font-medium text-sm">
-                                        {comment.user?.name || "Anonymous"}
-                                      </p>
-                                      <span className="text-xs text-gray-500">
-                                        {new Date(
-                                          comment.createdAt
-                                        ).toLocaleDateString()}
-                                      </span>
-                                    </div>
-                                    <p className="text-sm mt-1">
-                                      {comment.content}
-                                    </p>
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-sm text-gray-500">
-                                No comments yet. Be the first to comment!
-                              </p>
-                            )}
-                          </div>
-
                           <div className="flex gap-3">
                             <Avatar className="w-8 h-8">
                               <AvatarImage
@@ -442,22 +480,92 @@ function Home() {
                                 onChange={(e) =>
                                   handleCommentChange(postId, e.target.value)
                                 }
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    if (commentInputs[postId]?.trim()) {
+                                      submitComment({
+                                        postId,
+                                        userId: post.userid,
+                                      });
+                                    }
+                                  }
+                                }}
                               />
                               <Button
                                 size="icon"
                                 className="h-10 w-10 bg-[#05A9A9] hover:bg-[#048484]"
-                                onClick={() => submitComment(postId)}
+                                onClick={() =>
+                                  submitComment({ postId, userId: post.userid })
+                                }
                                 disabled={!commentInputs[postId]?.trim()}
                               >
                                 <Send className="h-4 w-4" />
                               </Button>
                             </div>
                           </div>
+
+                          <h4 className="font-medium text-sm mb-3">Comments</h4>
+
+                          <div className="space-y-3 mb-4">
+                            {post.comments && post.comments.length > 0 ? (
+                              post.comments.map((comment, i) => (
+                                <div key={i} className="flex gap-3">
+                                  <Avatar className="w-8 h-8">
+                                    <AvatarImage
+                                      src={`/placeholder.svg?height=32&width=32&text=${
+                                        post?.commenterDetails?.find(
+                                          (user) =>
+                                            user._id === comment.commentedBy
+                                        ) || "U"
+                                      }`}
+                                      // alt={post?.commenterDetails?.find((user) => user._id === comment.commentedBy) || "User"}
+                                    />
+                                    <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9]">
+                                      {(
+                                        post?.commenterDetails
+                                          ?.find(
+                                            (user) =>
+                                              user._id === comment.commentedBy
+                                          )
+                                          ?.name?.slice(0, 1) || "U"
+                                      )?.toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 bg-gray-50 p-3 rounded-xl">
+                                    <div className="flex justify-between items-start">
+                                      <p className="font-medium text-sm">
+                                        {post?.commenterDetails?.find(
+                                          (user) =>
+                                            user._id === comment.commentedBy
+                                        )?.name || "Anonymous"}
+                                      </p>
+                                      <span className="text-xs text-gray-500">
+                                        {formatDateSmart(
+                                          comment.createdAt,
+                                          true
+                                        ) +
+                                          " at " +
+                                          formatMessageTime(comment.createdAt)}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm font-light mt-1">
+                                      {comment.comment}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-500">
+                                No comments yet. Be the first to comment!
+                              </p>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
                   </div>
-                )
+                );
               })}
 
             {(!allPostsWithComments?.data ||
@@ -488,15 +596,20 @@ function Home() {
               <div className="px-5 pb-5 pt-0 -mt-10">
                 <Avatar className="w-20 h-20 border-4 border-white">
                   <AvatarImage
-                    src="/placeholder.svg?height=80&width=80"
+                    src="https://i.pravatar.cc/100?img=7"
                     alt="Your profile"
                   />
                   <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9] text-xl">
                     YP
                   </AvatarFallback>
                 </Avatar>
-                <h3 className="font-bold text-lg mt-2">Your Name</h3>
+                <h3 className="font-bold text-lg mt-2">
+                  {userFullProfile?.data.name ?? "Your Name"}
+                </h3>
                 <p className="text-gray-500 text-sm">@username</p>
+                <p className="text-gray-500 text-sm">
+                  {userFullProfile?.data.bio ?? "No bio"}
+                </p>
 
                 <div className="flex justify-between mt-4 text-center">
                   <div>
@@ -537,7 +650,7 @@ function Home() {
               </Dialog.Close>
             </div>
 
-            <div className="border border-dashed border-gray-300 rounded-xl p-6 mb-4 text-center">
+            {/* <div className="border border-dashed border-gray-300 rounded-xl p-6 mb-4 text-center">
               <div className="w-16 h-16 bg-[#05A9A9]/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Camera className="w-8 h-8 text-[#05A9A9]" />
               </div>
@@ -547,7 +660,7 @@ function Home() {
               <Button className="bg-[#05A9A9] hover:bg-[#048484]">
                 Upload Photo
               </Button>
-            </div>
+            </div> */}
 
             <AddPost onSuccess={() => setOpen(false)} />
           </Dialog.Content>
@@ -555,13 +668,16 @@ function Home() {
       </Dialog.Root>
 
       {viewingStory && (
-        <Dialog.Root
-          open={!!viewingStory}
-          onOpenChange={() => setViewingStory(null)}
-        >
+        <Dialog.Root open={viewStory} onOpenChange={setViewStory}>
           <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50" />
-            <Dialog.Content className="fixed inset-0 z-50 flex items-center justify-center focus:outline-none">
+            <Dialog.Overlay
+              className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50"
+              onClick={() => {
+                setViewStory(false);
+                console.log(viewStory);
+              }}
+            />
+            <Dialog.Content className="fixed inset-0 mx-auto z-50 w-[50%] bg-red-400 flex items-center justify-center focus:outline-none">
               <div className="relative w-full max-w-3xl mx-auto">
                 <div className="absolute top-0 left-4 right-4 flex gap-1 z-10 p-4">
                   {viewingStory.items.map((item, idx) => (
@@ -599,7 +715,10 @@ function Home() {
                     </div>
                   </div>
                   <Dialog.Close asChild>
-                    <button className="text-white hover:text-gray-200 rounded-full p-1">
+                    <button
+                      className="text-white hover:text-gray-200 rounded-full p-1"
+                      onClick={() => setViewStory(false)} // Explicit close handler
+                    >
                       <X className="w-6 h-6" />
                     </button>
                   </Dialog.Close>
@@ -608,25 +727,25 @@ function Home() {
                 <div
                   className="aspect-[9/16] bg-black rounded-lg overflow-hidden"
                   onClick={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect()
-                    const x = e.clientX - rect.left
-                    const isLeftSide = x < rect.width / 2
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const isLeftSide = x < rect.width / 2;
 
                     if (isLeftSide) {
                       if (currentStoryItemIndex > 0) {
-                        setCurrentStoryItemIndex(currentStoryItemIndex - 1)
-                        setStoryProgress(0)
+                        setCurrentStoryItemIndex(currentStoryItemIndex - 1);
+                        setStoryProgress(0);
                       } else {
                         const currentIndex = stories.findIndex(
                           (s) => s.id === viewingStory.id
-                        )
+                        );
                         const prevIndex =
-                          (currentIndex - 1 + stories.length) % stories.length
-                        setViewingStory(stories[prevIndex])
+                          (currentIndex - 1 + stories.length) % stories.length;
+                        setViewingStory(stories[prevIndex]);
                         setCurrentStoryItemIndex(
                           stories[prevIndex].items.length - 1
-                        )
-                        setStoryProgress(0)
+                        );
+                        setStoryProgress(0);
                       }
                     } else {
                       // Go to next item or next story
@@ -634,16 +753,16 @@ function Home() {
                         currentStoryItemIndex <
                         viewingStory.items.length - 1
                       ) {
-                        setCurrentStoryItemIndex(currentStoryItemIndex + 1)
-                        setStoryProgress(0)
+                        setCurrentStoryItemIndex(currentStoryItemIndex + 1);
+                        setStoryProgress(0);
                       } else {
                         const currentIndex = stories.findIndex(
                           (s) => s.id === viewingStory.id
-                        )
-                        const nextIndex = (currentIndex + 1) % stories.length
-                        setViewingStory(stories[nextIndex])
-                        setCurrentStoryItemIndex(0)
-                        setStoryProgress(0)
+                        );
+                        const nextIndex = (currentIndex + 1) % stories.length;
+                        setViewingStory(stories[nextIndex]);
+                        setCurrentStoryItemIndex(0);
+                        setStoryProgress(0);
                       }
                     }
                   }}
@@ -664,21 +783,21 @@ function Home() {
                 <button
                   className="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/50"
                   onClick={(e) => {
-                    e.stopPropagation()
+                    e.stopPropagation();
                     if (currentStoryItemIndex > 0) {
-                      setCurrentStoryItemIndex((prev) => prev - 1)
-                      setStoryProgress(0)
+                      setCurrentStoryItemIndex((prev) => prev - 1);
+                      setStoryProgress(0);
                     } else {
                       const currentIndex = stories.findIndex(
                         (s) => s.id === viewingStory.id
-                      )
+                      );
                       const prevIndex =
-                        (currentIndex - 1 + stories.length) % stories.length
-                      setViewingStory(stories[prevIndex])
+                        (currentIndex - 1 + stories.length) % stories.length;
+                      setViewingStory(stories[prevIndex]);
                       setCurrentStoryItemIndex(
                         stories[prevIndex].items.length - 1
-                      )
-                      setStoryProgress(0)
+                      );
+                      setStoryProgress(0);
                     }
                   }}
                 >
@@ -687,18 +806,18 @@ function Home() {
                 <button
                   className="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/50"
                   onClick={(e) => {
-                    e.stopPropagation()
+                    e.stopPropagation();
                     if (currentStoryItemIndex < viewingStory.items.length - 1) {
-                      setCurrentStoryItemIndex((prev) => prev + 1)
-                      setStoryProgress(0)
+                      setCurrentStoryItemIndex((prev) => prev + 1);
+                      setStoryProgress(0);
                     } else {
                       const currentIndex = stories.findIndex(
                         (s) => s.id === viewingStory.id
-                      )
-                      const nextIndex = (currentIndex + 1) % stories.length
-                      setViewingStory(stories[nextIndex])
-                      setCurrentStoryItemIndex(0)
-                      setStoryProgress(0)
+                      );
+                      const nextIndex = (currentIndex + 1) % stories.length;
+                      setViewingStory(stories[nextIndex]);
+                      setCurrentStoryItemIndex(0);
+                      setStoryProgress(0);
                     }
                   }}
                 >
@@ -724,7 +843,7 @@ function Home() {
         </Dialog.Root>
       )}
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
