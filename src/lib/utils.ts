@@ -84,11 +84,14 @@ export function formatDateToMonthYear(dateString: string): string {
   return date.toLocaleDateString("en-US", options);
 }
 
-export function formatDateSmart(dateString: string): string {
+export function formatDateSmart(
+  dateString: string,
+  showExactDate = false
+): string {
   const date = new Date(dateString);
   const today = new Date();
 
-  // Normalize both dates to ignore time
+  // Normalize to ignore time
   const normalize = (d: Date) =>
     new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
@@ -96,15 +99,29 @@ export function formatDateSmart(dateString: string): string {
     (normalize(today).getTime() - normalize(date).getTime()) /
     (1000 * 60 * 60 * 24);
 
-  if (dayDiff === 0) return "Today";
-  if (dayDiff === 1) return "Yesterday";
+  const exactDate = date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+  });
+
+  if (dayDiff === 0) return showExactDate ? `Today, ${exactDate}` : "Today";
+  if (dayDiff === 1)
+    return showExactDate ? `Yesterday, ${exactDate}` : "Yesterday";
 
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "long",
   };
 
-  return date.toLocaleDateString("en-US", options);
+  return date.toLocaleDateString(
+    "en-US",
+    showExactDate
+      ? {
+          month: "long",
+          day: "numeric",
+        }
+      : options
+  );
 }
 
 export const tos = {
