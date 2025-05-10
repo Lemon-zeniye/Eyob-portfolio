@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { deletePost } from "@/Api/profile.api";
 import { CiCalendar } from "react-icons/ci";
+import ImageCarousel from "../Profile/ImageCarousel";
 
 interface ActivityCardProps {
   post: Post;
@@ -41,10 +42,12 @@ const ActivityCard = ({ post, classname, onclick }: ActivityCardProps) => {
       contentClassname="flex flex-row gap-4 cursor-pointer p-0"
       onClick={onclick}
     >
-      <img
-        className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-lg"
-        src={postPictureURL || `https://i.pravatar.cc/100?img=3`}
-        alt=""
+      <ImageCarousel
+        images={[
+          "https://i.pravatar.cc/100?img=3",
+          "https://i.pravatar.cc/100?img=4",
+          "https://i.pravatar.cc/100?img=5",
+        ]}
       />
 
       <div className="flex flex-col pb-2 gap-2 justify-between">
