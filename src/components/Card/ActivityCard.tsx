@@ -23,10 +23,10 @@ const ActivityCard = ({ post, classname, onclick }: ActivityCardProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const queryClient = useQueryClient();
 
-  const postPictureURL =
-    post.postPictures?.length > 0
-      ? `https://awema.co/${post.postPictures[0].replace("public/", "")}`
-      : undefined;
+  // const postPictureURL =
+  //   post.postPictures?.length > 0
+  //     ? `https://awema.co/${post.postPictures[0].replace("public/", "")}`
+  //     : undefined;
 
   const { mutate } = useMutation({
     mutationFn: deletePost,

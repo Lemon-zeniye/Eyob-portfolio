@@ -17,7 +17,6 @@ import {
   ImageIcon,
   Layers,
   MessageCircle,
-  MoreHorizontal,
   Send,
   Share2,
   X,
