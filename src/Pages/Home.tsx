@@ -25,10 +25,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { formatDateSmart, formatMessageTime } from "@/lib/utils";
+import { formatDateSmart, formatMessageTime, tos } from "@/lib/utils";
 import PostGallery from "@/components/Post/PostGallery";
 import Cookies from "js-cookie";
-import { getUserFullProfile } from "@/Api/profile.api";
+import { deletePost, getUserFullProfile } from "@/Api/profile.api";
 import { FaEllipsisH, FaTrash } from "react-icons/fa";
 
 function Home() {
@@ -222,6 +222,14 @@ function Home() {
     onError: () => {},
   });
 
+  const { mutate: deleteP } = useMutation({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries("getAllPostsWithComments");
+      tos.success("Success");
+    },
+  });
+
   const { mutate: comment } = useMutation({
     mutationFn: addComment,
     onSuccess: () => {
@@ -359,14 +367,21 @@ function Home() {
 
                       <button className="text-gray-500 hover:text-gray-700 group relative">
                         <div className="flex items-center gap-1">
-                          {/* Always visible horizontal dots icon */}
                           <FaEllipsisH className="w-5 h-5" />
 
-                          {/* Delete option that appears on hover */}
-                          <span className="hidden group-hover:flex items-center gap-1 absolute top-1 right-0 ml-2 bg-white px-2 py-1 rounded shadow whitespace-nowrap">
-                            <FaTrash className="w-4 h-4 text-red-500" />
-                            <span className="text-sm text-red-500">Delete</span>
-                          </span>
+                          {userId === post.postOwner?._id && (
+                            <span
+                              className="hidden group-hover:flex items-center gap-1 absolute top-4 right-2  ml-2 bg-white px-3 z-20 py-2 rounded shadow whitespace-nowrap"
+                              onClick={() => {
+                                deleteP(post._id);
+                              }}
+                            >
+                              <FaTrash className="w-4 h-4 text-red-500" />
+                              <span className="text-sm text-red-500">
+                                Delete
+                              </span>
+                            </span>
+                          )}
                         </div>
                       </button>
                     </div>
