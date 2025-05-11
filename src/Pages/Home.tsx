@@ -20,6 +20,9 @@ import {
   Send,
   Share2,
   X,
+  Briefcase,
+  GraduationCap,
+  Users,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -263,15 +266,15 @@ function Home() {
 
   return (
     <div className="min-h-screen">
-      <div className="w-full mx-auto flex gap-8 p-4">
-        <div className="flex-1 space-y-6">
-          <div className="bg-white rounded-2xl shadow-sm p-5 overflow-hidden">
+      <div className="w-full mx-auto flex gap-8 p-1 ">
+        <div className="w-full  space-y-6">
+          <div className="bg-white rounded-none md:rounded-2xl shadow-sm p-2  md:p-5 overflow-hidden">
             <h2 className="font-semibold  text-lg mb-4">Stories</h2>
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide px-2 md:px-0">
               {stories.map((story) => (
                 <div
                   key={story.id}
-                  className="min-w-[160px] h-[180px] rounded-xl bg-white border border-gray-200 overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+                  className="min-w-[120px] md:min-w-[160px] h-[160px] md:h-[180px] rounded-lg md:rounded-xl bg-white border border-gray-200 overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => {
                     setViewingStory(story);
                     setCurrentStoryItemIndex(0);
@@ -279,7 +282,7 @@ function Home() {
                     setStoryProgress(0);
                   }}
                 >
-                  <div className="h-24 bg-gray-100 relative">
+                  <div className="h-20 md:h-24 bg-gray-100 relative">
                     <img
                       src={
                         story.items[0]?.image ||
@@ -290,28 +293,30 @@ function Home() {
                       alt={story.title}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-2 left-2 ring-2 ring-white rounded-full">
-                      <Avatar className="w-8 h-8">
+                    <div className="absolute top-1.5 md:top-2 left-1.5 md:left-2 ring-2 ring-white rounded-full">
+                      <Avatar className="w-6 h-6 md:w-8 md:h-8">
                         <AvatarImage
                           src={story.avatar || "/placeholder.svg"}
                           alt={story.username}
                         />
-                        <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9]">
+                        <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9] text-xs md:text-base">
                           {story.username[0].toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </div>
                     {story.items.length > 1 && (
-                      <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded-full">
+                      <div className="absolute bottom-1.5 md:bottom-2 right-1.5 md:right-2 bg-black/50 text-white text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 rounded-full">
                         {story.items.length}
                       </div>
                     )}
                   </div>
-                  <div className="p-3 flex-1 flex flex-col justify-between">
-                    <h3 className="font-medium text-sm line-clamp-1">
+                  <div className="p-2 md:p-3 flex-1 flex flex-col justify-between">
+                    <h3 className="font-medium text-xs md:text-sm line-clamp-1">
                       {story.title}
                     </h3>
-                    <p className="text-xs text-gray-500">@{story.username}</p>
+                    <p className="text-[10px] md:text-xs text-gray-500">
+                      @{story.username}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -339,7 +344,7 @@ function Home() {
                 return (
                   <div
                     key={postId}
-                    className="bg-white rounded-2xl shadow-sm overflow-hidden"
+                    className="rounded-2xl shadow-sm overflow-hidden bg-white"
                   >
                     <div className="flex items-center justify-between p-4">
                       <div className="flex items-center">
@@ -386,11 +391,11 @@ function Home() {
                       </button>
                     </div>
 
-                    <div className="aspect-video w-full h-[58vh]  bg-gray-100">
+                    <div className="aspect-video w-full  md:h-[58vh]  bg-gray-100">
                       <PostGallery key={post._id} post={post} index={index} />
                     </div>
 
-                    <div className="p-5">
+                    <div className="p-2 md:p-5">
                       <div className="mb-4">
                         <h3 className="font-semibold text-lg mb-2">
                           {post.postTitle}
@@ -435,7 +440,7 @@ function Home() {
                         <motion.button
                           onClick={() => handleLike(post._id)}
                           disabled={isLoading}
-                          className="flex items-center justify-center flex-1 gap-2 h-9 px-4 rounded border border-gray-300"
+                          className="flex items-center justify-center flex-1 gap-2 h-9 px-4 rounded border bg-white border-gray-300"
                           whileTap={{ scale: 0.9 }}
                         >
                           <motion.div
@@ -603,29 +608,34 @@ function Home() {
           </div>
         </div>
 
-        <div className="w-80 hidden lg:block">
-          <div className="sticky top-20 space-y-6">
+        <div className="w-96 hidden lg:block">
+          <div className="sticky top-16 space-y-6">
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="h-24 bg-[#05A9A9]"></div>
               <div className="px-5 pb-5 pt-0 -mt-10">
+                {/* Profile Header */}
                 <Avatar className="w-20 h-20 border-4 border-white">
                   <AvatarImage
                     src="https://i.pravatar.cc/100?img=7"
                     alt="Your profile"
                   />
                   <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9] text-xl">
-                    YP
+                    {userFullProfile?.data.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
                   </AvatarFallback>
                 </Avatar>
+
                 <h3 className="font-bold text-lg mt-2">
                   {userFullProfile?.data.name ?? "Your Name"}
                 </h3>
-                <p className="text-gray-500 text-sm">@username</p>
                 <p className="text-gray-500 text-sm">
-                  {userFullProfile?.data.bio ?? "No bio"}
+                  {userFullProfile?.data.position || "No position specified"}
                 </p>
 
-                <div className="flex justify-between mt-4 text-center">
+                {/* Stats */}
+                <div className="flex justify-between mt-4 text-center border-y py-3">
                   <div>
                     <p className="font-bold">248</p>
                     <p className="text-xs text-gray-500">Posts</p>
@@ -640,9 +650,104 @@ function Home() {
                   </div>
                 </div>
 
-                <Button className="w-full mt-4 bg-[#05A9A9] hover:bg-[#048484]">
+                {/* Bio */}
+                <p className="text-gray-600 text-sm mt-3">
+                  {userFullProfile?.data.bio || "No bio available"}
+                </p>
+
+                {/* Current Role (if available) */}
+                {userFullProfile?.data.experience?.find(
+                  (exp) => exp.workingAt
+                ) && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-sm text-gray-700">
+                      Currently
+                    </h4>
+                    <p className="font-medium">
+                      {
+                        userFullProfile.data.experience.find(
+                          (exp) => exp.workingAt
+                        )?.jobTitle
+                      }
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {
+                        userFullProfile.data.experience.find(
+                          (exp) => exp.workingAt
+                        )?.entity
+                      }
+                    </p>
+                  </div>
+                )}
+
+                {/* Education Summary */}
+                {userFullProfile?.data.education &&
+                  userFullProfile?.data.education?.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-medium text-sm text-gray-700">
+                        Education
+                      </h4>
+                      {userFullProfile.data.education.slice(0, 2).map((edu) => (
+                        <div key={edu._id} className="mt-1">
+                          <p className="font-medium">{edu.institution}</p>
+                          <p className="text-sm text-gray-600">
+                            {edu.degree}
+                            {edu.fieldOfStudy && `, ${edu.fieldOfStudy}`}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                {/* Skills Cloud */}
+                {userFullProfile?.data.skills &&
+                  userFullProfile?.data.skills?.[0]?.skill?.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-medium text-sm text-gray-700">
+                        Skills
+                      </h4>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {userFullProfile.data.skills[0].skill
+                          .slice(0, 8)
+                          .map((skill, i) => (
+                            <span
+                              key={i}
+                              className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Organizations */}
+                {userFullProfile?.data.organization &&
+                  userFullProfile?.data.organization?.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-medium text-sm text-gray-700">
+                        Organizations
+                      </h4>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {userFullProfile.data.organization
+                          .slice(0, 3)
+                          .map((org) => (
+                            <div key={org._id} className="flex items-center">
+                              <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-1">
+                                <span className="text-xs">🏢</span>
+                              </div>
+                              <span className="text-sm">
+                                {org.organizationName}
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* <Button className="w-full mt-6 bg-[#05A9A9] hover:bg-[#048484]">
                   Edit Profile
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>
