@@ -256,10 +256,10 @@ function Home() {
     enabled: !!userId,
   });
 
-  const { data: userStorys } = useQuery({
-    queryKey: ["getUserStory"],
-    queryFn: getUserStorys,
-  });
+  // const { data: userStorys } = useQuery({
+  //   queryKey: ["getUserStory"],
+  //   queryFn: getUserStorys,
+  // });
 
   ///// mutuation
   const { mutate, isLoading } = useMutation({
