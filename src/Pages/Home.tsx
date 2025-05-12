@@ -1,24 +1,30 @@
 import {
   addComment,
+  addStory,
   getAllPostsWithComments,
+  getUserStorys,
   likeOrDeslike,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, ChangeEvent, DragEvent } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Bookmark,
   ChevronLeft,
   ChevronRight,
   Clock,
+  FileText,
   Heart,
   ImageIcon,
   Layers,
   MessageCircle,
+  PlusIcon,
   Send,
   Share2,
+  Trash2,
+  Upload,
   X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,7 +36,10 @@ import PostGallery from "@/components/Post/PostGallery";
 import Cookies from "js-cookie";
 import { deletePost, getUserFullProfile } from "@/Api/profile.api";
 import { FaEllipsisH, FaTrash } from "react-icons/fa";
-
+import { Spinner } from "@/components/ui/Spinner";
+type StoryFile = File & {
+  preview?: string; // For object URL preview
+};
 function Home() {
   const { data: allPostsWithComments } = useQuery({
     queryKey: ["getAllPostsWithComments"],
@@ -46,6 +55,10 @@ function Home() {
   const [viewStory, setViewStory] = useState(false);
   const queryClient = useQueryClient();
   const userId = Cookies.get("userId");
+  const [openFileUpload, setOpenFileUpload] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<StoryFile | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const stories = [
     {
@@ -140,6 +153,38 @@ function Home() {
         },
       ],
     },
+    {
+      id: 7,
+      username: "food_maria",
+      title: "Recipes",
+      avatar: "https://picsum.photos/seed/avatar6/80/80",
+      items: [
+        {
+          id: "s6-1",
+          image: "https://picsum.photos/seed/pastarecipe/720/1280",
+        },
+        {
+          id: "s6-2",
+          image: "https://picsum.photos/seed/dessert/720/1280",
+        },
+      ],
+    },
+    {
+      id: 8,
+      username: "food_maria",
+      title: "Recipes",
+      avatar: "https://picsum.photos/seed/avatar6/80/80",
+      items: [
+        {
+          id: "s6-1",
+          image: "https://picsum.photos/seed/pastarecipe/720/1280",
+        },
+        {
+          id: "s6-2",
+          image: "https://picsum.photos/seed/dessert/720/1280",
+        },
+      ],
+    },
   ];
 
   const [viewingStory, setViewingStory] = useState<null | {
@@ -211,13 +256,27 @@ function Home() {
     enabled: !!userId,
   });
 
-  console.log("00000", userFullProfile);
+  const { data: userStorys } = useQuery({
+    queryKey: ["getUserStory"],
+    queryFn: getUserStorys,
+  });
 
   ///// mutuation
   const { mutate, isLoading } = useMutation({
     mutationFn: likeOrDeslike,
     onSuccess: () => {
       queryClient.invalidateQueries("getAllPostsWithComments");
+    },
+    onError: () => {},
+  });
+
+  const { mutate: addUserStory, isLoading: storyLoading } = useMutation({
+    mutationFn: addStory,
+    onSuccess: () => {
+      queryClient.invalidateQueries("getAllPostsWithComments");
+      setOpenFileUpload(false);
+      removeFile();
+      tos.success("Story added Successfully");
     },
     onError: () => {},
   });
@@ -242,6 +301,96 @@ function Home() {
     mutate({ like: "like", postId: id });
   };
 
+  // file uploader
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      processFile(file);
+    }
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      processFile(file);
+    }
+  };
+
+  const processFile = (file: File) => {
+    if (!validateFile(file)) return;
+
+    const storyFile: StoryFile = Object.assign(file, {
+      preview: URL.createObjectURL(file),
+    });
+
+    setSelectedFile(storyFile);
+  };
+
+  const validateFile = (file: File): boolean => {
+    const validTypes = [
+      "image/jpeg",
+      "image/png",
+      "video/mp4",
+      "video/avi",
+      "video/x-msvideo", // For AVI files
+    ];
+    const maxSize = 50 * 1024 * 1024; // 50MB
+
+    if (!validTypes.includes(file.type)) {
+      tos.error("Please select a valid file type (JPG, PNG, MP4, AVI)");
+      return false;
+    }
+
+    if (file.size > maxSize) {
+      tos.error("File size exceeds 50MB limit");
+      return false;
+    }
+
+    return true;
+  };
+
+  const removeFile = () => {
+    if (selectedFile?.preview) {
+      URL.revokeObjectURL(selectedFile.preview);
+    }
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!selectedFile) return;
+
+    // Create FormData for your API call
+    const formData = new FormData();
+    formData.append("storyFile", selectedFile);
+
+    addUserStory(formData);
+  };
+
+  // Clean up object URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      if (selectedFile?.preview) {
+        URL.revokeObjectURL(selectedFile.preview);
+      }
+    };
+  }, [selectedFile]);
+
   const submitComment = ({
     postId,
     userId,
@@ -263,11 +412,29 @@ function Home() {
 
   return (
     <div className="min-h-screen">
-      <div className="w-full mx-auto flex gap-8 p-1 ">
-        <div className="w-full  space-y-6">
+      <div className="grid grid-cols-10 mx-auto  gap-3 ">
+        <div className="col-span-8  space-y-6">
           <div className="bg-white rounded-none md:rounded-2xl shadow-sm p-2  md:p-5 overflow-hidden">
             <h2 className="font-semibold  text-lg mb-4">Stories</h2>
             <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide px-2 md:px-0">
+              <div
+                key="add-story"
+                className="min-w-[120px] md:min-w-[160px] h-[160px] md:h-[180px] rounded-lg md:rounded-xl bg-white border border-gray-200 overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setOpenFileUpload(true);
+                }}
+              >
+                <div className="h-20 md:h-24 bg-gray-100 flex items-center justify-center">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#05A9A9] flex items-center justify-center text-white">
+                    <PlusIcon className="w-5 h-5 md:w-6 md:h-6" />
+                  </div>
+                </div>
+                <div className="p-2 md:p-3 flex-1 flex flex-col items-center justify-center">
+                  <h3 className="font-medium text-xs md:text-sm text-center">
+                    Add Story
+                  </h3>
+                </div>
+              </div>
               {stories.map((story) => (
                 <div
                   key={story.id}
@@ -605,7 +772,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="w-96 hidden lg:block">
+        <div className="col-span-2 hidden lg:block">
           <div className="sticky top-16 space-y-6">
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="h-24 bg-[#05A9A9]"></div>
@@ -958,6 +1125,110 @@ function Home() {
           </Dialog.Portal>
         </Dialog.Root>
       )}
+
+      <Dialog.Root open={openFileUpload} onOpenChange={setOpenFileUpload}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[94%] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl focus:outline-none">
+            <div className="flex items-center justify-between mb-4">
+              <Dialog.Title className="text-xl font-semibold">
+                Create New Story
+              </Dialog.Title>
+              <Dialog.Close asChild>
+                <button className="text-gray-500 hover:text-gray-800 rounded-full p-1 hover:bg-gray-100">
+                  <X className="w-5 h-5" />
+                </button>
+              </Dialog.Close>
+            </div>
+
+            <div className="space-y-4">
+              {!selectedFile && (
+                <div
+                  className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer ${
+                    isDragging
+                      ? "border-[#05A9A9] bg-[#05A9A9]/10"
+                      : "border-gray-300 hover:border-[#05A9A9] hover:bg-[#05A9A9]/5"
+                  }`}
+                  onClick={() => fileInputRef.current?.click()}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                >
+                  <div className="flex flex-col items-center justify-center space-y-3 py-8">
+                    <div className="w-14 h-14 rounded-full bg-[#05A9A9]/10 flex items-center justify-center">
+                      <Upload className="w-6 h-6 text-[#05A9A9]" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        Drag & drop your file here
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        or click to browse files
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      Supports JPG, PNG, MP4, AVI (Max 50MB)
+                    </p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    id="story-upload"
+                    type="file"
+                    className="hidden"
+                    accept=".jpg,.jpeg,.png,.mp4,.avi"
+                    onChange={handleFileChange}
+                  />
+                </div>
+              )}
+
+              {selectedFile && (
+                <div className="rounded-xl overflow-hidden bg-gray-50 border border-gray-200">
+                  {selectedFile.type.startsWith("image/") ? (
+                    <img
+                      src={URL.createObjectURL(selectedFile)}
+                      alt="Preview"
+                      className="w-full h-auto max-h-96 object-contain"
+                    />
+                  ) : (
+                    <video
+                      src={URL.createObjectURL(selectedFile)}
+                      controls
+                      className="w-full h-auto max-h-96"
+                    />
+                  )}
+                  <div className="p-3 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm font-medium truncate max-w-[180px]">
+                        {selectedFile.name}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {(selectedFile.size / (1024 * 1024)).toFixed(1)}MB
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedFile(null)}
+                      className="text-gray-500 hover:text-red-500 p-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Submit Button (appears after file selection) */}
+              {selectedFile && (
+                <button
+                  onClick={handleSubmit}
+                  className="w-full py-3 flex items-center justify-center px-4 bg-[#05A9A9] hover:bg-[#05A9A9]/90 text-white font-medium rounded-lg transition-colors"
+                >
+                  {storyLoading ? <Spinner /> : " Create Story"}
+                </button>
+              )}
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }
