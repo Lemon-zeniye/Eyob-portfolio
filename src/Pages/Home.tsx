@@ -2,7 +2,7 @@ import {
   addComment,
   addStory,
   getAllPostsWithComments,
-  getUserStorys,
+  // getUserStorys,
   likeOrDeslike,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
