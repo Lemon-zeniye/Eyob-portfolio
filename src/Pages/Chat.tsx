@@ -25,6 +25,8 @@ import { FiMessageSquare } from "react-icons/fi";
 import { Menu, X } from "lucide-react";
 import GroupDetail from "@/components/Chat/GroupDetail";
 import { useIsMobile } from "@/hooks/use-isMobile";
+import UserProfile from "@/components/Jobs/UserFullProfile";
+import { useRole } from "@/Context/RoleContext";
 
 export function NoChatSelected({ onClick }: { onClick: () => void }) {
   return (
@@ -78,6 +80,8 @@ const Chat = () => {
   const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
+  const [openProfile, setOpenProfile] = useState(false);
+  const { role } = useRole();
 
   // socket
   const userId = Cookies.get("userId");
@@ -275,7 +279,7 @@ const Chat = () => {
                           onlineUser={onlineUser}
                           onClick={() => {
                             startChat(user);
-                            setSidebarOpen(false); // Close sidebar on mobile when user is selected
+                            setSidebarOpen(false);
                           }}
                           isSelected={user._id === selectedUser?._id}
                         />
@@ -304,7 +308,7 @@ const Chat = () => {
                         email: user.email,
                         role: "user",
                       });
-                      setSidebarOpen(false); // Close sidebar on mobile when user is selected
+                      setSidebarOpen(false);
                     }}
                     isSelected={user.userId === selectedUser?._id}
                   />
@@ -369,6 +373,9 @@ const Chat = () => {
                   onClick={() => {
                     if (selectedGroup) {
                       setGroupDetail(true);
+                    }
+                    if (selectedUser && role === "user") {
+                      setOpenProfile(true);
                     }
                   }}
                 >
@@ -572,6 +579,12 @@ const Chat = () => {
         userGroup={selectedGroup}
         groupDetail={groupDetail}
         setGroupDetail={setGroupDetail}
+      />
+      <UserProfile
+        open={openProfile}
+        setOpen={setOpenProfile}
+        id={selectedUser?._id}
+        showShare={true}
       />
     </div>
   );

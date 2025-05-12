@@ -254,7 +254,7 @@ function JobDetailNew() {
               }
               className="py-2 px-10 bg-primary rounded-none"
             >
-              {jobApplyIsLoading ? <Spinner /> : "Applay"}
+              {jobApplyIsLoading ? <Spinner /> : "Apply"}
             </Button>
             <div className="w-10 h-10 border flex items-center justify-center">
               <CiBookmark size={24} />

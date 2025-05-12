@@ -1,8 +1,9 @@
-import { fetchAllApplicants } from "@/Api/job.api";
+import { getAllApplicantsOfaJob } from "@/Api/job.api";
 import { toMonthDayYear } from "@/lib/utils";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import UserProfile from "./UserFullProfile";
+import { useParams } from "react-router-dom";
 
 function TableSkeleton() {
   return (
@@ -40,9 +41,13 @@ function TableSkeleton() {
 }
 
 function ApplicantsList() {
-  const { data: appliedJobs, isLoading } = useQuery({
-    queryKey: ["fetchAllApplicants"],
-    queryFn: fetchAllApplicants,
+  const { id } = useParams();
+  const { data: applicants, isLoading } = useQuery({
+    queryKey: ["fetchAllApplicants", id],
+    queryFn: () => {
+      if (id) return getAllApplicantsOfaJob(id);
+    },
+    enabled: !!id,
   });
 
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -99,7 +104,7 @@ function ApplicantsList() {
           <TableSkeleton />
         ) : (
           <tbody className="bg-white divide-y my-4 py-6 divide-gray-200">
-            {appliedJobs?.data.map((application, ind) => (
+            {applicants?.data.map((application, ind) => (
               <tr
                 key={application._id}
                 className={`${ind % 2 === 0 ? "bg-[#F8F8FD]" : "bg-white"}`}
@@ -149,7 +154,12 @@ function ApplicantsList() {
           </tbody>
         )}
       </table>
-      <UserProfile open={open} setOpen={setOpen} id={userId} />
+      <UserProfile
+        open={open}
+        setOpen={setOpen}
+        id={userId}
+        showShare={false}
+      />
     </div>
   );
 }

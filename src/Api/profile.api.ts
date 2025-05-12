@@ -1,5 +1,6 @@
 import axios from "./axios";
 import {
+  ActiveCompaniesRes,
   ActiveUserResponse,
   CompanyAboutResponse,
   CompanyProfileRes,
@@ -241,5 +242,10 @@ export const getUserFullProfile = async (
   id: string
 ): Promise<UserFullProfileRes> => {
   const response = await axios.get<any>(`/user/getFullUserProfile/${id}`);
+  return response.data;
+};
+
+export const getActiveCompanies = async (): Promise<ActiveCompaniesRes> => {
+  const response = await axios.get("/user/getActiveCompanies");
   return response.data;
 };

@@ -1,18 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQuery } from "react-query";
 import { getUserFullProfile } from "@/Api/profile.api";
+import { X } from "lucide-react";
+import ShareProfile from "../Profile/ShareProfile";
+import Tabs from "../Tabs/TabsLine";
+import ShareCompanyProfile from "../Profile/ShareCompanyProfile";
 
 const UserProfile = ({
   id,
   open,
   setOpen,
+  showShare,
 }: {
   id: string | undefined;
   open: boolean;
   setOpen: any;
+  showShare: boolean;
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -32,18 +39,37 @@ const UserProfile = ({
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
-          <Dialog.Title className="text-xs text-center font-semibold text-gray-900">
-            User Profile
-          </Dialog.Title>
-          <div className="h-[70vh] overflow-y-auto">
+        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-0">
+          <Dialog.Title className="text-xs text-center font-semibold text-gray-900 bg-primary rounded-t-xl"></Dialog.Title>
+          <div className="h-[80vh] overflow-y-auto">
             {/* Profile Header */}
             <div className="text-center mb-6">
-              <img
-                src="https://i.pravatar.cc/100?img=8"
-                alt="Profile"
-                className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-indigo-100"
-              />
+              <div className="relative h-[20vh] rounded-t-xl mb-12">
+                {/* Background Image */}
+                <img
+                  src="https://images.unsplash.com/photo-1499336315816-097655dcfbda" // Replace with your desired background image
+                  alt="Background"
+                  className="w-full h-full object-cover rounded-t-xl"
+                />
+
+                {/* Profile Image */}
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+                  <img
+                    src="https://i.pravatar.cc/100?img=8"
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full border-4 border-indigo-100 z-10"
+                  />
+                </div>
+                {showShare && (
+                  <p
+                    className="absolute -bottom-10 right-2 font-light text-primary hover:text-primary/60 cursor-pointer"
+                    onClick={() => setSheetOpen(true)}
+                  >
+                    Share Profile
+                  </p>
+                )}
+              </div>
+
               <h1 className="text-2xl font-bold text-gray-800">
                 {userFullProfile?.data.name}
               </h1>
@@ -229,10 +255,71 @@ const UserProfile = ({
                 </div>
               )}
           </div>
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen} />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );
 };
+
+function Sheet({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setIsMounted(true);
+    } else {
+      // Delay unmounting for animation
+      const timer = setTimeout(() => setIsMounted(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
+  if (!isMounted) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      {/* Overlay */}
+      <div
+        className={`fixed inset-0 bg-black/30 rounded-xl transition-opacity ${
+          open ? "opacity-100" : "opacity-0"
+        }`}
+        onClick={() => onOpenChange(false)}
+      />
+
+      {/* Sheet Content */}
+      <div
+        className={`relative w-full max-w-xl bg-white rounded-xl shadow-xl transition-transform duration-300 ease-out ${
+          open ? "translate-y-0" : "translate-y-full"
+        }`}
+        style={{ height: "80%" }}
+      >
+        {/* Sheet Header */}
+        <div className="sticky top-0 flex items-center justify-end ">
+          <button
+            onClick={() => onOpenChange(false)}
+            className="text-gray-500 hover:text-gray-800 rounded-full pt-4 px-4 hover:bg-gray-100"
+          >
+            <X className="w-5 h-5 " />
+          </button>
+        </div>
+
+        {/* Sheet Body */}
+        <div className="h-[calc(100%-40px)] overflow-y-auto p-4 pt-0">
+          <Tabs tabs={["Employees", "Companies"]}>
+            <ShareProfile onSuccess={() => {}} small={true} />
+            <ShareCompanyProfile />
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default UserProfile;

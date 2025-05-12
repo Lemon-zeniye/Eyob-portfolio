@@ -12,40 +12,64 @@ import Cookies from "js-cookie";
 
 const UserCard = ({
   user,
+  small,
   selected,
   onSelect,
 }: {
   user: ActiveUser;
+  small: boolean;
   selected: boolean;
   onSelect: (user: ActiveUser) => void;
 }) => {
   return (
     <div
-      className={`w-full p-4 border rounded-lg transition-colors cursor-pointer ${
-        selected ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"
+      className={`w-full p-${
+        small ? "2" : "4"
+      } border rounded-lg transition-colors cursor-pointer ${
+        selected ? "bg-primary/5 border-primary" : "hover:bg-gray-50"
       }`}
       onClick={() => onSelect(user)}
     >
-      <div className="flex items-center justify-between gap-4">
-        <div className="w-12 h-12 rounded-full overflow-hidden">
+      <div
+        className={`flex items-center justify-between gap-${small ? "2" : "4"}`}
+      >
+        <div
+          className={`${
+            small ? "w-8 h-8" : "w-12 h-12"
+          } rounded-full overflow-hidden`}
+        >
           <img
             src="https://i.pravatar.cc/100?img=8"
             alt={`${user.name}'s avatar`}
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="flex-1 space-y-1 min-w-0">
-          <h1 className="text-lg font-semibold truncate">{user.name}</h1>
-          <p className="text-gray-600 text-sm truncate">{user.email}</p>
+        <div className="flex-1 space-y-${small ? '0.5' : '1'} min-w-0">
+          <h1
+            className={`${
+              small ? "text-sm" : "text-lg"
+            } font-semibold truncate`}
+          >
+            {user.name}
+          </h1>
+          <p
+            className={`text-gray-600 ${
+              small ? "text-xs" : "text-sm"
+            } truncate`}
+          >
+            {user.email}
+          </p>
         </div>
         <Checkbox.Root
-          className="flex-shrink-0 w-5 h-5 rounded border border-gray-300 flex items-center justify-center hover:border-primary transition-colors"
+          className={`flex-shrink-0 ${
+            small ? "w-4 h-4" : "w-5 h-5"
+          } rounded border border-gray-300 flex items-center justify-center hover:border-primary transition-colors`}
           checked={selected}
           onCheckedChange={() => onSelect(user)}
-          onClick={(e) => e.stopPropagation()} // Prevent card click from triggering twice
+          onClick={(e) => e.stopPropagation()}
         >
           <Checkbox.Indicator className="text-primary">
-            <CheckIcon />
+            <CheckIcon className={small ? "w-3 h-3" : "w-4 h-4"} />
           </Checkbox.Indicator>
         </Checkbox.Root>
       </div>
@@ -53,7 +77,13 @@ const UserCard = ({
   );
 };
 
-function ShareProfile({ onSuccess }: { onSuccess: () => void }) {
+function ShareProfile({
+  onSuccess,
+  small = false,
+}: {
+  onSuccess: () => void;
+  small?: boolean;
+}) {
   const { data: activeUsers } = useQuery({
     queryKey: ["activeUser"],
     queryFn: getActiveUsers,
@@ -126,10 +156,15 @@ function ShareProfile({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
-      <div className="h-96 overflow-y-auto pr-2 space-y-3">
+      <div
+        className={` ${
+          small ? "h-[15rem]" : "h-96"
+        } overflow-y-auto pr-2 space-y-3`}
+      >
         {filteredUsers.map((user) => (
           <UserCard
             key={user._id}
+            small={small}
             user={user}
             selected={selectedUsers.some((u) => u._id === user._id)}
             onSelect={handleSelectUser}

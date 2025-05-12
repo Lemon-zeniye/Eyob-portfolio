@@ -39,11 +39,11 @@ const UserCard: React.FC<Props> = ({
   }`}
       onClick={() => onClick(user)}
     >
-      <div className="relative">
+      <div className="relative shrink-0">
         <img
           src={`https://i.pravatar.cc/100?img=10`}
           alt={user.name}
-          className="w-12 h-12 rounded-full object-cover"
+          className="w-12  h-12 rounded-full object-cover"
         />
         <div
           className={`w-3 h-3 absolute right-0 bottom-0 ${

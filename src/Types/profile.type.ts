@@ -224,3 +224,16 @@ export interface SkillNew {
   createdAt: string;
   __v: number;
 }
+
+export interface ActiveCompaniesRes {
+  success: boolean;
+  msg: string;
+  data: ActiveCompanies[];
+}
+export interface ActiveCompanies {
+  email: string;
+  name: string;
+  picturePath: string;
+  role: Role;
+  _id: string;
+}

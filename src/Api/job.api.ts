@@ -67,3 +67,10 @@ export const updateJob = async ({
   const response = await axios.put<any>(`/job/updateJob/${id}`, payload);
   return response.data;
 };
+
+export const getAllApplicantsOfaJob = async (
+  id: string
+): Promise<AppliedJobsResponse> => {
+  const response = await axios.get<any>(`/job/getApplicantsOfGivenJob/${id}`);
+  return response.data;
+};
