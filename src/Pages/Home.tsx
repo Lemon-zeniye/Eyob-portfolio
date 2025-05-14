@@ -412,7 +412,8 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
+    // <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
+    <div className="min-h-screen">
       <div className="grid grid-cols-12 mx-auto gap-5 px-4 py-2">
         <div className="col-span-12 lg:col-span-9  space-y-8">
           <div className="bg-white rounded-2xl shadow-lg p-6 overflow-hidden border border-[#e6f7f7]">
@@ -504,7 +505,7 @@ function Home() {
 
           <div className="space-y-6">
             {[...(allPostsWithComments?.data ?? [])]
-              .reverse()
+              // .reverse()
               .map((post, index) => {
                 const postId = post._id || `post-${index}`;
                 const isCommentsExpanded = expandedComments.includes(postId);
@@ -568,7 +569,7 @@ function Home() {
                       </button>
                     </div>
 
-                    <div className="aspect-video w-full md:h-[58vh] bg-gray-100">
+                    <div className="aspect-[2/1] w-full md:h-[57vh] bg-gray-100">
                       <PostGallery key={post._id} post={post} index={index} />
                     </div>
 

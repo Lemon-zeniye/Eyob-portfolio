@@ -471,7 +471,7 @@ function HomeSocial() {
 
           <div className="space-y-6">
             {[...(allPostsWithComments?.data ?? [])]
-              .reverse()
+              // .reverse()
               .map((post, index) => {
                 const postId = post._id || `post-${index}`;
 
