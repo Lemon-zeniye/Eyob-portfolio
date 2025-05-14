@@ -38,20 +38,27 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
         <div className="flex flex-col gap-10">
           <img src={logo} className="h-auto" alt="Logo" />
           <div className="flex flex-col items-center justify-between h-[30vh]">
-            {routes.slice(0, 3).map((route) => (
-              <Link
-                key={route.id}
-                to={route.path}
-                onClick={() => handleSelected(route.path)}
-                className={`${
-                  location.pathname === route.path
-                    ? "bg-primary text-white"
-                    : "text-[#00000099] hover:bg-slate-100"
-                } p-3 rounded-md`}
-              >
-                <route.icon size={22} />
-              </Link>
-            ))}
+            {routes.slice(0, 3).map((route) => {
+              const isHome = route.path === "/";
+              const isActive = isHome
+                ? location.pathname === "/"
+                : location.pathname.startsWith(route.path);
+
+              return (
+                <Link
+                  key={route.id}
+                  to={route.path}
+                  onClick={() => handleSelected(route.path)}
+                  className={`${
+                    isActive
+                      ? "bg-primary text-white"
+                      : "text-[#00000099] hover:bg-slate-100"
+                  } p-3 rounded-md`}
+                >
+                  <route.icon size={22} />
+                </Link>
+              );
+            })}
           </div>
         </div>
         <div className="flex flex-col">

@@ -3,6 +3,7 @@ import NotificationDropdown from "./NotificationDropdown";
 import UserDropdown from "./UserDropdown";
 import { routeMeta } from "@/lib/constant";
 import { IoMdArrowBack } from "react-icons/io";
+import SocialModeToggle from "./SocialModeToggle";
 
 const Navbar = () => {
   const location = useLocation();
@@ -25,6 +26,7 @@ const Navbar = () => {
         {isChildRoute ? <IoMdArrowBack /> : null} {displayName}
       </div>
       <div className="flex flex-row gap-7 items-center">
+        <SocialModeToggle />
         <NotificationDropdown />
         <UserDropdown />
       </div>

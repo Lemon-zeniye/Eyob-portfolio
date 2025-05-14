@@ -2,13 +2,18 @@ import {
   addComment,
   addStory,
   getAllPostsWithComments,
-  // getUserStorys,
   likeOrDeslike,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState, useEffect, useRef, ChangeEvent, DragEvent } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  type ChangeEvent,
+  type DragEvent,
+} from "react";
 import { Button } from "@/components/ui/button";
 import {
   Bookmark,
@@ -37,9 +42,11 @@ import Cookies from "js-cookie";
 import { deletePost, getUserFullProfile } from "@/Api/profile.api";
 import { FaEllipsisH, FaTrash } from "react-icons/fa";
 import { Spinner } from "@/components/ui/Spinner";
+
 type StoryFile = File & {
   preview?: string; // For object URL preview
 };
+
 function Home() {
   const { data: allPostsWithComments } = useQuery({
     queryKey: ["getAllPostsWithComments"],
@@ -256,11 +263,6 @@ function Home() {
     enabled: !!userId,
   });
 
-  // const { data: userStorys } = useQuery({
-  //   queryKey: ["getUserStory"],
-  //   queryFn: getUserStorys,
-  // });
-
   ///// mutuation
   const { mutate, isLoading } = useMutation({
     mutationFn: likeOrDeslike,
@@ -302,7 +304,6 @@ function Home() {
   };
 
   // file uploader
-
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -411,34 +412,46 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="grid grid-cols-10 mx-auto  gap-3 ">
-        <div className="col-span-8  space-y-6">
-          <div className="bg-white rounded-none md:rounded-2xl shadow-sm p-2  md:p-5 overflow-hidden">
-            <h2 className="font-semibold  text-lg mb-4">Stories</h2>
-            <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide px-2 md:px-0">
+    <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
+      <div className="grid grid-cols-12 mx-auto gap-5 px-4 py-2">
+        <div className="col-span-12 lg:col-span-9  space-y-8">
+          <div className="bg-white rounded-2xl shadow-lg p-6 overflow-hidden border border-[#e6f7f7]">
+            <h2 className="font-medium text-lg mb-5 text-gray-800 flex items-center gap-2">
+              <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+              Stories
+            </h2>
+            <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
               <div
                 key="add-story"
-                className="min-w-[120px] md:min-w-[160px] h-[160px] md:h-[180px] rounded-lg md:rounded-xl bg-white border border-gray-200 overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+                className="flex flex-col items-center cursor-pointer group"
                 onClick={() => {
                   setOpenFileUpload(true);
                 }}
               >
-                <div className="h-20 md:h-24 bg-gray-100 flex items-center justify-center">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#05A9A9] flex items-center justify-center text-white">
-                    <PlusIcon className="w-5 h-5 md:w-6 md:h-6" />
+                <div className="relative mb-2">
+                  <div
+                    className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center bg-gray-50 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105"
+                    style={{
+                      background: "linear-gradient(135deg, #f5f9f9, #ffffff)",
+                    }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-md"
+                      style={{
+                        background: "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                      }}
+                    >
+                      <PlusIcon className="w-5 h-5" />
+                    </div>
                   </div>
                 </div>
-                <div className="p-2 md:p-3 flex-1 flex flex-col items-center justify-center">
-                  <h3 className="font-medium text-xs md:text-sm text-center">
-                    Add Story
-                  </h3>
-                </div>
+                <span className="text-xs font-medium text-gray-600">Add</span>
               </div>
+
               {stories.map((story) => (
                 <div
                   key={story.id}
-                  className="min-w-[120px] md:min-w-[160px] h-[160px] md:h-[180px] rounded-lg md:rounded-xl bg-white border border-gray-200 overflow-hidden shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+                  className="flex flex-col items-center cursor-pointer group"
                   onClick={() => {
                     setViewingStory(story);
                     setCurrentStoryItemIndex(0);
@@ -446,52 +459,43 @@ function Home() {
                     setStoryProgress(0);
                   }}
                 >
-                  <div className="h-20 md:h-24 bg-gray-100 relative">
-                    <img
-                      src={
-                        story.items[0]?.image ||
-                        `/placeholder.svg?height=96&width=160&text=${encodeURIComponent(
-                          story.title
-                        )}`
-                      }
-                      alt={story.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-1.5 md:top-2 left-1.5 md:left-2 ring-2 ring-white rounded-full">
-                      <Avatar className="w-6 h-6 md:w-8 md:h-8">
-                        <AvatarImage
+                  <div className="relative mb-2">
+                    <div
+                      className="w-16 h-16 md:w-20 md:h-20 rounded-full p-0.5 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #05A9A9, #4ecdc4, #a6e4e0)",
+                        padding: "2px",
+                      }}
+                    >
+                      <div className="w-full h-full rounded-full border-2 border-white overflow-hidden">
+                        <img
                           src={story.avatar || "/placeholder.svg"}
                           alt={story.username}
+                          className="w-full h-full rounded-full object-cover"
                         />
-                        <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9] text-xs md:text-base">
-                          {story.username[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                    {story.items.length > 1 && (
-                      <div className="absolute bottom-1.5 md:bottom-2 right-1.5 md:right-2 bg-black/50 text-white text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 rounded-full">
-                        {story.items.length}
                       </div>
-                    )}
+                    </div>
                   </div>
-                  <div className="p-2 md:p-3 flex-1 flex flex-col justify-between">
-                    <h3 className="font-medium text-xs md:text-sm line-clamp-1">
-                      {story.title}
-                    </h3>
-                    <p className="text-[10px] md:text-xs text-gray-500">
-                      @{story.username}
-                    </p>
-                  </div>
+                  <span className="text-xs font-medium text-gray-600 truncate max-w-[80px] text-center">
+                    {story.username.split("_")[0]}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="flex justify-between items-center">
-            <h2 className="font-medium text-lg">Your Feed</h2>
+            <h2 className="font-medium text-lg text-gray-800 flex items-center gap-2">
+              <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+              Your Feed
+            </h2>
             <Button
               onClick={() => setOpen(true)}
-              className="bg-[#05A9A9] hover:bg-[#048484] text-white flex items-center gap-2"
+              className="text-white flex items-center gap-2 rounded-full px-5 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+              style={{
+                background: "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+              }}
             >
               <ImageIcon className="w-4 h-4" />
               <span>Create Post</span>
@@ -506,23 +510,32 @@ function Home() {
                 const isCommentsExpanded = expandedComments.includes(postId);
 
                 return (
-                  <div
+                  <motion.div
                     key={postId}
-                    className="rounded-2xl shadow-sm overflow-hidden bg-white"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="rounded-2xl shadow-lg overflow-hidden bg-white border border-[#e6f7f7]"
                   >
                     <div className="flex items-center justify-between p-4">
                       <div className="flex items-center">
-                        <Avatar className="w-10 h-10 border">
+                        <Avatar className="w-10 h-10 border-2 border-[#e6f7f7]">
                           <AvatarImage
                             src="/placeholder.svg?height=40&width=40"
                             alt={post.postOwner?.name || "User"}
                           />
-                          <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9]">
+                          <AvatarFallback
+                            className="text-white"
+                            style={{
+                              background:
+                                "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                            }}
+                          >
                             {(post.postOwner?.name?.[0] || "U").toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="ml-3">
-                          <p className="font-medium">
+                          <p className="font-medium text-gray-800">
                             {post.postOwner?.name || "Anonymous"}
                           </p>
                           <div className="flex items-center text-xs text-gray-500">
@@ -534,13 +547,13 @@ function Home() {
                         </div>
                       </div>
 
-                      <button className="text-gray-500 hover:text-gray-700 group relative">
+                      <button className="text-gray-400 hover:text-[#05A9A9] group relative transition-colors duration-200">
                         <div className="flex items-center gap-1">
                           <FaEllipsisH className="w-5 h-5" />
 
                           {userId === post.postOwner?._id && (
                             <span
-                              className="hidden group-hover:flex items-center gap-1 absolute top-4 right-2  ml-2 bg-white px-3 z-20 py-2 rounded shadow whitespace-nowrap"
+                              className="hidden group-hover:flex items-center gap-1 absolute top-4 right-2 ml-2 bg-white px-3 z-20 py-2 rounded-lg shadow-md whitespace-nowrap"
                               onClick={() => {
                                 deleteP(post._id);
                               }}
@@ -555,13 +568,13 @@ function Home() {
                       </button>
                     </div>
 
-                    <div className="aspect-video w-full  md:h-[58vh]  bg-gray-100">
+                    <div className="aspect-video w-full md:h-[58vh] bg-gray-100">
                       <PostGallery key={post._id} post={post} index={index} />
                     </div>
 
-                    <div className="p-2 md:p-5">
-                      <div className="mb-4">
-                        <h3 className="font-semibold text-lg mb-2">
+                    <div className="p-5">
+                      <div className="mb-3">
+                        <h3 className="font-medium text-lg mb-2 text-gray-800">
                           {post.postTitle}
                         </h3>
                         <p className="text-gray-600 text-sm">
@@ -569,18 +582,18 @@ function Home() {
                         </p>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-3">
                         {["photography", "design", "creative"].map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-1 bg-[#05A9A9]/10 text-[#05A9A9] rounded-full text-xs font-medium"
+                            className="px-3 py-1 bg-[#e6f7f7] text-[#05A9A9] rounded-full text-xs font-medium"
                           >
                             #{tag}
                           </span>
                         ))}
                       </div>
 
-                      <Separator className="my-3" />
+                      <Separator className="my-4 bg-[#e6f7f7]" />
 
                       <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                         <div className="flex items-center gap-1">
@@ -604,8 +617,8 @@ function Home() {
                         <motion.button
                           onClick={() => handleLike(post._id)}
                           disabled={isLoading}
-                          className="flex items-center justify-center flex-1 gap-2 h-9 px-4 rounded border bg-white border-gray-300"
-                          whileTap={{ scale: 0.9 }}
+                          className="flex items-center justify-center flex-1 gap-2 h-10 px-4 rounded-full border bg-white border-[#e6f7f7] hover:bg-[#f8fdfd] transition-all duration-200"
+                          whileTap={{ scale: 0.95 }}
                         >
                           <motion.div
                             key={post.isLikedByUser ? "liked" : "unliked"}
@@ -621,44 +634,58 @@ function Home() {
                             <Heart
                               className={`w-4 h-4 ${
                                 post.isLikedByUser
-                                  ? "text-red-500 fill-red-500"
+                                  ? "text-[#05A9A9] fill-[#05A9A9]"
                                   : "text-gray-500"
                               }`}
                             />
                           </motion.div>
-                          <span className="text-sm">
+                          <span className="text-sm font-medium text-gray-700">
                             {post.isLikedByUser ? "Liked" : "Like"}
                           </span>
                         </motion.button>
                         <Button
                           variant="outline"
-                          className="flex-1 h-9"
+                          className="flex-1 h-10 rounded-full border-[#e6f7f7] text-gray-700 hover:bg-[#f8fdfd]"
                           onClick={() => toggleComments(postId)}
                         >
                           <MessageCircle className="w-4 h-4 mr-2" />
                           Comment
                         </Button>
-                        <Button variant="outline" className="w-9 h-9 p-0">
+                        <Button
+                          variant="outline"
+                          className="w-10 h-10 p-0 rounded-full border-[#e6f7f7] text-gray-700 hover:bg-[#f8fdfd]"
+                        >
                           <Bookmark className="w-4 h-4" />
                         </Button>
                       </div>
 
                       {isCommentsExpanded && (
-                        <div className="mt-4 pt-4 border-t">
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          transition={{ duration: 0.3 }}
+                          className="mt-5 pt-4 border-t border-[#e6f7f7]"
+                        >
                           <div className="flex gap-3">
-                            <Avatar className="w-8 h-8">
+                            <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
                               <AvatarImage
                                 src="/placeholder.svg?height=32&width=32"
                                 alt="Your avatar"
                               />
-                              <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9]">
+                              <AvatarFallback
+                                className="text-white"
+                                style={{
+                                  background:
+                                    "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                                }}
+                              >
                                 YA
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 flex gap-2">
                               <Textarea
                                 placeholder="Add a comment..."
-                                className="min-h-[40px] resize-none"
+                                className="min-h-[40px] resize-none rounded-xl border-[#e6f7f7] focus-visible:ring-[#05A9A9]"
                                 value={commentInputs[postId] || ""}
                                 onChange={(e) =>
                                   handleCommentChange(postId, e.target.value)
@@ -677,7 +704,11 @@ function Home() {
                               />
                               <Button
                                 size="icon"
-                                className="h-10 w-10 bg-[#05A9A9] hover:bg-[#048484]"
+                                className="h-10 w-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200"
+                                style={{
+                                  background:
+                                    "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                                }}
                                 onClick={() =>
                                   submitComment({ postId, userId: post.userid })
                                 }
@@ -688,23 +719,40 @@ function Home() {
                             </div>
                           </div>
 
-                          <h4 className="font-medium text-sm mb-3">Comments</h4>
+                          <h4 className="font-medium text-gray-800 text-sm mt-5 mb-3 flex items-center gap-2">
+                            <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                            Comments
+                          </h4>
 
-                          <div className="space-y-3 mb-4">
+                          <div className="space-y-3 mb-3">
                             {post.comments && post.comments.length > 0 ? (
                               post.comments.map((comment, i) => (
-                                <div key={i} className="flex gap-3">
-                                  <Avatar className="w-8 h-8">
+                                <motion.div
+                                  key={i}
+                                  className="flex gap-3"
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{
+                                    duration: 0.2,
+                                    delay: i * 0.05,
+                                  }}
+                                >
+                                  <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
                                     <AvatarImage
-                                      src={`/placeholder.svg?height=32&width=32&text=${
+                                      src={`/placeholder-icon.png?height=32&width=32&text=${
                                         post?.commenterDetails?.find(
                                           (user) =>
                                             user._id === comment.commentedBy
                                         ) || "U"
                                       }`}
-                                      // alt={post?.commenterDetails?.find((user) => user._id === comment.commentedBy) || "User"}
                                     />
-                                    <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9]">
+                                    <AvatarFallback
+                                      className="text-white"
+                                      style={{
+                                        background:
+                                          "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                                      }}
+                                    >
                                       {(
                                         post?.commenterDetails
                                           ?.find(
@@ -715,9 +763,9 @@ function Home() {
                                       )?.toUpperCase()}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <div className="flex-1 bg-gray-50 p-3 rounded-xl">
+                                  <div className="flex-1 bg-[#f8fdfd] p-3 rounded-xl">
                                     <div className="flex justify-between items-start">
-                                      <p className="font-medium text-sm">
+                                      <p className="font-medium text-sm text-gray-800">
                                         {post?.commenterDetails?.find(
                                           (user) =>
                                             user._id === comment.commentedBy
@@ -732,39 +780,52 @@ function Home() {
                                           formatMessageTime(comment.createdAt)}
                                       </span>
                                     </div>
-                                    <p className="text-sm font-light mt-1">
+                                    <p className="text-sm text-gray-600 mt-1">
                                       {comment.comment}
                                     </p>
                                   </div>
-                                </div>
+                                </motion.div>
                               ))
                             ) : (
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-gray-400 text-center py-4 bg-[#f8fdfd] rounded-xl">
                                 No comments yet. Be the first to comment!
                               </p>
                             )}
                           </div>
-                        </div>
+                        </motion.div>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
 
             {(!allPostsWithComments?.data ||
               allPostsWithComments.data.length === 0) && (
-              <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
-                <div className="w-16 h-16 bg-[#05A9A9]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Layers className="w-8 h-8 text-[#05A9A9]" />
+              <div className="bg-white rounded-2xl shadow-lg p-8 text-center border border-[#e6f7f7]">
+                <div
+                  className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5"
+                  style={{
+                    background: "linear-gradient(135deg, #e6f7f7, #f5fcfc)",
+                    boxShadow: "0 8px 20px rgba(5, 169, 169, 0.1)",
+                  }}
+                >
+                  <Layers className="w-10 h-10" style={{ color: "#05A9A9" }} />
                 </div>
-                <h3 className="text-lg font-medium mb-2">Your feed is empty</h3>
-                <p className="text-gray-500 mb-4">
-                  Start sharing moments with your friends
+                <h3 className="text-xl font-medium mb-3 text-gray-800">
+                  Your feed is empty
+                </h3>
+                <p className="text-gray-500 mb-5 max-w-md mx-auto">
+                  Start sharing moments with your friends and see their updates
+                  here
                 </p>
                 <Button
                   onClick={() => setOpen(true)}
-                  className="bg-[#05A9A9] hover:bg-[#048484]"
+                  className="rounded-full px-6 py-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                  style={{
+                    background: "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                  }}
                 >
+                  <ImageIcon className="w-4 h-4 mr-2" />
                   Create Your First Post
                 </Button>
               </div>
@@ -772,18 +833,28 @@ function Home() {
           </div>
         </div>
 
-        <div className="col-span-2 hidden lg:block">
-          <div className="sticky top-16 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="h-24 bg-[#05A9A9]"></div>
-              <div className="px-5 pb-5 pt-0 -mt-10">
-                {/* Profile Header */}
-                <Avatar className="w-20 h-20 border-4 border-white">
+        <div className="lg:col-span-3  hidden lg:block">
+          <div className="sticky top-16  overflow-y-hidden">
+            <div className="bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4">
+              <div
+                className="h-28 rounded-t-md"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #05A9A9, #4ecdc4, #a6e4e0)",
+                }}
+              ></div>
+              <div className="px-5 pb-5 pt-0 -mt-14">
+                <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
                   <AvatarImage
                     src="https://i.pravatar.cc/100?img=7"
                     alt="Your profile"
                   />
-                  <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9] text-xl">
+                  <AvatarFallback
+                    className="text-white text-xl"
+                    style={{
+                      background: "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                    }}
+                  >
                     {userFullProfile?.data.name
                       .split(" ")
                       .map((n) => n[0])
@@ -791,127 +862,133 @@ function Home() {
                   </AvatarFallback>
                 </Avatar>
 
-                <h3 className="font-bold text-lg mt-2">
+                <h3 className="font-medium text-lg mt-3 text-gray-800">
                   {userFullProfile?.data.name ?? "Your Name"}
                 </h3>
                 <p className="text-gray-500 text-sm">
                   {userFullProfile?.data.position || "No position specified"}
                 </p>
 
-                {/* Stats */}
-                <div className="flex justify-between mt-4 text-center border-y py-3">
-                  <div>
-                    <p className="font-bold">248</p>
-                    <p className="text-xs text-gray-500">Posts</p>
+                <div className="h-[60vh] overflow-y-auto">
+                  <div className="flex justify-between mt-5 text-center border-y border-[#e6f7f7] py-4">
+                    <div>
+                      <p className="font-medium text-gray-800">248</p>
+                      <p className="text-xs text-gray-500">Posts</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">1,432</p>
+                      <p className="text-xs text-gray-500">Followers</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">526</p>
+                      <p className="text-xs text-gray-500">Following</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold">1,432</p>
-                    <p className="text-xs text-gray-500">Followers</p>
-                  </div>
-                  <div>
-                    <p className="font-bold">526</p>
-                    <p className="text-xs text-gray-500">Following</p>
-                  </div>
-                </div>
 
-                {/* Bio */}
-                <p className="text-gray-600 text-sm mt-3">
-                  {userFullProfile?.data.bio || "No bio available"}
-                </p>
+                  <p className="text-gray-600 text-sm mt-4">
+                    {userFullProfile?.data.bio || "No bio available"}
+                  </p>
 
-                {/* Current Role (if available) */}
-                {userFullProfile?.data.experience?.find(
-                  (exp) => exp.workingAt
-                ) && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-sm text-gray-700">
-                      Currently
-                    </h4>
-                    <p className="font-medium">
-                      {
-                        userFullProfile.data.experience.find(
-                          (exp) => exp.workingAt
-                        )?.jobTitle
-                      }
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {
-                        userFullProfile.data.experience.find(
-                          (exp) => exp.workingAt
-                        )?.entity
-                      }
-                    </p>
-                  </div>
-                )}
-
-                {/* Education Summary */}
-                {userFullProfile?.data.education &&
-                  userFullProfile?.data.education?.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="font-medium text-sm text-gray-700">
-                        Education
+                  {userFullProfile?.data.experience?.find(
+                    (exp) => exp.workingAt
+                  ) && (
+                    <div className="mt-5 p-4 bg-[#f8fdfd] rounded-xl">
+                      <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2">
+                        <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                        Currently
                       </h4>
-                      {userFullProfile.data.education.slice(0, 2).map((edu) => (
-                        <div key={edu._id} className="mt-1">
-                          <p className="font-medium">{edu.institution}</p>
-                          <p className="text-sm text-gray-600">
-                            {edu.degree}
-                            {edu.fieldOfStudy && `, ${edu.fieldOfStudy}`}
-                          </p>
-                        </div>
-                      ))}
+                      <p className="font-medium text-gray-800 mt-1">
+                        {
+                          userFullProfile.data.experience.find(
+                            (exp) => exp.workingAt
+                          )?.jobTitle
+                        }
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {
+                          userFullProfile.data.experience.find(
+                            (exp) => exp.workingAt
+                          )?.entity
+                        }
+                      </p>
                     </div>
                   )}
 
-                {/* Skills Cloud */}
-                {userFullProfile?.data.skills &&
-                  userFullProfile?.data.skills?.[0]?.skill?.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="font-medium text-sm text-gray-700">
-                        Skills
-                      </h4>
-                      <div className="flex flex-wrap gap-1.5 mt-2">
-                        {userFullProfile.data.skills[0].skill
-                          .slice(0, 8)
-                          .map((skill, i) => (
-                            <span
-                              key={i}
-                              className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs"
+                  {userFullProfile?.data.education &&
+                    userFullProfile?.data.education?.length > 0 && (
+                      <div className="mt-5">
+                        <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2 mb-2">
+                          <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                          Education
+                        </h4>
+                        {userFullProfile.data.education
+                          .slice(0, 2)
+                          .map((edu) => (
+                            <div
+                              key={edu._id}
+                              className="mt-2 p-3 bg-[#f8fdfd] rounded-lg"
                             >
-                              {skill}
-                            </span>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Organizations */}
-                {userFullProfile?.data.organization &&
-                  userFullProfile?.data.organization?.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="font-medium text-sm text-gray-700">
-                        Organizations
-                      </h4>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {userFullProfile.data.organization
-                          .slice(0, 3)
-                          .map((org) => (
-                            <div key={org._id} className="flex items-center">
-                              <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-1">
-                                <span className="text-xs">🏢</span>
-                              </div>
-                              <span className="text-sm">
-                                {org.organizationName}
-                              </span>
+                              <p className="font-medium text-gray-800">
+                                {edu.institution}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {edu.degree}
+                                {edu.fieldOfStudy && `, ${edu.fieldOfStudy}`}
+                              </p>
                             </div>
                           ))}
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                {/* <Button className="w-full mt-6 bg-[#05A9A9] hover:bg-[#048484]">
-                  Edit Profile
-                </Button> */}
+                  {userFullProfile?.data.skills &&
+                    userFullProfile?.data.skills?.[0]?.skill?.length > 0 && (
+                      <div className="mt-5">
+                        <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2 mb-2">
+                          <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                          Skills
+                        </h4>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {userFullProfile.data.skills[0].skill
+                            .slice(0, 8)
+                            .map((skill, i) => (
+                              <span
+                                key={i}
+                                className="px-3 py-1 bg-[#e6f7f7] text-[#05A9A9] rounded-full text-xs font-medium"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                  {userFullProfile?.data.organization &&
+                    userFullProfile?.data.organization?.length > 0 && (
+                      <div className="mt-5">
+                        <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2 mb-2">
+                          <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                          Organizations
+                        </h4>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {userFullProfile.data.organization
+                            .slice(0, 3)
+                            .map((org) => (
+                              <div
+                                key={org._id}
+                                className="flex items-center bg-[#f8fdfd] px-3 py-2 rounded-lg"
+                              >
+                                <div className="w-6 h-6 rounded-full bg-[#e6f7f7] flex items-center justify-center mr-2 text-[#05A9A9]">
+                                  <span className="text-xs">🏢</span>
+                                </div>
+                                <span className="text-sm text-gray-700">
+                                  {org.organizationName}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                </div>
               </div>
             </div>
           </div>
@@ -923,27 +1000,16 @@ function Home() {
           <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
           <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[94%] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl focus:outline-none">
             <div className="flex items-center justify-between mb-4">
-              <Dialog.Title className="text-xl font-semibold">
+              <Dialog.Title className="text-xl font-medium text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
                 Create New Post
               </Dialog.Title>
               <Dialog.Close asChild>
-                <button className="text-gray-500 hover:text-gray-800 rounded-full p-1 hover:bg-gray-100">
+                <button className="text-gray-400 hover:text-[#05A9A9] rounded-full p-2 hover:bg-[#f8fdfd] transition-colors duration-200">
                   <X className="w-5 h-5" />
                 </button>
               </Dialog.Close>
             </div>
-
-            {/* <div className="border border-dashed border-gray-300 rounded-xl p-6 mb-4 text-center">
-              <div className="w-16 h-16 bg-[#05A9A9]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Camera className="w-8 h-8 text-[#05A9A9]" />
-              </div>
-              <p className="text-gray-600 mb-4">
-                Drag and drop your photo here, or click to browse
-              </p>
-              <Button className="bg-[#05A9A9] hover:bg-[#048484]">
-                Upload Photo
-              </Button>
-            </div> */}
 
             <AddPost onSuccess={() => setOpen(false)} />
           </Dialog.Content>
@@ -957,21 +1023,24 @@ function Home() {
               className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50"
               onClick={() => {
                 setViewStory(false);
-                console.log(viewStory);
               }}
             />
-            <Dialog.Content className="fixed inset-0 mx-auto z-50 w-[50%] bg-red-400 flex items-center justify-center focus:outline-none">
+            <Dialog.Content className="fixed inset-0 mx-auto z-50 w-[50%] flex items-center justify-center focus:outline-none">
               <div className="relative w-full max-w-3xl mx-auto">
                 <div className="absolute top-0 left-4 right-4 flex gap-1 z-10 p-4">
                   {viewingStory.items.map((item, idx) => (
                     <div
                       key={item.id}
-                      className="h-1 rounded-full flex-1 overflow-hidden bg-white/30"
+                      className="h-1.5 rounded-full flex-1 overflow-hidden bg-white/30"
                     >
                       {idx === currentStoryItemIndex && (
                         <div
-                          className="h-full bg-white transition-all duration-100 ease-linear"
-                          style={{ width: `${storyProgress}%` }}
+                          className="h-full transition-all duration-100 ease-linear"
+                          style={{
+                            width: `${storyProgress}%`,
+                            background:
+                              "linear-gradient(to right, #05A9A9, #4ecdc4)",
+                          }}
                         />
                       )}
                       {idx < currentStoryItemIndex && (
@@ -983,12 +1052,18 @@ function Home() {
 
                 <div className="absolute top-6 left-4 right-4 flex items-center justify-between z-10">
                   <div className="flex items-center">
-                    <Avatar className="w-10 h-10 border-2 border-white">
+                    <Avatar className="w-12 h-12 border-2 border-white shadow-md">
                       <AvatarImage
                         src={viewingStory.avatar || "/placeholder.svg"}
                         alt={viewingStory.username}
                       />
-                      <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9]">
+                      <AvatarFallback
+                        className="text-white"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                        }}
+                      >
                         {viewingStory.username[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -999,8 +1074,8 @@ function Home() {
                   </div>
                   <Dialog.Close asChild>
                     <button
-                      className="text-white hover:text-gray-200 rounded-full p-1"
-                      onClick={() => setViewStory(false)} // Explicit close handler
+                      className="text-white hover:text-gray-200 rounded-full p-1 bg-black/20 hover:bg-black/30 transition-colors duration-200"
+                      onClick={() => setViewStory(false)}
                     >
                       <X className="w-6 h-6" />
                     </button>
@@ -1008,7 +1083,7 @@ function Home() {
                 </div>
 
                 <div
-                  className="aspect-[9/16] bg-black rounded-lg overflow-hidden"
+                  className="aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl"
                   onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const x = e.clientX - rect.left;
@@ -1031,7 +1106,6 @@ function Home() {
                         setStoryProgress(0);
                       }
                     } else {
-                      // Go to next item or next story
                       if (
                         currentStoryItemIndex <
                         viewingStory.items.length - 1
@@ -1053,18 +1127,19 @@ function Home() {
                   <img
                     src={
                       viewingStory.items[currentStoryItemIndex]?.image ||
-                      `/placeholder.svg?height=1280&width=720&text=${encodeURIComponent(
-                        viewingStory.title
-                      )}`
+                      `/placeholder.svg?height=1280&width=720&text=${
+                        encodeURIComponent(viewingStory.title) ||
+                        "/placeholder.svg" ||
+                        "/placeholder.svg"
+                      }`
                     }
                     alt={viewingStory.title}
                     className="w-full h-full object-contain"
                   />
                 </div>
 
-                {/* Navigation buttons */}
                 <button
-                  className="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/50"
+                  className="absolute top-1/2 left-4 -translate-y-1/2 w-12 h-12 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/50 transition-colors duration-200"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (currentStoryItemIndex > 0) {
@@ -1087,7 +1162,7 @@ function Home() {
                   <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
-                  className="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/50"
+                  className="absolute top-1/2 right-4 -translate-y-1/2 w-12 h-12 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/50 transition-colors duration-200"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (currentStoryItemIndex < viewingStory.items.length - 1) {
@@ -1107,15 +1182,14 @@ function Home() {
                   <ChevronRight className="w-6 h-6" />
                 </button>
 
-                {/* Story interaction */}
                 <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center">
-                  <div className="bg-white/10 backdrop-blur-md rounded-full px-4 py-2 flex items-center">
+                  <div className="bg-white/10 backdrop-blur-md rounded-full px-5 py-3 flex items-center shadow-lg">
                     <input
                       type="text"
                       placeholder="Reply to story..."
-                      className="bg-transparent border-none text-white placeholder-white/70 focus:outline-none"
+                      className="bg-transparent border-none text-white placeholder-white/70 focus:outline-none w-full"
                     />
-                    <button className="ml-2 text-white">
+                    <button className="ml-2 text-white bg-[#05A9A9] p-2 rounded-full hover:bg-[#4ecdc4] transition-colors duration-200">
                       <Send className="w-5 h-5" />
                     </button>
                   </div>
@@ -1131,11 +1205,12 @@ function Home() {
           <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
           <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[94%] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl focus:outline-none">
             <div className="flex items-center justify-between mb-4">
-              <Dialog.Title className="text-xl font-semibold">
+              <Dialog.Title className="text-xl font-medium text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
                 Create New Story
               </Dialog.Title>
               <Dialog.Close asChild>
-                <button className="text-gray-500 hover:text-gray-800 rounded-full p-1 hover:bg-gray-100">
+                <button className="text-gray-400 hover:text-[#05A9A9] rounded-full p-2 hover:bg-[#f8fdfd] transition-colors duration-200">
                   <X className="w-5 h-5" />
                 </button>
               </Dialog.Close>
@@ -1144,29 +1219,34 @@ function Home() {
             <div className="space-y-4">
               {!selectedFile && (
                 <div
-                  className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer ${
+                  className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${
                     isDragging
-                      ? "border-[#05A9A9] bg-[#05A9A9]/10"
-                      : "border-gray-300 hover:border-[#05A9A9] hover:bg-[#05A9A9]/5"
+                      ? "border-[#05A9A9] bg-[#f8fdfd]"
+                      : "border-[#e6f7f7] hover:border-[#05A9A9] hover:bg-[#f8fdfd]"
                   }`}
                   onClick={() => fileInputRef.current?.click()}
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                 >
-                  <div className="flex flex-col items-center justify-center space-y-3 py-8">
-                    <div className="w-14 h-14 rounded-full bg-[#05A9A9]/10 flex items-center justify-center">
-                      <Upload className="w-6 h-6 text-[#05A9A9]" />
+                  <div className="flex flex-col items-center justify-center space-y-4 py-10">
+                    <div
+                      className="w-16 h-16 rounded-full flex items-center justify-center shadow-md"
+                      style={{
+                        background: "linear-gradient(135deg, #e6f7f7, #f5fcfc)",
+                      }}
+                    >
+                      <Upload className="w-7 h-7 text-[#05A9A9]" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-800 text-lg">
                         Drag & drop your file here
                       </p>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500 mt-2">
                         or click to browse files
                       </p>
                     </div>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-400 bg-[#f8fdfd] px-4 py-2 rounded-full">
                       Supports JPG, PNG, MP4, AVI (Max 50MB)
                     </p>
                   </div>
@@ -1182,10 +1262,12 @@ function Home() {
               )}
 
               {selectedFile && (
-                <div className="rounded-xl overflow-hidden bg-gray-50 border border-gray-200">
+                <div className="rounded-xl overflow-hidden bg-[#f8fdfd] border border-[#e6f7f7] shadow-md">
                   {selectedFile.type.startsWith("image/") ? (
                     <img
-                      src={URL.createObjectURL(selectedFile)}
+                      src={
+                        URL.createObjectURL(selectedFile) || "/placeholder.svg"
+                      }
                       alt="Preview"
                       className="w-full h-auto max-h-96 object-contain"
                     />
@@ -1196,33 +1278,40 @@ function Home() {
                       className="w-full h-auto max-h-96"
                     />
                   )}
-                  <div className="p-3 flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm font-medium truncate max-w-[180px]">
-                        {selectedFile.name}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {(selectedFile.size / (1024 * 1024)).toFixed(1)}MB
-                      </span>
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-full bg-[#e6f7f7]">
+                        <FileText className="w-4 h-4 text-[#05A9A9]" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium truncate max-w-[180px] text-gray-700 block">
+                          {selectedFile.name}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {(selectedFile.size / (1024 * 1024)).toFixed(1)}MB
+                        </span>
+                      </div>
                     </div>
                     <button
                       onClick={() => setSelectedFile(null)}
-                      className="text-gray-500 hover:text-red-500 p-1"
+                      className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Submit Button (appears after file selection) */}
               {selectedFile && (
                 <button
                   onClick={handleSubmit}
-                  className="w-full py-3 flex items-center justify-center px-4 bg-[#05A9A9] hover:bg-[#05A9A9]/90 text-white font-medium rounded-lg transition-colors"
+                  className="w-full py-3 flex items-center justify-center px-4 text-white font-medium rounded-full transition-all hover:shadow-lg transform hover:scale-105"
+                  style={{
+                    background: "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                    boxShadow: "0 4px 14px rgba(5, 169, 169, 0.2)",
+                  }}
                 >
-                  {storyLoading ? <Spinner /> : " Create Story"}
+                  {storyLoading ? <Spinner /> : "Create Story"}
                 </button>
               )}
             </div>

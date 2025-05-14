@@ -5,6 +5,9 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import image1 from "../../assets/image1.jpg";
 import image2 from "../../assets/image2.webp";
 import image3 from "../../assets/image3.webp";
+import image4 from "../../assets/image4.jpg";
+import image5 from "../../assets/image5.jpg";
+import image6 from "../../assets/image6.jpg";
 
 interface PostCardProps {
   post: PostCom;
@@ -14,7 +17,7 @@ interface PostCardProps {
 const PostGallery: React.FC<PostCardProps> = ({ post, index }) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
-  const postImages = [image1, image2, image3];
+  const postImages = [image1, image2, image3, image4, image5, image6];
   //   postImages
 
   const variants: Variants = {

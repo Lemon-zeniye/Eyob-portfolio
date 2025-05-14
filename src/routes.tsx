@@ -6,7 +6,6 @@ import Settings from "./Pages/Settings";
 import Profile from "./Pages/Profile";
 import Chat from "./Pages/Chat";
 import CreateProfile from "./Pages/CreateProfile";
-import Home from "./Pages/Home";
 import AppliedJobs from "./Pages/AppliedJobs";
 import AddJob from "./components/Jobs/AddJob";
 import JobPage from "./Pages/JobPage";
@@ -14,6 +13,7 @@ import AppLayout from "./Pages/AppLayout";
 import PrivateRoute from "./Context/PrivateRoute";
 import { SocketProvider } from "./Context/SocketProvider";
 import JobDetailContainer from "./components/Jobs/JobDetailContainer";
+import HomePage from "./Pages/HomePage";
 
 export const router = createBrowserRouter([
   {
@@ -37,7 +37,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Home />,
+            element: <HomePage />,
           },
           {
             path: "settings",
