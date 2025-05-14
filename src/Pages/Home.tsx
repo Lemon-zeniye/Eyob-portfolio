@@ -303,7 +303,7 @@ function Home() {
   const { mutate: comment } = useMutation({
     mutationFn: addComment,
     onSuccess: () => {
-      queryClient.invalidateQueries("getAllPostsWithComments");
+      queryClient.invalidateQueries("postComments");
     },
     onError: () => {},
   });
