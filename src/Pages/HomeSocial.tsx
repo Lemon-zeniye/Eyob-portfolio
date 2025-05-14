@@ -333,14 +333,14 @@ function HomeSocial() {
 
   return (
     <div className="min-h-screen">
-      <div className="grid grid-cols-12 mx-auto gap-5 px-2  md:px-4 py-2">
+      <div className="grid grid-cols-12 mx-auto gap-5 pr-1  md:px-4 py-2">
         <div className="col-span-12 lg:col-span-9  space-y-8">
-          <div className="bg-white rounded-none md:rounded-2xl shadow-sm p-2  md:p-5 overflow-hidden">
+          <div className="bg-white rounded-md md:rounded-2xl shadow-sm p-2  md:p-5 overflow-hidden">
             <h2 className="font-medium text-lg mb-5 text-gray-800 flex items-center gap-2">
               <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#FFC55B] to-[#FFC55B]/50"></span>
               Stories
             </h2>
-            <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide px-2 md:px-0">
+            <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide p-2 md:px-0">
               <div
                 key="add-story"
                 className="min-w-[140px] md:min-w-[180px] h-[180px] md:h-[200px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
@@ -401,7 +401,7 @@ function HomeSocial() {
                     />
 
                     {/* Avatar with modern ring */}
-                    <div className="absolute top-3 left-3 z-20">
+                    <div className="absolute top-3 left-3 z-10">
                       <div className="p-0.5 rounded-full bg-gradient-to-br from-[#FFC55B] to-amber-200 shadow-md">
                         <Avatar className="w-7 h-7 md:w-8 md:h-8 ring-2 ring-white">
                           <AvatarImage

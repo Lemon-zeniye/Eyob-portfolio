@@ -67,3 +67,24 @@ export interface PostComRes {
   success: boolean;
   msg: string;
 }
+
+export interface CommentsRes {
+  data: CommentNew[];
+  success: boolean;
+  msg: string;
+}
+export interface UserNew {
+  _id: string;
+  name: string;
+  email: string;
+}
+
+export interface CommentNew {
+  _id: string;
+  postId: string;
+  comment: string;
+  commentedBy: User;
+  commentedTo: User;
+  createdAt: string;
+  __v: number;
+}

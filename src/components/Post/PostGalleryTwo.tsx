@@ -19,8 +19,8 @@ import { FaRegComment } from "react-icons/fa";
 import { RiSendPlaneLine } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
 import { LuBookmarkMinus } from "react-icons/lu";
-import { useMutation, useQueryClient } from "react-query";
-import { addComment, likeOrDeslike } from "@/Api/post.api";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { addComment, getcComments, likeOrDeslike } from "@/Api/post.api";
 import { Button } from "../ui/button";
 import { Separator } from "@radix-ui/react-separator";
 import { deletePost } from "@/Api/profile.api";
@@ -87,6 +87,20 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     },
   });
 
+  const {
+    data: postComments,
+    refetch,
+    isLoading: isLoadingComment,
+  } = useQuery({
+    queryKey: ["postComments", post._id],
+    queryFn: () => {
+      if (post._id) {
+        return getcComments(post._id);
+      }
+    },
+    enabled: false,
+  });
+
   const { mutate: comment } = useMutation({
     mutationFn: addComment,
     onSuccess: () => {
@@ -135,7 +149,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
       animate="visible"
       variants={variants}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className=" rounded-3xl min-h-[40vh]  md:min-h-[80vh]"
+      className="rounded-xl md:rounded-3xl min-h-[48vh]  md:min-h-[80vh]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -160,8 +174,8 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                 alt={post.postTitle || "Post"}
                 className={`w-full h-full object-cover ${
                   idx % 2 === 0
-                    ? "rounded-b-3xl md:rounded-bl-3xl"
-                    : "rounded-b-3xl md:rounded-br-3xl"
+                    ? "rounded-b-xl md:rounded-bl-3xl"
+                    : "rounded-b-xl md:rounded-br-3xl"
                 }`}
               />
             </div>
@@ -172,7 +186,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
         <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
 
         {/* Bottom Gradient Shadow (Small) */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t rounded-b-3xl from-black/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t rounded-b-xl md:rounded-b-3xl from-black/50 to-transparent pointer-events-none" />
 
         {/* Top Absolute for Profile */}
         <div className="absolute top-0 left-0 right-0 p-2 md:p-4">
@@ -236,7 +250,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 
         {/* Modern Bottom Absolute Container */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-[80%] max-w-md px-4">
-          <div className="flex justify-between items-center bg-[#FFC55B]/50 backdrop-blur-md rounded-full p-1 md:p-3 shadow-md shadow-[#FFC55B]/50 border-2 border-[#FFC55B]/10">
+          <div className="flex justify-between items-center bg-[#FFC55B]/50 backdrop-blur-md rounded-full p-1 md:p-3 shadow-md shadow-white/20 border-2 border-[#FFC55B]/10">
             <motion.button
               onClick={() => handleLike(post._id)}
               disabled={isLoading}
@@ -271,7 +285,10 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 
             <button
               className="flex gap-1 md:gap-2 items-center justify-center w-full text-white hover:scale-110 transition-transform"
-              onClick={() => toggleComments(post._id)}
+              onClick={() => {
+                toggleComments(post._id);
+                refetch();
+              }}
             >
               <FaRegComment className="text-xl md:text-3xl text-white" />
               <span className="text-sm md:text-lg font-medium">
@@ -293,7 +310,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
         {postImages.length > 2 && (
           <>
             {/* Dots Indicator */}
-            <div className="absolute bottom-24 left-0 right-0 flex justify-center gap-1">
+            <div className="absolute bottom-16 md:bottom-24 left-0 right-0 flex justify-center gap-1">
               {Array.from({
                 length: Math.ceil(postImages.length / 2),
               }).map((_, idx) => (
@@ -341,12 +358,10 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
       </div>
 
       {/* Post Content */}
-      <div className="p-2 ">
-        <div className="mb-1">
-          <h3 className="font-semibold text-lg mb-2">{post.postTitle}</h3>
-        </div>
-        <div className=" flex items-center gap-4">
-          <p className="text-gray-900">
+      <div className="p-2 space-y-1 md:space-y-2">
+        <h3 className="font-semibold text-lg">{post.postTitle}</h3>
+        <div className="space-y-2">
+          <p className="text-gray-600 text-sm">
             {post.postContent || "No description provided."}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -427,91 +442,112 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
             <h4 className="font-medium my-2">Comments</h4>
 
             <div className="space-y-4 mb-6">
-              {post.comments && post.comments.length > 0 ? (
-                post.comments.map((comment, i) => (
-                  <motion.div
-                    key={i}
-                    className="flex gap-3 group"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: i * 0.05 }}
-                  >
-                    <Avatar className="w-9 h-9 transition-all duration-300 group-hover:scale-105">
-                      <AvatarImage
-                        src={`/placeholder.svg?height=36&width=36&text=${
-                          post?.commenterDetails
-                            ?.find((user) => user._id === comment.commentedBy)
-                            ?.name?.slice(0, 1) || "U"
-                        }`}
-                      />
-                      <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#05A9A9]/70 text-white">
-                        {(
-                          post?.commenterDetails
-                            ?.find((user) => user._id === comment.commentedBy)
-                            ?.name?.slice(0, 1) || "U"
-                        )?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex-1">
-                      <div className="relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-[#05A9A9]/20 to-[#05A9A9]/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
-                        <div className="relative bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/20 shadow-sm group-hover:shadow-md transition-all duration-300">
-                          <div className="flex justify-between items-start">
-                            <p className="font-medium text-sm text-gray-800">
-                              {post?.commenterDetails?.find(
-                                (user) => user._id === comment.commentedBy
-                              )?.name || "Anonymous"}
-                            </p>
-                            <span className="text-xs text-gray-500/80">
-                              {formatDateSmart(comment.createdAt, true) +
-                                " • " +
-                                formatMessageTime(comment.createdAt)}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-700 mt-1.5 leading-relaxed">
-                            {comment.comment}
-                          </p>
-                          <div className="flex gap-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
-                              Reply
-                            </button>
-                            <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
-                              Like
-                            </button>
-                          </div>
-                        </div>
+              {isLoadingComment ? (
+                <>
+                  {[...Array(2)].map((_, index) => (
+                    <div
+                      key={index}
+                      className="relative bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/70 shadow-sm animate-pulse"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                        <div className="h-3 w-16 bg-gray-200 rounded"></div>
+                      </div>
+                      <div className="h-4 w-full bg-gray-200 rounded mt-2"></div>
+                      <div className="h-4 w-5/6 bg-gray-200 rounded mt-1"></div>
+                      <div className="flex gap-3 mt-2">
+                        <div className="h-3 w-12 bg-gray-200 rounded"></div>
+                        <div className="h-3 w-10 bg-gray-200 rounded"></div>
                       </div>
                     </div>
-                  </motion.div>
-                ))
+                  ))}
+                </>
               ) : (
-                <div className="text-center py-2">
-                  <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                    <MessageSquare className="w-5 h-5 text-gray-400" />
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    No comments yet. Be the first to comment!
-                  </p>
-                </div>
+                <>
+                  {postComments?.data && postComments?.data.length > 0 ? (
+                    postComments.data.map((comment, i) => (
+                      <motion.div
+                        key={i}
+                        className="flex gap-3 group"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: i * 0.05 }}
+                      >
+                        <Avatar className="w-9 h-9 transition-all duration-300 group-hover:scale-105">
+                          <AvatarImage
+                            src={`/placeholder.svg?height=36&width=36&text=${
+                              comment.commentedBy.name?.slice(0, 1) || "U"
+                            }`}
+                          />
+                          <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#05A9A9]/70 text-white">
+                            {(
+                              comment.commentedBy.name?.slice(0, 1) || "U"
+                            )?.toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <div className="flex-1">
+                          <div className="relative">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-[#05A9A9]/20 to-[#05A9A9]/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
+                            <div className="relative bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/20 shadow-sm group-hover:shadow-md transition-all duration-300">
+                              <div className="flex justify-between items-start">
+                                <p className="font-medium text-sm text-gray-800">
+                                  {comment?.commentedBy.name || "Anonymous"}
+                                </p>
+                                <span className="text-xs text-gray-500/80">
+                                  {formatDateSmart(comment.createdAt, true) +
+                                    " • " +
+                                    formatMessageTime(comment.createdAt)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-700 mt-1.5 leading-relaxed">
+                                {comment.comment}
+                              </p>
+                              <div className="flex gap-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
+                                  Reply
+                                </button>
+                                <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
+                                  Like
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="text-center py-2">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                        <MessageSquare className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        No comments yet. Be the first to comment!
+                      </p>
+                    </div>
+                  )}{" "}
+                </>
               )}
             </div>
           </div>
         ) : (
           <div>
-            {post?.comments && post.comments.length > 0 && (
-              <span
-                className="text-gray-700 text-sm mt-1 cursor-pointer hover:text-gray-600"
-                onClick={() => toggleComments(post._id)}
-              >
-                View All Comments{" "}
-                <span className="text-primary">( {post.comments.length} )</span>{" "}
-              </span>
-            )}
+            <span
+              className="text-gray-700 text-sm mt-1 cursor-pointer hover:text-gray-600"
+              onClick={() => {
+                toggleComments(post._id);
+                refetch();
+              }}
+            >
+              View All Comments
+              {/* <span className="text-primary">
+                ( {postComments?.data.length} )
+              </span> */}
+            </span>
           </div>
         )}
       </div>
-      {post?.comments && post.comments.length > 0 && isCommentsExpanded && (
+      {isCommentsExpanded && (
         <span
           className="text-gray-700 text-sm mt-1 cursor-pointer hover:text-gray-600"
           onClick={() => toggleComments(post._id)}

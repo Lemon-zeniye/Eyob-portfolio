@@ -2,6 +2,7 @@ import {
   addComment,
   addStory,
   getAllPostsWithComments,
+  getcComments,
   likeOrDeslike,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
@@ -55,7 +56,9 @@ function Home() {
   const [open, setOpen] = useState(false);
   const [currentStoryItemIndex, setCurrentStoryItemIndex] = useState(0);
   const [storyProgress, setStoryProgress] = useState(0);
-  const [expandedComments, setExpandedComments] = useState<string[]>([]);
+  const [expandedPost, setExpandedPost] = useState<string | undefined>(
+    undefined
+  );
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>(
     {}
   );
@@ -239,12 +242,18 @@ function Home() {
   }, [viewingStory, currentStoryItemIndex]);
 
   const toggleComments = (postId: string) => {
-    setExpandedComments((prev) =>
-      prev.includes(postId)
-        ? prev.filter((id) => id !== postId)
-        : [...prev, postId]
-    );
+    setExpandedPost((pre) => (pre === postId ? undefined : postId));
   };
+
+  const { data: postComments, isLoading: isLoadingComment } = useQuery({
+    queryKey: ["postComments", expandedPost],
+    queryFn: () => {
+      if (expandedPost) {
+        return getcComments(expandedPost);
+      }
+    },
+    enabled: !!expandedPost,
+  });
 
   const handleCommentChange = (postId: string, value: string) => {
     setCommentInputs((prev) => ({
@@ -414,9 +423,9 @@ function Home() {
   return (
     // <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
     <div className="min-h-screen">
-      <div className="grid grid-cols-12 mx-auto gap-5 px-4 py-2">
+      <div className="grid grid-cols-12 mx-auto gap-5 pr-1 md:px-4 py-2">
         <div className="col-span-12 lg:col-span-9  space-y-8">
-          <div className="bg-white rounded-2xl shadow-lg p-6 overflow-hidden border border-[#e6f7f7]">
+          <div className="bg-white rounded-2xl shadow-lg p-2 md:p-6 overflow-hidden border border-[#e6f7f7]">
             <h2 className="font-medium text-lg mb-5 text-gray-800 flex items-center gap-2">
               <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
               Stories
@@ -508,7 +517,7 @@ function Home() {
               // .reverse()
               .map((post, index) => {
                 const postId = post._id || `post-${index}`;
-                const isCommentsExpanded = expandedComments.includes(postId);
+                const isCommentsExpanded = post._id === expandedPost;
 
                 return (
                   <motion.div
@@ -606,7 +615,9 @@ function Home() {
                           onClick={() => toggleComments(postId)}
                         >
                           <MessageCircle className="w-4 h-4" />
-                          <span>{post.comments?.length || 0} comments</span>
+                          <span>
+                            {postComments?.data?.length || 0} comments
+                          </span>
                         </button>
                         <div className="flex items-center gap-1">
                           <Share2 className="w-4 h-4" />
@@ -726,71 +737,92 @@ function Home() {
                           </h4>
 
                           <div className="space-y-3 mb-3">
-                            {post.comments && post.comments.length > 0 ? (
-                              post.comments.map((comment, i) => (
-                                <motion.div
-                                  key={i}
-                                  className="flex gap-3"
-                                  initial={{ opacity: 0, y: 10 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{
-                                    duration: 0.2,
-                                    delay: i * 0.05,
-                                  }}
-                                >
-                                  <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
-                                    <AvatarImage
-                                      src={`/placeholder-icon.png?height=32&width=32&text=${
-                                        post?.commenterDetails?.find(
-                                          (user) =>
-                                            user._id === comment.commentedBy
-                                        ) || "U"
-                                      }`}
-                                    />
-                                    <AvatarFallback
-                                      className="text-white"
-                                      style={{
-                                        background:
-                                          "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                            {isLoadingComment ? (
+                              <>
+                                {[...Array(2)].map((_, index) => (
+                                  <div
+                                    key={index}
+                                    className="relative bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/70 shadow-sm animate-pulse"
+                                  >
+                                    <div className="flex justify-between items-start">
+                                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                                      <div className="h-3 w-16 bg-gray-200 rounded"></div>
+                                    </div>
+                                    <div className="h-4 w-full bg-gray-200 rounded mt-2"></div>
+                                    <div className="h-4 w-5/6 bg-gray-200 rounded mt-1"></div>
+                                    <div className="flex gap-3 mt-2">
+                                      <div className="h-3 w-12 bg-gray-200 rounded"></div>
+                                      <div className="h-3 w-10 bg-gray-200 rounded"></div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </>
+                            ) : (
+                              <>
+                                {" "}
+                                {postComments?.data &&
+                                postComments?.data.length > 0 ? (
+                                  postComments.data.map((comment, i) => (
+                                    <motion.div
+                                      key={i}
+                                      className="flex gap-3"
+                                      initial={{ opacity: 0, y: 10 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      transition={{
+                                        duration: 0.2,
+                                        delay: i * 0.05,
                                       }}
                                     >
-                                      {(
-                                        post?.commenterDetails
-                                          ?.find(
-                                            (user) =>
-                                              user._id === comment.commentedBy
-                                          )
-                                          ?.name?.slice(0, 1) || "U"
-                                      )?.toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div className="flex-1 bg-[#f8fdfd] p-3 rounded-xl">
-                                    <div className="flex justify-between items-start">
-                                      <p className="font-medium text-sm text-gray-800">
-                                        {post?.commenterDetails?.find(
-                                          (user) =>
-                                            user._id === comment.commentedBy
-                                        )?.name || "Anonymous"}
-                                      </p>
-                                      <span className="text-xs text-gray-500">
-                                        {formatDateSmart(
-                                          comment.createdAt,
-                                          true
-                                        ) +
-                                          " at " +
-                                          formatMessageTime(comment.createdAt)}
-                                      </span>
-                                    </div>
-                                    <p className="text-sm text-gray-600 mt-1">
-                                      {comment.comment}
-                                    </p>
-                                  </div>
-                                </motion.div>
-                              ))
-                            ) : (
-                              <p className="text-sm text-gray-400 text-center py-4 bg-[#f8fdfd] rounded-xl">
-                                No comments yet. Be the first to comment!
-                              </p>
+                                      <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
+                                        <AvatarImage
+                                          src={`/placeholder-icon.png?height=32&width=32&text=${
+                                            comment.commentedBy.name || "U"
+                                          }`}
+                                        />
+                                        <AvatarFallback
+                                          className="text-white"
+                                          style={{
+                                            background:
+                                              "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                                          }}
+                                        >
+                                          {(
+                                            comment.commentedBy.name?.slice(
+                                              0,
+                                              1
+                                            ) || "U"
+                                          )?.toUpperCase()}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex-1 bg-[#f8fdfd] p-3 rounded-xl">
+                                        <div className="flex justify-between items-start">
+                                          <p className="font-medium text-sm text-gray-800">
+                                            {comment.commentedBy?.name ||
+                                              "Anonymous"}
+                                          </p>
+                                          <span className="text-xs text-gray-500">
+                                            {formatDateSmart(
+                                              comment.createdAt,
+                                              true
+                                            ) +
+                                              " at " +
+                                              formatMessageTime(
+                                                comment.createdAt
+                                              )}
+                                          </span>
+                                        </div>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                          {comment.comment}
+                                        </p>
+                                      </div>
+                                    </motion.div>
+                                  ))
+                                ) : (
+                                  <p className="text-sm text-gray-400 text-center py-4 bg-[#f8fdfd] rounded-xl">
+                                    No comments yet. Be the first to comment!
+                                  </p>
+                                )}{" "}
+                              </>
                             )}
                           </div>
                         </motion.div>

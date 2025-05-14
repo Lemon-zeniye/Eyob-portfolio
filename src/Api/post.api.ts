@@ -1,4 +1,4 @@
-import { PostComRes, PostRes } from "@/Types/post.type";
+import { CommentsRes, PostComRes, PostRes } from "@/Types/post.type";
 import axios from "./axios";
 
 export const getAllPosts = async (): Promise<PostRes> => {
@@ -43,5 +43,12 @@ export const updateStory = async (id: string, payload: any): Promise<any> => {
 
 export const deleteStory = async (id: string): Promise<any> => {
   const response = await axios.patch<any>(`/user/deleteUserStory/{id}/${id}`);
+  return response.data;
+};
+
+export const getcComments = async (id: string): Promise<CommentsRes> => {
+  const response = await axios.get<any>(
+    `/userPost/fetchCommentsOfGivenPost/${id}`
+  );
   return response.data;
 };
