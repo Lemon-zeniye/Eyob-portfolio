@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "react-query";
-import { getActiveCompanies } from "@/Api/profile.api";
+import { useMutation, useQuery } from "react-query";
+import { getActiveCompanies, referCompany } from "@/Api/profile.api";
 import { Input } from "../ui/input";
+import { tos } from "@/lib/utils";
+import { getAxiosErrorMessage } from "@/Api/axios";
+import { Spinner } from "../ui/Spinner";
 
 export interface ActiveCompany {
   email: string;
@@ -15,15 +18,33 @@ interface SelectedCompany extends ActiveCompany {
   rating: number;
 }
 
-function ShareCompanyProfile() {
+function ShareCompanyProfile({
+  userId,
+  onSuccess,
+}: {
+  userId: string | undefined;
+  onSuccess: () => void;
+}) {
   const { data: activeCompanies } = useQuery({
     queryKey: ["activeCompanies"],
     queryFn: getActiveCompanies,
   });
 
-  const [selectedCompanies, setSelectedCompanies] = useState<SelectedCompany[]>(
-    []
-  );
+  const { mutate, isLoading } = useMutation({
+    mutationFn: referCompany,
+    onSuccess: () => {
+      tos.success("Success");
+      onSuccess();
+    },
+    onError: (error: any) => {
+      const message = getAxiosErrorMessage(error);
+      tos.error(message);
+    },
+  });
+
+  const [selectedCompany, setselectedCompany] = useState<
+    SelectedCompany | undefined
+  >(undefined);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -45,27 +66,23 @@ function ShareCompanyProfile() {
   }, [activeCompanies?.data, debouncedSearch]);
 
   const handleRatingChange = (company: ActiveCompany, rating: number) => {
-    setSelectedCompanies((prev) => {
-      const existingIndex = prev.findIndex((c) => c._id === company._id);
-
-      if (existingIndex >= 0) {
-        // Update rating if already selected
-        return prev.map((c) => (c._id === company._id ? { ...c, rating } : c));
-      } else {
-        // Add company with rating if not selected
-        return [...prev, { ...company, rating }];
-      }
-    });
+    setselectedCompany({ ...company, rating });
   };
 
   const handleSubmit = () => {
-    console.log("Selected companies with ratings:", selectedCompanies);
-    // Add your submission logic here
+    console.log("Selected companies with ratings:", selectedCompany);
+    if (selectedCompany && userId) {
+      mutate({
+        referredCandidate: userId,
+        rating: selectedCompany.rating,
+        company: selectedCompany?._id,
+      });
+    }
   };
 
   return (
     <div className="max-w-full bg-white rounded-lg">
-      {selectedCompanies.some((c) => c.rating === 0) && (
+      {selectedCompany?.rating === 0 && (
         <p className="mt-1 sticky top-0 bg-white text-xs text-center text-red-500">
           * Please provide ratings for all selected companies
         </p>
@@ -81,10 +98,7 @@ function ShareCompanyProfile() {
           />
         </div>
         {filteredCompanies.map((company: ActiveCompany) => {
-          const selectedCompany = selectedCompanies.find(
-            (c) => c._id === company._id
-          );
-          const isSelected = !!selectedCompany;
+          const isSelected = company._id === selectedCompany?._id;
 
           return (
             <div
@@ -130,7 +144,8 @@ function ShareCompanyProfile() {
                         type="button"
                         onClick={() => handleRatingChange(company, star)}
                         className={`text-xl ${
-                          star <= (selectedCompany?.rating || 0)
+                          star <= (selectedCompany?.rating || 0) &&
+                          selectedCompany?._id === company._id
                             ? "text-yellow-400"
                             : "text-gray-300"
                         }`}
@@ -149,17 +164,17 @@ function ShareCompanyProfile() {
         })}
       </div>
 
-      {selectedCompanies.length > 0 && (
+      {selectedCompany && (
         <button
           onClick={handleSubmit}
-          disabled={selectedCompanies.some((c) => c.rating === 0)}
-          className={`w-full py-2 sticky bottom-0 px-4 rounded-md font-medium text-white ${
-            selectedCompanies.some((c) => c.rating === 0)
+          disabled={selectedCompany.rating === 0}
+          className={`w-full py-2 flex items-center justify-center sticky bottom-0 px-4 rounded-md font-medium text-white ${
+            selectedCompany.rating === 0
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-primary hover:bg-primary/70"
           }`}
         >
-          Share Selected ({selectedCompanies.length})
+          {isLoading ? <Spinner /> : "Share"}
         </button>
       )}
     </div>

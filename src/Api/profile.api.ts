@@ -249,3 +249,8 @@ export const getActiveCompanies = async (): Promise<ActiveCompaniesRes> => {
   const response = await axios.get("/user/getActiveCompanies");
   return response.data;
 };
+
+export const referCompany = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>(`/user/addEmpRef`, payload);
+  return response.data;
+};

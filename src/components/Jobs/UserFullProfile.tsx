@@ -255,7 +255,7 @@ const UserProfile = ({
                 </div>
               )}
           </div>
-          <Sheet open={sheetOpen} onOpenChange={setSheetOpen} />
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen} userId={id} />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
@@ -265,9 +265,11 @@ const UserProfile = ({
 function Sheet({
   open,
   onOpenChange,
+  userId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  userId: string | undefined;
 }) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -313,8 +315,11 @@ function Sheet({
         {/* Sheet Body */}
         <div className="h-[calc(100%-40px)] overflow-y-auto p-4 pt-0">
           <Tabs tabs={["Employees", "Companies"]}>
-            <ShareProfile onSuccess={() => {}} small={true} />
-            <ShareCompanyProfile />
+            <ShareProfile onSuccess={() => onOpenChange(false)} small={true} />
+            <ShareCompanyProfile
+              userId={userId}
+              onSuccess={() => onOpenChange(false)}
+            />
           </Tabs>
         </div>
       </div>
