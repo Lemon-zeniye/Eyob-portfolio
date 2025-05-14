@@ -1058,7 +1058,7 @@ function Home() {
                 setViewStory(false);
               }}
             />
-            <Dialog.Content className="fixed inset-0 mx-auto z-50 w-[50%] flex items-center justify-center focus:outline-none">
+            <Dialog.Content className="fixed inset-0 mx-auto z-50 w-full md:w-[50%] flex items-center justify-center focus:outline-none">
               <div className="relative w-full max-w-3xl mx-auto">
                 <div className="absolute top-0 left-4 right-4 flex gap-1 z-10 p-4">
                   {viewingStory.items.map((item, idx) => (
