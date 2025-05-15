@@ -35,11 +35,7 @@ const PostGallery: React.FC<PostCardProps> = ({ post, index }) => {
     );
   };
 
-  // Get the current and next image for display
-  const currentImages = [
-    postImages[currentImageIndex],
-    postImages[(currentImageIndex + 1) % postImages.length],
-  ].filter(Boolean); // Filter out undefined if odd number of images
+  const currentImages = [postImages[currentImageIndex]].filter(Boolean);
 
   return (
     <motion.div
@@ -52,10 +48,10 @@ const PostGallery: React.FC<PostCardProps> = ({ post, index }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container */}
-      <div className="relative h-full bg-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+      <div className="relative">
+        <div className="h-[600px] w-full max-w-[600px] mx-auto">
           {currentImages.map((image, idx) => (
-            <div key={idx} className="aspect-[4/3] relative">
+            <div key={idx} className="h-full">
               <motion.img
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

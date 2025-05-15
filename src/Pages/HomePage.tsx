@@ -1,7 +1,7 @@
 import { useRole } from "@/Context/RoleContext";
-import HomeSocial from "./HomeSocial";
-import Home from "./Home";
 import { motion, AnimatePresence } from "framer-motion";
+import SocialHomePage from "./SocialHomePage";
+import NormalHomePage from "./NormalHomePage";
 
 function HomePage() {
   const { mode } = useRole();
@@ -15,7 +15,7 @@ function HomePage() {
         exit={{ opacity: 0, x: mode === "social" ? -50 : 50 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
       >
-        {mode === "social" ? <HomeSocial /> : <Home />}
+        {mode === "social" ? <SocialHomePage /> : <NormalHomePage />}
       </motion.div>
     </AnimatePresence>
   );

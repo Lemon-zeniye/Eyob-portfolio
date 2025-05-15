@@ -25,7 +25,7 @@ import { Button } from "../ui/button";
 import { Separator } from "@radix-ui/react-separator";
 import { deletePost } from "@/Api/profile.api";
 import { Textarea } from "../ui/textarea";
-import { MessageSquare, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import Cookies from "js-cookie";
 
 interface PostCardProps {
@@ -60,11 +60,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     );
   };
 
-  // Get the current and next image for display
-  const currentImages = [
-    postImages[currentImageIndex],
-    postImages[(currentImageIndex + 1) % postImages.length],
-  ].filter(Boolean); // Filter out undefined if odd number of images
+  const currentImages = [postImages[currentImageIndex]].filter(Boolean);
 
   const { mutate, isLoading } = useMutation({
     mutationFn: likeOrDeslike,
@@ -149,18 +145,15 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
       animate="visible"
       variants={variants}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="rounded-xl md:rounded-3xl min-h-[48vh]  md:min-h-[80vh]"
+      className="rounded-xl md:rounded-3xl"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container */}
-      <div className="relative aspect-[4/3] md:aspect-[2/1]">
-        <div className="grid grid-cols-1 md:grid-cols-2 h-full">
+      <div className="relative">
+        <div className="h-[600px] w-full max-w-[600px] mx-auto">
           {currentImages.map((image, idx) => (
-            <div
-              key={idx}
-              className={`h-full group ${idx > 0 ? "hidden md:block" : ""}`}
-            >
+            <div key={idx} className="h-full">
               <motion.img
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -172,11 +165,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                   )}`
                 }
                 alt={post.postTitle || "Post"}
-                className={`w-full h-full object-cover ${
-                  idx % 2 === 0
-                    ? "rounded-b-xl md:rounded-bl-3xl"
-                    : "rounded-b-xl md:rounded-br-3xl"
-                }`}
+                className="w-full h-full object-cover rounded-b-xl md:rounded-b-3xl"
               />
             </div>
           ))}
@@ -517,14 +506,9 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                       </motion.div>
                     ))
                   ) : (
-                    <div className="text-center py-2">
-                      <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                        <MessageSquare className="w-5 h-5 text-gray-400" />
-                      </div>
-                      <p className="text-sm text-gray-500">
-                        No comments yet. Be the first to comment!
-                      </p>
-                    </div>
+                    <p className="text-sm text-gray-400 text-center py-4  rounded-xl">
+                      No comments yet. Be the first to comment!
+                    </p>
                   )}{" "}
                 </>
               )}

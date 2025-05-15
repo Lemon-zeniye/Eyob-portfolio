@@ -1,10 +1,4 @@
-import {
-  addComment,
-  addStory,
-  getAllPostsWithComments,
-  getcComments,
-  likeOrDeslike,
-} from "@/Api/post.api";
+import { addStory, getAllPostsWithComments } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -17,38 +11,29 @@ import {
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Bookmark,
   ChevronLeft,
   ChevronRight,
-  Clock,
   FileText,
-  Heart,
   ImageIcon,
   Layers,
-  MessageCircle,
   PlusIcon,
   Send,
-  Share2,
   Trash2,
   Upload,
   X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
-import { motion } from "framer-motion";
-import { formatDateSmart, formatMessageTime, tos } from "@/lib/utils";
-import PostGallery from "@/components/Post/PostGallery";
 import Cookies from "js-cookie";
-import { deletePost, getUserFullProfile } from "@/Api/profile.api";
-import { FaEllipsisH, FaTrash } from "react-icons/fa";
+import { getUserFullProfile } from "@/Api/profile.api";
 import { Spinner } from "@/components/ui/Spinner";
+import PostGalleryTwo from "@/components/Post/PostGalleryTwo";
+import { tos } from "@/lib/utils";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
 };
 
-function Home() {
+function SocialHomePage() {
   const { data: allPostsWithComments } = useQuery({
     queryKey: ["getAllPostsWithComments"],
     queryFn: getAllPostsWithComments,
@@ -56,12 +41,6 @@ function Home() {
   const [open, setOpen] = useState(false);
   const [currentStoryItemIndex, setCurrentStoryItemIndex] = useState(0);
   const [storyProgress, setStoryProgress] = useState(0);
-  const [expandedPost, setExpandedPost] = useState<string | undefined>(
-    undefined
-  );
-  const [commentInputs, setCommentInputs] = useState<Record<string, string>>(
-    {}
-  );
   const [viewStory, setViewStory] = useState(false);
   const queryClient = useQueryClient();
   const userId = Cookies.get("userId");
@@ -241,26 +220,15 @@ function Home() {
     };
   }, [viewingStory, currentStoryItemIndex]);
 
-  const toggleComments = (postId: string) => {
-    setExpandedPost((pre) => (pre === postId ? undefined : postId));
-  };
-
-  const { data: postComments, isLoading: isLoadingComment } = useQuery({
-    queryKey: ["postComments", expandedPost],
-    queryFn: () => {
-      if (expandedPost) {
-        return getcComments(expandedPost);
-      }
-    },
-    enabled: !!expandedPost,
-  });
-
-  const handleCommentChange = (postId: string, value: string) => {
-    setCommentInputs((prev) => ({
-      ...prev,
-      [postId]: value,
-    }));
-  };
+  //   const { data: postComments, isLoading: isLoadingComment } = useQuery({
+  //     queryKey: ["postComments", expandedPost],
+  //     queryFn: () => {
+  //       if (expandedPost) {
+  //         return getcComments(expandedPost);
+  //       }
+  //     },
+  //     enabled: !!expandedPost,
+  //   });
 
   const { data: userFullProfile } = useQuery({
     queryKey: ["getUserFullProfile", userId],
@@ -270,15 +238,6 @@ function Home() {
       }
     },
     enabled: !!userId,
-  });
-
-  ///// mutuation
-  const { mutate, isLoading } = useMutation({
-    mutationFn: likeOrDeslike,
-    onSuccess: () => {
-      queryClient.invalidateQueries("getAllPostsWithComments");
-    },
-    onError: () => {},
   });
 
   const { mutate: addUserStory, isLoading: storyLoading } = useMutation({
@@ -291,26 +250,6 @@ function Home() {
     },
     onError: () => {},
   });
-
-  const { mutate: deleteP } = useMutation({
-    mutationFn: deletePost,
-    onSuccess: () => {
-      queryClient.invalidateQueries("getAllPostsWithComments");
-      tos.success("Success");
-    },
-  });
-
-  const { mutate: comment } = useMutation({
-    mutationFn: addComment,
-    onSuccess: () => {
-      queryClient.invalidateQueries("postComments");
-    },
-    onError: () => {},
-  });
-
-  const handleLike = (id: string) => {
-    mutate({ like: "like", postId: id });
-  };
 
   // file uploader
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -401,30 +340,12 @@ function Home() {
     };
   }, [selectedFile]);
 
-  const submitComment = ({
-    postId,
-    userId,
-  }: {
-    postId: string;
-    userId: string;
-  }) => {
-    comment({
-      postId: postId,
-      comment: commentInputs[postId],
-      commentedTo: userId,
-    });
-
-    setCommentInputs((prev) => ({
-      ...prev,
-      [postId]: "",
-    }));
-  };
-
   return (
     // <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
     <div className="min-h-screen">
       <div className="grid grid-cols-12 mx-auto gap-5 pr-1 md:px-4 py-2">
         <div className="col-span-12 lg:col-span-9  space-y-8">
+          {/* story */}
           <div className="bg-white rounded-2xl shadow-lg p-2 md:p-6 overflow-hidden border border-[#e6f7f7]">
             <h2 className="font-medium text-lg mb-5 text-gray-800 flex items-center gap-2">
               <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
@@ -495,7 +416,8 @@ function Home() {
             </div>
           </div>
 
-          <div className="flex justify-between items-center">
+          {/* post header */}
+          <div className="flex justify-between items-center px-1 md:px-10">
             <h2 className="font-medium text-lg text-gray-800 flex items-center gap-2">
               <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
               Your Feed
@@ -512,360 +434,55 @@ function Home() {
             </Button>
           </div>
 
-          <div className="space-y-6">
-            {[...(allPostsWithComments?.data ?? [])]
-              // .reverse()
-              .map((post, index) => {
-                const postId = post._id || `post-${index}`;
-                const isCommentsExpanded = post._id === expandedPost;
+          {/* post card */}
+          <div className="space-y-6 max-w-xl mx-auto">
+            <div className="space-y-6">
+              {[...(allPostsWithComments?.data ?? [])]
+                // .reverse()
+                .map((post, index) => {
+                  const postId = post._id || `post-${index}`;
 
-                return (
-                  <motion.div
-                    key={postId}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="rounded-2xl shadow-lg overflow-hidden bg-white border border-[#e6f7f7]"
+                  return (
+                    <div
+                      key={postId}
+                      className="rounded-t-2xl overflow-hidden "
+                    >
+                      <div className="w-full  ">
+                        <PostGalleryTwo
+                          key={post._id}
+                          post={post}
+                          index={index}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+
+              {(!allPostsWithComments?.data ||
+                allPostsWithComments.data.length === 0) && (
+                <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+                  <div className="w-16 h-16 bg-[#05A9A9]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Layers className="w-8 h-8 text-[#05A9A9]" />
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">
+                    Your feed is empty
+                  </h3>
+                  <p className="text-gray-500 mb-4">
+                    Start sharing moments with your friends
+                  </p>
+                  <Button
+                    onClick={() => setOpen(true)}
+                    className="bg-[#05A9A9] hover:bg-[#048484]"
                   >
-                    <div className="flex items-center justify-between p-4">
-                      <div className="flex items-center">
-                        <Avatar className="w-10 h-10 border-2 border-[#e6f7f7]">
-                          <AvatarImage
-                            src="/placeholder.svg?height=40&width=40"
-                            alt={post.postOwner?.name || "User"}
-                          />
-                          <AvatarFallback
-                            className="text-white"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, #05A9A9, #4ecdc4)",
-                            }}
-                          >
-                            {(post.postOwner?.name?.[0] || "U").toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="ml-3">
-                          <p className="font-medium text-gray-800">
-                            {post.postOwner?.name || "Anonymous"}
-                          </p>
-                          <div className="flex items-center text-xs text-gray-500">
-                            <Clock className="w-3 h-3 mr-1" />
-                            <span>
-                              {new Date(post.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <button className="text-gray-400 hover:text-[#05A9A9] group relative transition-colors duration-200">
-                        <div className="flex items-center gap-1">
-                          <FaEllipsisH className="w-5 h-5" />
-
-                          {userId === post.postOwner?._id && (
-                            <span
-                              className="hidden group-hover:flex items-center gap-1 absolute top-4 right-2 ml-2 bg-white px-3 z-20 py-2 rounded-lg shadow-md whitespace-nowrap"
-                              onClick={() => {
-                                deleteP(post._id);
-                              }}
-                            >
-                              <FaTrash className="w-4 h-4 text-red-500" />
-                              <span className="text-sm text-red-500">
-                                Delete
-                              </span>
-                            </span>
-                          )}
-                        </div>
-                      </button>
-                    </div>
-
-                    <div className="aspect-[2/1] w-full md:h-[57vh] bg-gray-100">
-                      <PostGallery key={post._id} post={post} index={index} />
-                    </div>
-
-                    <div className="p-5">
-                      <div className="mb-3">
-                        <h3 className="font-medium text-lg mb-2 text-gray-800">
-                          {post.postTitle}
-                        </h3>
-                        <p className="text-gray-600 text-sm">
-                          {post.postContent || "No description provided."}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {["photography", "design", "creative"].map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-3 py-1 bg-[#e6f7f7] text-[#05A9A9] rounded-full text-xs font-medium"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-
-                      <Separator className="my-4 bg-[#e6f7f7]" />
-
-                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                        <div className="flex items-center gap-1">
-                          <Heart className="w-4 h-4" />
-                          <span>{post.likesCount || 0} likes</span>
-                        </div>
-                        <button
-                          className="flex items-center gap-1"
-                          onClick={() => toggleComments(postId)}
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          <span>
-                            {postComments?.data?.length || 0} comments
-                          </span>
-                        </button>
-                        <div className="flex items-center gap-1">
-                          <Share2 className="w-4 h-4" />
-                          <span>Share</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <motion.button
-                          onClick={() => handleLike(post._id)}
-                          disabled={isLoading}
-                          className="flex items-center justify-center flex-1 gap-2 h-10 px-4 rounded-full border bg-white border-[#e6f7f7] hover:bg-[#f8fdfd] transition-all duration-200"
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <motion.div
-                            key={post.isLikedByUser ? "liked" : "unliked"}
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1.2 }}
-                            exit={{ scale: 0 }}
-                            transition={{
-                              type: "spring",
-                              stiffness: 300,
-                              damping: 15,
-                            }}
-                          >
-                            <Heart
-                              className={`w-4 h-4 ${
-                                post.isLikedByUser
-                                  ? "text-[#05A9A9] fill-[#05A9A9]"
-                                  : "text-gray-500"
-                              }`}
-                            />
-                          </motion.div>
-                          <span className="text-sm font-medium text-gray-700">
-                            {post.isLikedByUser ? "Liked" : "Like"}
-                          </span>
-                        </motion.button>
-                        <Button
-                          variant="outline"
-                          className="flex-1 h-10 rounded-full border-[#e6f7f7] text-gray-700 hover:bg-[#f8fdfd]"
-                          onClick={() => toggleComments(postId)}
-                        >
-                          <MessageCircle className="w-4 h-4 mr-2" />
-                          Comment
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-10 h-10 p-0 rounded-full border-[#e6f7f7] text-gray-700 hover:bg-[#f8fdfd]"
-                        >
-                          <Bookmark className="w-4 h-4" />
-                        </Button>
-                      </div>
-
-                      {isCommentsExpanded && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          transition={{ duration: 0.3 }}
-                          className="mt-5 pt-4 border-t border-[#e6f7f7]"
-                        >
-                          <div className="flex gap-3">
-                            <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
-                              <AvatarImage
-                                src="/placeholder.svg?height=32&width=32"
-                                alt="Your avatar"
-                              />
-                              <AvatarFallback
-                                className="text-white"
-                                style={{
-                                  background:
-                                    "linear-gradient(135deg, #05A9A9, #4ecdc4)",
-                                }}
-                              >
-                                YA
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 flex gap-2">
-                              <Textarea
-                                placeholder="Add a comment..."
-                                className="min-h-[40px] resize-none rounded-xl border-[#e6f7f7] focus-visible:ring-[#05A9A9]"
-                                value={commentInputs[postId] || ""}
-                                onChange={(e) =>
-                                  handleCommentChange(postId, e.target.value)
-                                }
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter" && !e.shiftKey) {
-                                    e.preventDefault();
-                                    if (commentInputs[postId]?.trim()) {
-                                      submitComment({
-                                        postId,
-                                        userId: post.userid,
-                                      });
-                                    }
-                                  }
-                                }}
-                              />
-                              <Button
-                                size="icon"
-                                className="h-10 w-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200"
-                                style={{
-                                  background:
-                                    "linear-gradient(135deg, #05A9A9, #4ecdc4)",
-                                }}
-                                onClick={() =>
-                                  submitComment({ postId, userId: post.userid })
-                                }
-                                disabled={!commentInputs[postId]?.trim()}
-                              >
-                                <Send className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-
-                          <h4 className="font-medium text-gray-800 text-sm mt-5 mb-3 flex items-center gap-2">
-                            <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
-                            Comments
-                          </h4>
-
-                          <div className="space-y-3 mb-3">
-                            {isLoadingComment ? (
-                              <>
-                                {[...Array(2)].map((_, index) => (
-                                  <div
-                                    key={index}
-                                    className="relative bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/70 shadow-sm animate-pulse"
-                                  >
-                                    <div className="flex justify-between items-start">
-                                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
-                                      <div className="h-3 w-16 bg-gray-200 rounded"></div>
-                                    </div>
-                                    <div className="h-4 w-full bg-gray-200 rounded mt-2"></div>
-                                    <div className="h-4 w-5/6 bg-gray-200 rounded mt-1"></div>
-                                    <div className="flex gap-3 mt-2">
-                                      <div className="h-3 w-12 bg-gray-200 rounded"></div>
-                                      <div className="h-3 w-10 bg-gray-200 rounded"></div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </>
-                            ) : (
-                              <>
-                                {" "}
-                                {postComments?.data &&
-                                postComments?.data.length > 0 ? (
-                                  postComments.data.map((comment, i) => (
-                                    <motion.div
-                                      key={i}
-                                      className="flex gap-3"
-                                      initial={{ opacity: 0, y: 10 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      transition={{
-                                        duration: 0.2,
-                                        delay: i * 0.05,
-                                      }}
-                                    >
-                                      <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
-                                        <AvatarImage
-                                          src={`/placeholder-icon.png?height=32&width=32&text=${
-                                            comment.commentedBy.name || "U"
-                                          }`}
-                                        />
-                                        <AvatarFallback
-                                          className="text-white"
-                                          style={{
-                                            background:
-                                              "linear-gradient(135deg, #05A9A9, #4ecdc4)",
-                                          }}
-                                        >
-                                          {(
-                                            comment.commentedBy.name?.slice(
-                                              0,
-                                              1
-                                            ) || "U"
-                                          )?.toUpperCase()}
-                                        </AvatarFallback>
-                                      </Avatar>
-                                      <div className="flex-1 bg-[#f8fdfd] p-3 rounded-xl">
-                                        <div className="flex justify-between items-start">
-                                          <p className="font-medium text-sm text-gray-800">
-                                            {comment.commentedBy?.name ||
-                                              "Anonymous"}
-                                          </p>
-                                          <span className="text-xs text-gray-500">
-                                            {formatDateSmart(
-                                              comment.createdAt,
-                                              true
-                                            ) +
-                                              " at " +
-                                              formatMessageTime(
-                                                comment.createdAt
-                                              )}
-                                          </span>
-                                        </div>
-                                        <p className="text-sm text-gray-600 mt-1">
-                                          {comment.comment}
-                                        </p>
-                                      </div>
-                                    </motion.div>
-                                  ))
-                                ) : (
-                                  <p className="text-sm text-gray-400 text-center py-4 bg-[#f8fdfd] rounded-xl">
-                                    No comments yet. Be the first to comment!
-                                  </p>
-                                )}{" "}
-                              </>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })}
-
-            {(!allPostsWithComments?.data ||
-              allPostsWithComments.data.length === 0) && (
-              <div className="bg-white rounded-2xl shadow-lg p-8 text-center border border-[#e6f7f7]">
-                <div
-                  className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5"
-                  style={{
-                    background: "linear-gradient(135deg, #e6f7f7, #f5fcfc)",
-                    boxShadow: "0 8px 20px rgba(5, 169, 169, 0.1)",
-                  }}
-                >
-                  <Layers className="w-10 h-10" style={{ color: "#05A9A9" }} />
+                    Create Your First Post
+                  </Button>
                 </div>
-                <h3 className="text-xl font-medium mb-3 text-gray-800">
-                  Your feed is empty
-                </h3>
-                <p className="text-gray-500 mb-5 max-w-md mx-auto">
-                  Start sharing moments with your friends and see their updates
-                  here
-                </p>
-                <Button
-                  onClick={() => setOpen(true)}
-                  className="rounded-full px-6 py-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-                  style={{
-                    background: "linear-gradient(135deg, #05A9A9, #4ecdc4)",
-                  }}
-                >
-                  <ImageIcon className="w-4 h-4 mr-2" />
-                  Create Your First Post
-                </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
+        {/* right side */}
         <div className="lg:col-span-3  hidden lg:block">
           <div className="sticky top-16  overflow-y-hidden">
             <div className="bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4">
@@ -1355,4 +972,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default SocialHomePage;
