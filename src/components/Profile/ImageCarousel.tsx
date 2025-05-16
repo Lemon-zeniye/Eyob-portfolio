@@ -1,24 +1,24 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
+import React, { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs"
 
 interface ImageCarouselProps {
-  images: string[];
+  images: string[]
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(0); // -1 for left, 1 for right
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [direction, setDirection] = useState(0) // -1 for left, 1 for right
 
   const goToPrevious = () => {
-    setDirection(-1);
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
+    setDirection(-1)
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+  }
 
   const goToNext = () => {
-    setDirection(1);
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
+    setDirection(1)
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+  }
 
   return (
     <div className="relative w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-lg">
@@ -56,8 +56,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
           <button
             key={i}
             onClick={() => {
-              setDirection(i > currentIndex ? 1 : -1);
-              setCurrentIndex(i);
+              setDirection(i > currentIndex ? 1 : -1)
+              setCurrentIndex(i)
             }}
             className={`w-2 h-2 rounded-full ${
               i === currentIndex ? "bg-white" : "bg-gray-400"
@@ -66,7 +66,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ImageCarousel;
+export default ImageCarousel

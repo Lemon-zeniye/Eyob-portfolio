@@ -1,15 +1,15 @@
-import { addStory, getAllPostsWithComments } from "@/Api/post.api";
-import { AddPost } from "@/components/Post/AddPost";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import * as Dialog from "@radix-ui/react-dialog";
+import { addStory, getAllPostsWithComments } from "@/Api/post.api"
+import { AddPost } from "@/components/Post/AddPost"
+import { useMutation, useQuery, useQueryClient } from "react-query"
+import * as Dialog from "@radix-ui/react-dialog"
 import {
   useState,
   useEffect,
   useRef,
   type ChangeEvent,
   type DragEvent,
-} from "react";
-import { Button } from "@/components/ui/button";
+} from "react"
+import { Button } from "@/components/ui/button"
 import {
   ChevronLeft,
   ChevronRight,
@@ -21,33 +21,33 @@ import {
   Trash2,
   Upload,
   X,
-} from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Cookies from "js-cookie";
-import { getUserFullProfile } from "@/Api/profile.api";
-import { Spinner } from "@/components/ui/Spinner";
-import PostGalleryTwo from "@/components/Post/PostGalleryTwo";
-import { tos } from "@/lib/utils";
+} from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Cookies from "js-cookie"
+import { getUserFullProfile } from "@/Api/profile.api"
+import { Spinner } from "@/components/ui/Spinner"
+import PostGalleryTwo from "@/components/Post/PostGalleryTwo"
+import { tos } from "@/lib/utils"
 
 type StoryFile = File & {
-  preview?: string; // For object URL preview
-};
+  preview?: string // For object URL preview
+}
 
 function SocialHomePage() {
   const { data: allPostsWithComments } = useQuery({
     queryKey: ["getAllPostsWithComments"],
     queryFn: getAllPostsWithComments,
-  });
-  const [open, setOpen] = useState(false);
-  const [currentStoryItemIndex, setCurrentStoryItemIndex] = useState(0);
-  const [storyProgress, setStoryProgress] = useState(0);
-  const [viewStory, setViewStory] = useState(false);
-  const queryClient = useQueryClient();
-  const userId = Cookies.get("userId");
-  const [openFileUpload, setOpenFileUpload] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<StoryFile | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  })
+  const [open, setOpen] = useState(false)
+  const [currentStoryItemIndex, setCurrentStoryItemIndex] = useState(0)
+  const [storyProgress, setStoryProgress] = useState(0)
+  const [viewStory, setViewStory] = useState(false)
+  const queryClient = useQueryClient()
+  const userId = Cookies.get("userId")
+  const [openFileUpload, setOpenFileUpload] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<StoryFile | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const stories = [
     {
@@ -174,51 +174,51 @@ function SocialHomePage() {
         },
       ],
     },
-  ];
+  ]
 
   const [viewingStory, setViewingStory] = useState<null | {
-    id: number;
-    username: string;
-    title: string;
-    avatar: string;
-    items: Array<{ id: string; image: string }>;
-  }>(null);
+    id: number
+    username: string
+    title: string
+    avatar: string
+    items: Array<{ id: string; image: string }>
+  }>(null)
 
   useEffect(() => {
-    if (!viewingStory) return;
+    if (!viewingStory) return
 
-    const storyDuration = 5000;
-    const interval = 100;
-    let timer: NodeJS.Timeout;
-    let progressTimer: NodeJS.Timeout;
+    const storyDuration = 5000
+    const interval = 100
+    let timer: NodeJS.Timeout
+    let progressTimer: NodeJS.Timeout
 
-    setStoryProgress(0);
+    setStoryProgress(0)
 
     progressTimer = setInterval(() => {
       setStoryProgress((prev) => {
-        if (prev >= 100) return 100;
-        return prev + 100 / (storyDuration / interval);
-      });
-    }, interval);
+        if (prev >= 100) return 100
+        return prev + 100 / (storyDuration / interval)
+      })
+    }, interval)
 
     timer = setTimeout(() => {
       if (currentStoryItemIndex < viewingStory.items.length - 1) {
-        setCurrentStoryItemIndex((prev) => prev + 1);
-        setStoryProgress(0);
+        setCurrentStoryItemIndex((prev) => prev + 1)
+        setStoryProgress(0)
       } else {
-        const currentIndex = stories.findIndex((s) => s.id === viewingStory.id);
-        const nextIndex = (currentIndex + 1) % stories.length;
-        setViewingStory(stories[nextIndex]);
-        setCurrentStoryItemIndex(0);
-        setStoryProgress(0);
+        const currentIndex = stories.findIndex((s) => s.id === viewingStory.id)
+        const nextIndex = (currentIndex + 1) % stories.length
+        setViewingStory(stories[nextIndex])
+        setCurrentStoryItemIndex(0)
+        setStoryProgress(0)
       }
-    }, storyDuration);
+    }, storyDuration)
 
     return () => {
-      clearTimeout(timer);
-      clearInterval(progressTimer);
-    };
-  }, [viewingStory, currentStoryItemIndex]);
+      clearTimeout(timer)
+      clearInterval(progressTimer)
+    }
+  }, [viewingStory, currentStoryItemIndex])
 
   //   const { data: postComments, isLoading: isLoadingComment } = useQuery({
   //     queryKey: ["postComments", expandedPost],
@@ -234,59 +234,59 @@ function SocialHomePage() {
     queryKey: ["getUserFullProfile", userId],
     queryFn: () => {
       if (userId) {
-        return getUserFullProfile(userId);
+        return getUserFullProfile(userId)
       }
     },
     enabled: !!userId,
-  });
+  })
 
   const { mutate: addUserStory, isLoading: storyLoading } = useMutation({
     mutationFn: addStory,
     onSuccess: () => {
-      queryClient.invalidateQueries("getAllPostsWithComments");
-      setOpenFileUpload(false);
-      removeFile();
-      tos.success("Story added Successfully");
+      queryClient.invalidateQueries("getAllPostsWithComments")
+      setOpenFileUpload(false)
+      removeFile()
+      tos.success("Story added Successfully")
     },
     onError: () => {},
-  });
+  })
 
   // file uploader
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      processFile(file);
+      const file = e.target.files[0]
+      processFile(file)
     }
-  };
+  }
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
+    e.preventDefault()
+    setIsDragging(true)
+  }
 
   const handleDragLeave = () => {
-    setIsDragging(false);
-  };
+    setIsDragging(false)
+  }
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
+    e.preventDefault()
+    setIsDragging(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      processFile(file);
+      const file = e.dataTransfer.files[0]
+      processFile(file)
     }
-  };
+  }
 
   const processFile = (file: File) => {
-    if (!validateFile(file)) return;
+    if (!validateFile(file)) return
 
     const storyFile: StoryFile = Object.assign(file, {
       preview: URL.createObjectURL(file),
-    });
+    })
 
-    setSelectedFile(storyFile);
-  };
+    setSelectedFile(storyFile)
+  }
 
   const validateFile = (file: File): boolean => {
     const validTypes = [
@@ -295,50 +295,50 @@ function SocialHomePage() {
       "video/mp4",
       "video/avi",
       "video/x-msvideo", // For AVI files
-    ];
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    ]
+    const maxSize = 50 * 1024 * 1024 // 50MB
 
     if (!validTypes.includes(file.type)) {
-      tos.error("Please select a valid file type (JPG, PNG, MP4, AVI)");
-      return false;
+      tos.error("Please select a valid file type (JPG, PNG, MP4, AVI)")
+      return false
     }
 
     if (file.size > maxSize) {
-      tos.error("File size exceeds 50MB limit");
-      return false;
+      tos.error("File size exceeds 50MB limit")
+      return false
     }
 
-    return true;
-  };
+    return true
+  }
 
   const removeFile = () => {
     if (selectedFile?.preview) {
-      URL.revokeObjectURL(selectedFile.preview);
+      URL.revokeObjectURL(selectedFile.preview)
     }
-    setSelectedFile(null);
+    setSelectedFile(null)
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = ""
     }
-  };
+  }
 
   const handleSubmit = () => {
-    if (!selectedFile) return;
+    if (!selectedFile) return
 
     // Create FormData for your API call
-    const formData = new FormData();
-    formData.append("storyFile", selectedFile);
+    const formData = new FormData()
+    formData.append("storyFile", selectedFile)
 
-    addUserStory(formData);
-  };
+    addUserStory(formData)
+  }
 
   // Clean up object URLs when component unmounts
   useEffect(() => {
     return () => {
       if (selectedFile?.preview) {
-        URL.revokeObjectURL(selectedFile.preview);
+        URL.revokeObjectURL(selectedFile.preview)
       }
-    };
-  }, [selectedFile]);
+    }
+  }, [selectedFile])
 
   return (
     // <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
@@ -356,7 +356,7 @@ function SocialHomePage() {
                 key="add-story"
                 className="flex flex-col items-center cursor-pointer group"
                 onClick={() => {
-                  setOpenFileUpload(true);
+                  setOpenFileUpload(true)
                 }}
               >
                 <div className="relative mb-2">
@@ -384,10 +384,10 @@ function SocialHomePage() {
                   key={story.id}
                   className="flex flex-col items-center cursor-pointer group"
                   onClick={() => {
-                    setViewingStory(story);
-                    setCurrentStoryItemIndex(0);
-                    setViewStory(true);
-                    setStoryProgress(0);
+                    setViewingStory(story)
+                    setCurrentStoryItemIndex(0)
+                    setViewStory(true)
+                    setStoryProgress(0)
                   }}
                 >
                   <div className="relative mb-2">
@@ -440,7 +440,7 @@ function SocialHomePage() {
               {[...(allPostsWithComments?.data ?? [])]
                 // .reverse()
                 .map((post, index) => {
-                  const postId = post._id || `post-${index}`;
+                  const postId = post._id || `post-${index}`
 
                   return (
                     <div
@@ -455,7 +455,7 @@ function SocialHomePage() {
                         />
                       </div>
                     </div>
-                  );
+                  )
                 })}
 
               {(!allPostsWithComments?.data ||
@@ -672,7 +672,7 @@ function SocialHomePage() {
             <Dialog.Overlay
               className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50"
               onClick={() => {
-                setViewStory(false);
+                setViewStory(false)
               }}
             />
             <Dialog.Content className="fixed inset-0 mx-auto z-50 w-full md:w-[50%] flex items-center justify-center focus:outline-none">
@@ -735,41 +735,41 @@ function SocialHomePage() {
                 <div
                   className="aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl"
                   onClick={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const isLeftSide = x < rect.width / 2;
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    const x = e.clientX - rect.left
+                    const isLeftSide = x < rect.width / 2
 
                     if (isLeftSide) {
                       if (currentStoryItemIndex > 0) {
-                        setCurrentStoryItemIndex(currentStoryItemIndex - 1);
-                        setStoryProgress(0);
+                        setCurrentStoryItemIndex(currentStoryItemIndex - 1)
+                        setStoryProgress(0)
                       } else {
                         const currentIndex = stories.findIndex(
                           (s) => s.id === viewingStory.id
-                        );
+                        )
                         const prevIndex =
-                          (currentIndex - 1 + stories.length) % stories.length;
-                        setViewingStory(stories[prevIndex]);
+                          (currentIndex - 1 + stories.length) % stories.length
+                        setViewingStory(stories[prevIndex])
                         setCurrentStoryItemIndex(
                           stories[prevIndex].items.length - 1
-                        );
-                        setStoryProgress(0);
+                        )
+                        setStoryProgress(0)
                       }
                     } else {
                       if (
                         currentStoryItemIndex <
                         viewingStory.items.length - 1
                       ) {
-                        setCurrentStoryItemIndex(currentStoryItemIndex + 1);
-                        setStoryProgress(0);
+                        setCurrentStoryItemIndex(currentStoryItemIndex + 1)
+                        setStoryProgress(0)
                       } else {
                         const currentIndex = stories.findIndex(
                           (s) => s.id === viewingStory.id
-                        );
-                        const nextIndex = (currentIndex + 1) % stories.length;
-                        setViewingStory(stories[nextIndex]);
-                        setCurrentStoryItemIndex(0);
-                        setStoryProgress(0);
+                        )
+                        const nextIndex = (currentIndex + 1) % stories.length
+                        setViewingStory(stories[nextIndex])
+                        setCurrentStoryItemIndex(0)
+                        setStoryProgress(0)
                       }
                     }
                   }}
@@ -791,21 +791,21 @@ function SocialHomePage() {
                 <button
                   className="absolute top-1/2 left-4 -translate-y-1/2 w-12 h-12 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/50 transition-colors duration-200"
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e.stopPropagation()
                     if (currentStoryItemIndex > 0) {
-                      setCurrentStoryItemIndex((prev) => prev - 1);
-                      setStoryProgress(0);
+                      setCurrentStoryItemIndex((prev) => prev - 1)
+                      setStoryProgress(0)
                     } else {
                       const currentIndex = stories.findIndex(
                         (s) => s.id === viewingStory.id
-                      );
+                      )
                       const prevIndex =
-                        (currentIndex - 1 + stories.length) % stories.length;
-                      setViewingStory(stories[prevIndex]);
+                        (currentIndex - 1 + stories.length) % stories.length
+                      setViewingStory(stories[prevIndex])
                       setCurrentStoryItemIndex(
                         stories[prevIndex].items.length - 1
-                      );
-                      setStoryProgress(0);
+                      )
+                      setStoryProgress(0)
                     }
                   }}
                 >
@@ -814,18 +814,18 @@ function SocialHomePage() {
                 <button
                   className="absolute top-1/2 right-4 -translate-y-1/2 w-12 h-12 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/50 transition-colors duration-200"
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e.stopPropagation()
                     if (currentStoryItemIndex < viewingStory.items.length - 1) {
-                      setCurrentStoryItemIndex((prev) => prev + 1);
-                      setStoryProgress(0);
+                      setCurrentStoryItemIndex((prev) => prev + 1)
+                      setStoryProgress(0)
                     } else {
                       const currentIndex = stories.findIndex(
                         (s) => s.id === viewingStory.id
-                      );
-                      const nextIndex = (currentIndex + 1) % stories.length;
-                      setViewingStory(stories[nextIndex]);
-                      setCurrentStoryItemIndex(0);
-                      setStoryProgress(0);
+                      )
+                      const nextIndex = (currentIndex + 1) % stories.length
+                      setViewingStory(stories[nextIndex])
+                      setCurrentStoryItemIndex(0)
+                      setStoryProgress(0)
                     }
                   }}
                 >
@@ -969,7 +969,7 @@ function SocialHomePage() {
         </Dialog.Portal>
       </Dialog.Root>
     </div>
-  );
+  )
 }
 
-export default SocialHomePage;
+export default SocialHomePage
