@@ -1,60 +1,47 @@
-import type React from "react";
-import { useState, useEffect } from "react";
+import user from "../../assets/user.jpg";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
-import Cookies from "js-cookie";
+import ActivityNew from "./ActivityNew";
+import {
+  deleteUserPicture,
+  getCompanyProfile,
+  getUserPicture,
+  uploadUserPicture,
+} from "@/Api/profile.api";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
-  X,
-  Upload,
-  Trash2,
-  Edit,
-  Share2,
-  MapPin,
   Briefcase,
+  Edit,
   Loader,
+  Share2,
+  Trash2,
+  Upload,
+  X,
 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import CustomVideoPlayer from "../Video/Video";
+import { UserInfo } from "@/Types/profile.type";
+import { getUserFromToken, tos } from "@/lib/utils";
+import { Button } from "../ui/button";
+import ShareProfile from "./ShareProfile";
+import AboutCard from "./AboutCard";
+import EmployeeCard from "./EmployeeCard";
+import EditCompanyProfile from "./EditCompanyProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import {
-  deleteUserPicture,
-  getUserPicture,
-  getUserProfile,
-  uploadUserPicture,
-} from "@/Api/profile.api";
-import { getUserFromToken, tos } from "@/lib/utils";
-import type { UserInfo } from "@/Types/profile.type";
-
-import ActivityNew from "../Profile/ActivityNew";
-import ExperienceCard from "./ExperienceCard";
-import EducationCard from "./EducationCard";
-import SkillCard from "./SkillCard";
-import OrganizationCard from "./OrganizationCard";
-import EditProfile from "../Profile/EditProfile";
-import ShareProfile from "../Profile/ShareProfile";
-import CustomVideoPlayer from "../Video/Video";
-
-const ProfileCard = () => {
+const CompanyProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const [editProfile, setEditProfile] = useState(false);
-  const [shareProfile, setShareProfile] = useState(false);
-  const [tempImage, setTempImage] = useState<string>("");
-  const [, setActiveTab] = useState("activity");
-
+  const [, setUserInfo] = useState<UserInfo | null>(null);
   const { data: userPicture } = useQuery({
     queryKey: ["userPicture"],
     queryFn: getUserPicture,
   });
-
-  const { data: userData } = useQuery({
-    queryKey: ["userProfile"],
-    queryFn: getUserProfile,
-  });
+  const [editProfile, setEditProfile] = useState(false);
+  const [shareProfile, setShareProfile] = useState(false);
+  const [tempImage, setTempImage] = useState<string>("");
+  const [, setActiveTab] = useState("about");
 
   useEffect(() => {
     if (userPicture?.data) {
@@ -64,13 +51,13 @@ const ProfileCard = () => {
       )}`;
       setTempImage(newImageUrl);
     } else {
-      setTempImage("/abstract-profile.png");
+      setTempImage(user);
     }
   }, [userPicture]);
 
   useEffect(() => {
-    const token = Cookies.get("accessToken");
-    const userData = token && getUserFromToken(token);
+    const token = localStorage.getItem("accessToken");
+    const userData = getUserFromToken(token);
 
     if (userData) {
       setUserInfo(userData);
@@ -81,9 +68,14 @@ const ProfileCard = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setTempImage(URL.createObjectURL(file));
+      setTempImage(URL.createObjectURL(file)); // Preview
     }
   };
+
+  const { data: companyProfile } = useQuery({
+    queryKey: ["companyProfile"],
+    queryFn: getCompanyProfile,
+  });
 
   const { mutate, isLoading: uploading } = useMutation({
     mutationFn: uploadUserPicture,
@@ -133,7 +125,7 @@ const ProfileCard = () => {
                       alt="Profile"
                     />
                     <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-2xl">
-                      {userInfo?.name?.charAt(0) || "U"}
+                      {companyProfile?.data.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
                 </div>
@@ -160,7 +152,7 @@ const ProfileCard = () => {
                         alt="Preview"
                       />
                       <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-2xl">
-                        {userInfo?.name?.charAt(0) || "U"}
+                        {companyProfile?.data?.name?.charAt(0) || "U"}
                       </AvatarFallback>
                     </Avatar>
 
@@ -219,30 +211,29 @@ const ProfileCard = () => {
 
           <div className="mt-20 px-6 text-center">
             <h2 className="text-2xl font-bold">
-              {userInfo?.name || "User Name"}
+              {companyProfile?.data?.name || "User Name"}
             </h2>
 
             <div className="flex flex-col items-center gap-1 mt-1 text-gray-600">
-              {userData?.data?.position && (
-                <div className="flex items-center gap-1">
-                  <Briefcase size={14} />
-                  <span>{userData.data.position}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-1">
+                <Briefcase size={14} />
+                <span>
+                  {" "}
+                  {companyProfile?.data.industry ?? "No industry specified"}
+                </span>
+              </div>
 
-              {userData?.data?.location && (
-                <div className="flex items-center gap-1">
-                  <MapPin size={14} />
-                  <span>{userData.data.location}</span>
-                </div>
-              )}
+              {/* {userData?.data?.location && (
+              <div className="flex items-center gap-1">
+                <MapPin size={14} />
+                <span>{userData.data.location}</span>
+              </div>
+            )} */}
             </div>
 
-            {userData?.data?.bio && (
-              <p className="mt-3 text-gray-600 max-w-lg mx-auto">
-                {userData.data.bio}
-              </p>
-            )}
+            <p className="mt-3 text-gray-600 max-w-lg mx-auto">
+              {companyProfile?.data.companyBio ?? "No Bio"}
+            </p>
 
             <div className="flex justify-center gap-4 mt-6">
               <Button
@@ -262,13 +253,19 @@ const ProfileCard = () => {
             </div>
           </div>
 
-          <div className="mt-8 px-4 sm:px-6">
+          <div className="mt-8  px-4 sm:px-6">
             <Tabs
-              defaultValue="activity"
+              defaultValue="about"
               className="w-full"
               onValueChange={setActiveTab}
             >
-              <TabsList className="grid grid-cols-5 w-full rounded-full bg-gray-100 p-1">
+              <TabsList className="grid grid-cols-3 w-fit mx-auto  rounded-full bg-gray-100 p-1">
+                <TabsTrigger
+                  value="about"
+                  className="rounded-full data-[state=active]:bg-white data-[state=active]:text-primary"
+                >
+                  About
+                </TabsTrigger>
                 <TabsTrigger
                   value="activity"
                   className="rounded-full data-[state=active]:bg-white data-[state=active]:text-primary"
@@ -276,95 +273,57 @@ const ProfileCard = () => {
                   Activity
                 </TabsTrigger>
                 <TabsTrigger
-                  value="experience"
+                  value="employees"
                   className="rounded-full data-[state=active]:bg-white data-[state=active]:text-primary"
                 >
-                  Experience
-                </TabsTrigger>
-                <TabsTrigger
-                  value="education"
-                  className="rounded-full data-[state=active]:bg-white data-[state=active]:text-primary"
-                >
-                  Education
-                </TabsTrigger>
-                <TabsTrigger
-                  value="skills"
-                  className="rounded-full data-[state=active]:bg-white data-[state=active]:text-primary"
-                >
-                  Skills
-                </TabsTrigger>
-                <TabsTrigger
-                  value="organization"
-                  className="rounded-full data-[state=active]:bg-white data-[state=active]:text-primary"
-                >
-                  Organization
+                  Employees
                 </TabsTrigger>
               </TabsList>
 
               <div className="mt-6 pb-8 min-h-[40vh]">
+                <TabsContent value="about">
+                  <AboutCard />
+                </TabsContent>
                 <TabsContent value="activity">
                   <ActivityNew />
                 </TabsContent>
-                <TabsContent value="experience">
-                  <ExperienceCard />
-                </TabsContent>
-                <TabsContent value="education">
-                  <EducationCard />
-                </TabsContent>
-                <TabsContent value="skills">
-                  <SkillCard />
-                </TabsContent>
-                <TabsContent value="organization">
-                  <OrganizationCard />
+                <TabsContent value="employees">
+                  <EmployeeCard />
                 </TabsContent>
               </div>
             </Tabs>
           </div>
+
+          <Dialog.Root open={editProfile} onOpenChange={setEditProfile}>
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
+              <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[60%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
+                <Dialog.Title className="text-lg font-semibold text-gray-900">
+                  Edit Profile
+                </Dialog.Title>
+                <EditCompanyProfile
+                  initialValue={companyProfile?.data}
+                  onSuccess={() => setEditProfile(false)}
+                />
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
+
+          <Dialog.Root open={shareProfile} onOpenChange={setShareProfile}>
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
+              <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[60%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
+                <Dialog.Title className="text-lg font-semibold text-gray-900">
+                  Share Profile
+                </Dialog.Title>
+                <ShareProfile onSuccess={() => setEditProfile(false)} />
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
         </CardContent>
       </Card>
-
-      <Dialog.Root open={editProfile} onOpenChange={setEditProfile}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-lg flex flex-col gap-6">
-            <div className="flex justify-between items-center">
-              <Dialog.Title className="text-lg font-semibold text-gray-900">
-                {userData?.data ? "Edit Profile" : "Add Profile"}
-              </Dialog.Title>
-              <Dialog.Close asChild>
-                <button className="text-gray-400 hover:text-gray-600 transition rounded-full p-1 hover:bg-gray-100">
-                  <X size={20} />
-                </button>
-              </Dialog.Close>
-            </div>
-            <EditProfile
-              onSuccess={() => setEditProfile(false)}
-              initialData={userData?.data}
-            />
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-
-      <Dialog.Root open={shareProfile} onOpenChange={setShareProfile}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-lg flex flex-col gap-6">
-            <div className="flex justify-between items-center">
-              <Dialog.Title className="text-lg font-semibold text-gray-900">
-                Share Profile
-              </Dialog.Title>
-              <Dialog.Close asChild>
-                <button className="text-gray-400 hover:text-gray-600 transition rounded-full p-1 hover:bg-gray-100">
-                  <X size={20} />
-                </button>
-              </Dialog.Close>
-            </div>
-            <ShareProfile onSuccess={() => setShareProfile(false)} />
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
     </div>
   );
 };
 
-export default ProfileCard;
+export default CompanyProfileCard;
