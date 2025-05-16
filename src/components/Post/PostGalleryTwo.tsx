@@ -1,6 +1,6 @@
-import { PostCom } from "@/Types/post.type";
+import { CommentNew, PostCom } from "@/Types/post.type";
 import { motion, Variants } from "framer-motion";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -20,13 +20,20 @@ import { RiSendPlaneLine } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
 import { LuBookmarkMinus } from "react-icons/lu";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { addComment, getcComments, likeOrDeslike } from "@/Api/post.api";
+import {
+  addChildComment,
+  addComment,
+  getChildComments,
+  getComments,
+  likeOrDeslike,
+} from "@/Api/post.api";
 import { Button } from "../ui/button";
 import { Separator } from "@radix-ui/react-separator";
 import { deletePost } from "@/Api/profile.api";
 import { Textarea } from "../ui/textarea";
 import { Send } from "lucide-react";
 import Cookies from "js-cookie";
+import { IoIosArrowDown } from "react-icons/io";
 
 interface PostCardProps {
   post: PostCom;
@@ -43,6 +50,23 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     {}
   );
   const userId = Cookies.get("userId");
+  const commentRef = useRef<HTMLTextAreaElement>(null);
+  const [selectedCommnet, setSelectedCommnet] = useState<string | undefined>(
+    undefined
+  );
+  const [selectedCommnetReplay, setSelectedCommnetReplay] = useState<string[]>(
+    []
+  );
+  const [commentsByPost, setCommentsByPost] = useState<
+    Record<string, CommentNew[]>
+  >({});
+  const [hasMoreComment, setHasMoreComment] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [commentPages, setCommentPages] = useState<Record<string, number>>({});
+  const [replierName, setReplierName] = useState<string | undefined>(undefined);
+  const [childComId, setChildComId] = useState<string | undefined>(undefined);
+
   //   postImages
 
   const variants: Variants = {
@@ -62,6 +86,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 
   const currentImages = [postImages[currentImageIndex]].filter(Boolean);
 
+  // Mutation Function
   const { mutate, isLoading } = useMutation({
     mutationFn: likeOrDeslike,
     onSuccess: () => {
@@ -83,26 +108,69 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     },
   });
 
-  const {
-    data: postComments,
-    refetch,
-    isLoading: isLoadingComment,
-  } = useQuery({
-    queryKey: ["postComments", post._id],
-    queryFn: () => {
-      if (post._id) {
-        return getcComments(post._id);
-      }
-    },
-    enabled: false,
-  });
-
   const { mutate: comment } = useMutation({
     mutationFn: addComment,
     onSuccess: () => {
-      queryClient.invalidateQueries("postComments");
+      const currentPage = commentPages[post._id] || 1;
+
+      queryClient.invalidateQueries(["postComments", post._id, currentPage]);
+      setCommentInputs((prev) => ({
+        ...prev,
+        [post._id]: "",
+      }));
+      refetch();
     },
     onError: () => {},
+  });
+
+  const { mutate: childComment } = useMutation({
+    mutationFn: addChildComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["childComment", selectedCommnet]);
+      setSelectedCommnet(undefined);
+      setReplierName(undefined);
+      setChildComId(undefined);
+      setCommentInputs((prev) => ({
+        ...prev,
+        [post._id]: "",
+      }));
+    },
+    onError: () => {},
+  });
+
+  const {
+    isLoading: isLoadingComment,
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: ["postComments", post._id, commentPages[post._id || ""] || 1],
+    queryFn: async () => {
+      if (!post._id) return;
+
+      const page = commentPages[post._id] || 1;
+      const res = await getComments(post._id, page);
+      const newComments = res.data;
+
+      // Filter duplicates by comment ID
+      setCommentsByPost((prev) => {
+        const existing = prev[post._id] || [];
+        const existingIds = new Set(existing.map((c) => c._id));
+        const filteredNew = newComments.filter((c) => !existingIds.has(c._id));
+        return {
+          ...prev,
+          [post._id]: [...existing, ...filteredNew],
+        };
+      });
+
+      setHasMoreComment((prev) => ({
+        ...prev,
+        [post._id]: newComments.length === 5,
+      }));
+
+      return res;
+    },
+    enabled: false,
+    keepPreviousData: true,
   });
 
   const submitComment = ({
@@ -112,24 +180,72 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     postId: string;
     userId: string;
   }) => {
-    comment({
-      postId: postId,
-      comment: commentInputs[postId],
-      commentedTo: userId,
-    });
-
-    setCommentInputs((prev) => ({
-      ...prev,
-      [postId]: "",
-    }));
+    if (selectedCommnet) {
+      childComment({
+        parentComment: selectedCommnet,
+        comment: replierName
+          ? "@" + replierName + " " + commentInputs[postId]
+          : commentInputs[postId],
+      });
+    } else {
+      comment({
+        postId: postId,
+        comment: commentInputs[postId],
+        commentedTo: userId,
+      });
+    }
   };
 
   const toggleComments = (postId: string) => {
-    setExpandedComments((prev) =>
-      prev.includes(postId)
-        ? prev.filter((id) => id !== postId)
-        : [...prev, postId]
-    );
+    setExpandedComments((prev) => {
+      if (prev.includes(postId)) {
+        // If already expanded, remove it
+        return prev.filter((id) => id !== postId);
+      } else {
+        // If not expanded, add it
+        if (!commentsByPost[postId]) {
+          setCommentsByPost((prev) => ({ ...prev, [postId]: [] }));
+          setCommentPages((prev) => ({ ...prev, [postId]: 1 }));
+        }
+        return [...prev, postId];
+      }
+    });
+  };
+
+  const loadMoreComments = () => {
+    if (!post._id) return;
+
+    const currentPage = commentPages[post._id] || 1;
+    const nextPage = currentPage + 1;
+
+    setCommentPages((prev) => ({
+      ...prev,
+      [post._id]: nextPage,
+    }));
+
+    queryClient.invalidateQueries(["postComments", post._id, nextPage]);
+  };
+
+  const replyToComment = (commentId: string) => {
+    commentRef.current?.focus();
+    setSelectedCommnet(commentId);
+  };
+
+  const replyToChildComment = (
+    commentId: string,
+    replierName: string,
+    childComId: string
+  ) => {
+    commentRef.current?.focus();
+    setSelectedCommnet(commentId);
+    setReplierName(replierName);
+    setChildComId(childComId);
+  };
+
+  const CancelReplyToComment = () => {
+    commentRef.current?.blur();
+    setSelectedCommnet(undefined);
+    setChildComId(undefined);
   };
 
   const handleCommentChange = (postId: string, value: string) => {
@@ -138,6 +254,19 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
       [postId]: value,
     }));
   };
+
+  // const prevPage = useRef<number | undefined>();
+
+  // useEffect(() => {
+  //   if (!post._id) return;
+
+  //   const currentPage = commentPages[post._id];
+  //   if (prevPage.current !== undefined && prevPage.current !== currentPage) {
+  //     refetch();
+  //   }
+
+  //   prevPage.current = currentPage;
+  // }, [commentPages[post._id]]);
 
   return (
     <motion.div
@@ -390,6 +519,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 
                 <div className="relative flex gap-2">
                   <Textarea
+                    ref={commentRef}
                     placeholder="Add a comment..."
                     className="min-h-[44px] resize-none flex-1 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-sm focus:shadow-md focus:border-[#05A9A9]/30 transition-all duration-300 placeholder:text-gray-500/80 text-gray-700"
                     value={commentInputs[post._id] || ""}
@@ -452,12 +582,13 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                   ))}
                 </>
               ) : (
-                <>
-                  {postComments?.data && postComments?.data.length > 0 ? (
-                    postComments.data.map((comment, i) => (
+                <div className="h-[40vh] overflow-y-auto overflow-x-hidden">
+                  {commentsByPost[post._id] &&
+                  commentsByPost[post._id]?.length > 0 ? (
+                    commentsByPost[post._id].map((comment, i) => (
                       <motion.div
                         key={i}
-                        className="flex gap-3 group"
+                        className="flex gap-3 my-2 group"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: i * 0.05 }}
@@ -478,7 +609,13 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                         <div className="flex-1">
                           <div className="relative">
                             <div className="absolute -inset-1 bg-gradient-to-r from-[#05A9A9]/20 to-[#05A9A9]/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
-                            <div className="relative bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-white/20 shadow-sm group-hover:shadow-md transition-all duration-300">
+                            <div
+                              className={`relative bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300 ${
+                                selectedCommnet === comment._id
+                                  ? "border border-primary"
+                                  : " border border-white/20 "
+                              }`}
+                            >
                               <div className="flex justify-between items-start">
                                 <p className="font-medium text-sm text-gray-800">
                                   {comment?.commentedBy.name || "Anonymous"}
@@ -492,16 +629,58 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                               <p className="text-sm text-gray-700 mt-1.5 leading-relaxed">
                                 {comment.comment}
                               </p>
-                              <div className="flex gap-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
-                                  Reply
-                                </button>
-                                <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
-                                  Like
-                                </button>
+                              <div className="flex items-center justify-between">
+                                <div className="flex gap-3 mt-2 duration-300">
+                                  {selectedCommnet === comment._id &&
+                                  !childComId ? (
+                                    <button
+                                      className="text-xs text-red-500 hover:text-red-400 transition-colors"
+                                      onClick={() => CancelReplyToComment()}
+                                    >
+                                      Cancel
+                                    </button>
+                                  ) : (
+                                    <button
+                                      className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                      onClick={() =>
+                                        replyToComment(comment._id)
+                                      }
+                                    >
+                                      Reply
+                                    </button>
+                                  )}
+                                  <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
+                                    Like
+                                  </button>
+                                </div>
+                                <div>
+                                  <button
+                                    className="text-xs flex items-center gap-2 text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                    onClick={() => {
+                                      setSelectedCommnetReplay(
+                                        (prev) =>
+                                          prev.includes(comment._id)
+                                            ? prev.filter(
+                                                (id) => id !== comment._id
+                                              ) // Toggle off
+                                            : [...prev, comment._id] // Toggle on
+                                      );
+                                    }}
+                                  >
+                                    replies <IoIosArrowDown />
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
+                          {selectedCommnetReplay.includes(comment._id) && (
+                            <ChildReplies
+                              commentId={comment._id}
+                              replyToComment={replyToChildComment}
+                              childComId={childComId}
+                              CancelReplyToComment={CancelReplyToComment}
+                            />
+                          )}
                         </div>
                       </motion.div>
                     ))
@@ -510,7 +689,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                       No comments yet. Be the first to comment!
                     </p>
                   )}{" "}
-                </>
+                </div>
               )}
             </div>
           </div>
@@ -531,6 +710,15 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
           </div>
         )}
       </div>
+      {post._id && hasMoreComment[post._id] && (
+        <button
+          onClick={loadMoreComments}
+          disabled={isFetching}
+          className="text-blue-500 mt-2"
+        >
+          {isFetching ? "Loading..." : "Load More"}
+        </button>
+      )}
       {isCommentsExpanded && (
         <span
           className="text-gray-700 text-sm mt-1 cursor-pointer hover:text-gray-600"
@@ -545,3 +733,93 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 };
 
 export default PostGalleryTwo;
+
+export const ChildReplies = ({
+  commentId,
+  replyToComment,
+  childComId,
+  CancelReplyToComment,
+}: {
+  commentId: string;
+  replyToComment: (id: string, replierName: string, childComId: string) => void;
+  childComId: string | undefined;
+  CancelReplyToComment: () => void;
+}) => {
+  const { data: childComments, isLoading } = useQuery({
+    queryKey: ["childComment", commentId],
+    queryFn: () => getChildComments(commentId),
+  });
+
+  if (isLoading) return <div>Loading replies...</div>;
+
+  return (
+    <div className="ml-4">
+      {childComments?.data.map((comment, i) => (
+        <motion.div
+          key={comment._id}
+          className="flex gap-3 my-2 group"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: i * 0.05 }}
+        >
+          <Avatar className="w-9 h-9 transition-all duration-300 group-hover:scale-105">
+            <AvatarImage
+              src={`/placeholder.svg?height=36&width=36&text=${"U"}`}
+            />
+            <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#05A9A9]/70 text-white">
+              {"U"?.toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+
+          <div className="flex-1">
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#05A9A9]/20 to-[#05A9A9]/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
+              <div
+                className={`relative bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300`}
+              >
+                <div className="flex justify-between items-start">
+                  <p className="font-medium text-sm text-gray-800">
+                    {"Anonymous"}
+                  </p>
+                  <span className="text-xs text-gray-500/80">
+                    {formatDateSmart(comment.createdAt, true) +
+                      " • " +
+                      formatMessageTime(comment.createdAt)}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 mt-1.5 leading-relaxed">
+                  {comment.comment}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-3 mt-2 duration-300">
+                    {childComId === comment._id ? (
+                      <button
+                        className="text-xs text-red-500 hover:text-red-400 transition-colors"
+                        onClick={() => CancelReplyToComment()}
+                      >
+                        Cancel
+                      </button>
+                    ) : (
+                      <button
+                        className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
+                        onClick={() =>
+                          replyToComment(commentId, "userName", comment._id)
+                        }
+                      >
+                        Reply
+                      </button>
+                    )}
+                    <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
+                      Like
+                    </button>
+                  </div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+};

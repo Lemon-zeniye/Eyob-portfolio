@@ -1,8 +1,9 @@
 import {
+  addChildComment,
   addComment,
   addStory,
   getAllPostsWithComments,
-  getcComments,
+  getComments,
   likeOrDeslike,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
@@ -14,6 +15,7 @@ import {
   useRef,
   type ChangeEvent,
   type DragEvent,
+  useCallback,
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,16 +45,15 @@ import Cookies from "js-cookie";
 import { deletePost, getUserFullProfile } from "@/Api/profile.api";
 import { FaEllipsisH, FaTrash } from "react-icons/fa";
 import { Spinner } from "@/components/ui/Spinner";
+import { CommentNew, PostCom } from "@/Types/post.type";
+import { IoIosArrowDown } from "react-icons/io";
+import { ChildReplies } from "@/components/Post/PostGalleryTwo";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
 };
 
 function NormalHomePage() {
-  const { data: allPostsWithComments } = useQuery({
-    queryKey: ["getAllPostsWithComments"],
-    queryFn: getAllPostsWithComments,
-  });
   const [open, setOpen] = useState(false);
   const [currentStoryItemIndex, setCurrentStoryItemIndex] = useState(0);
   const [storyProgress, setStoryProgress] = useState(0);
@@ -69,6 +70,52 @@ function NormalHomePage() {
   const [selectedFile, setSelectedFile] = useState<StoryFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [page, setPage] = useState(1);
+  const limit = 5;
+  const [allPosts, setAllPosts] = useState<PostCom[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [commentsByPost, setCommentsByPost] = useState<
+    Record<string, CommentNew[]>
+  >({});
+
+  const [hasMoreComment, setHasMoreComment] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [replierName, setReplierName] = useState<string | undefined>(undefined);
+
+  const [commentPages, setCommentPages] = useState<Record<string, number>>({});
+  const [selectedCommnetReplay, setSelectedCommnetReplay] = useState<string[]>(
+    []
+  );
+
+  const [childComId, setChildComId] = useState<string | undefined>(undefined);
+
+  const { data, isLoading, isError, isFetching } = useQuery(
+    ["getAllPostsWithComments", page, limit],
+    () => getAllPostsWithComments(page, limit),
+    {
+      keepPreviousData: true,
+      staleTime: 5000,
+    }
+  );
+
+  useEffect(() => {
+    if (data && data.success) {
+      if (page === 1) {
+        setAllPosts(data.data);
+      } else if (data.data.length > 0) {
+        setAllPosts((prev) => {
+          const existingIds = new Set(prev.map((post) => post._id));
+          const newPosts = data.data.filter(
+            (post) => !existingIds.has(post._id)
+          );
+          return [...prev, ...newPosts];
+        });
+      }
+
+      setHasMore(data.data.length >= limit);
+    }
+  }, [data, page, limit]);
 
   const stories = [
     {
@@ -242,17 +289,63 @@ function NormalHomePage() {
   }, [viewingStory, currentStoryItemIndex]);
 
   const toggleComments = (postId: string) => {
-    setExpandedPost((pre) => (pre === postId ? undefined : postId));
+    setExpandedPost((prev) => {
+      if (prev === postId) return undefined;
+      // Reset if opening a new post
+      if (!commentsByPost[postId]) {
+        setCommentsByPost((prev) => ({ ...prev, [postId]: [] }));
+        setCommentPages((prev) => ({ ...prev, [postId]: 1 }));
+      }
+      return postId;
+    });
   };
 
-  const { data: postComments, isLoading: isLoadingComment } = useQuery({
-    queryKey: ["postComments", expandedPost],
-    queryFn: () => {
-      if (expandedPost) {
-        return getcComments(expandedPost);
-      }
+  const loadMoreComments = () => {
+    if (!expandedPost) return;
+    setCommentPages((prev) => ({
+      ...prev,
+      [expandedPost]: (prev[expandedPost] || 1) + 1,
+    }));
+  };
+
+  const {
+    data: postComments,
+    isLoading: isLoadingComment,
+    isFetching: isFetchingComment,
+  } = useQuery({
+    queryKey: [
+      "postComments",
+      expandedPost,
+      commentPages[expandedPost || ""] || 1,
+    ],
+    queryFn: async () => {
+      if (!expandedPost) return;
+
+      const page = commentPages[expandedPost] || 1;
+      const res = await getComments(expandedPost, page);
+      const newComments = res.data;
+
+      // Filter duplicates by comment ID
+      setCommentsByPost((prev) => {
+        const existing = prev[expandedPost] || [];
+        const existingIds = new Set(existing.map((c) => c._id));
+        const filteredNew = newComments.filter((c) => !existingIds.has(c._id));
+        return {
+          ...prev,
+          [expandedPost]: [...existing, ...filteredNew],
+        };
+      });
+
+      // Set hasMoreComment[postId] based on response length
+      setHasMoreComment((prev) => ({
+        ...prev,
+        [expandedPost]: newComments.length === 5, // assuming limit is 5
+      }));
+
+      return res;
     },
     enabled: !!expandedPost,
+    keepPreviousData: true,
   });
 
   const handleCommentChange = (postId: string, value: string) => {
@@ -273,7 +366,7 @@ function NormalHomePage() {
   });
 
   ///// mutuation
-  const { mutate, isLoading } = useMutation({
+  const { mutate, isLoading: likeIsLoading } = useMutation({
     mutationFn: likeOrDeslike,
     onSuccess: () => {
       queryClient.invalidateQueries("getAllPostsWithComments");
@@ -303,7 +396,36 @@ function NormalHomePage() {
   const { mutate: comment } = useMutation({
     mutationFn: addComment,
     onSuccess: () => {
-      queryClient.invalidateQueries("postComments");
+      const currentPage = (expandedPost && commentPages[expandedPost]) || 1;
+
+      queryClient.invalidateQueries([
+        "postComments",
+        expandedPost,
+        currentPage,
+      ]);
+      if (expandedPost) {
+        setCommentInputs((prev) => ({
+          ...prev,
+          [expandedPost]: "",
+        }));
+      }
+    },
+    onError: () => {},
+  });
+
+  const { mutate: childComment } = useMutation({
+    mutationFn: addChildComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["childComment", selectedCommnet]);
+      setSelectedCommnet(undefined);
+      setReplierName(undefined);
+      setChildComId(undefined);
+      if (expandedPost) {
+        setCommentInputs((prev) => ({
+          ...prev,
+          [expandedPost]: "",
+        }));
+      }
     },
     onError: () => {},
   });
@@ -401,6 +523,25 @@ function NormalHomePage() {
     };
   }, [selectedFile]);
 
+  // const submitComment = ({
+  //   postId,
+  //   userId,
+  // }: {
+  //   postId: string;
+  //   userId: string;
+  // }) => {
+  //   comment({
+  //     postId: postId,
+  //     comment: commentInputs[postId],
+  //     commentedTo: userId,
+  //   });
+
+  //   setCommentInputs((prev) => ({
+  //     ...prev,
+  //     [postId]: "",
+  //   }));
+  // };
+
   const submitComment = ({
     postId,
     userId,
@@ -408,17 +549,82 @@ function NormalHomePage() {
     postId: string;
     userId: string;
   }) => {
-    comment({
-      postId: postId,
-      comment: commentInputs[postId],
-      commentedTo: userId,
-    });
-
-    setCommentInputs((prev) => ({
-      ...prev,
-      [postId]: "",
-    }));
+    if (selectedCommnet) {
+      childComment({
+        parentComment: selectedCommnet,
+        comment: replierName
+          ? "@" + replierName + " " + commentInputs[postId]
+          : commentInputs[postId],
+      });
+    } else {
+      comment({
+        postId: postId,
+        comment: commentInputs[postId],
+        commentedTo: userId,
+      });
+    }
   };
+
+  const handleScroll = useCallback(() => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop <
+        document.documentElement.offsetHeight - 100 ||
+      isLoading ||
+      isFetching ||
+      !hasMore
+    ) {
+      return;
+    }
+    setPage((prev) => prev + 1);
+  }, [isLoading, isFetching, hasMore]);
+
+  // Add scroll event listener
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  // Manual load more function
+  const loadMore = () => {
+    if (!isFetching && hasMore) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  const CancelReplyToComment = () => {
+    commentRef.current?.blur();
+    setSelectedCommnet(undefined);
+    setChildComId(undefined);
+  };
+
+  const replyToChildComment = (
+    commentId: string,
+    replierName: string,
+    childComId: string
+  ) => {
+    commentRef.current?.focus();
+    setSelectedCommnet(commentId);
+    setReplierName(replierName);
+    setChildComId(childComId);
+  };
+
+  const commentRef = useRef<HTMLTextAreaElement>(null);
+  const [selectedCommnet, setSelectedCommnet] = useState<string | undefined>(
+    undefined
+  );
+
+  const replyToComment = (commentId: string) => {
+    commentRef.current?.focus();
+    setSelectedCommnet(commentId);
+  };
+
+  // Reset to page 1 if needed (e.g., on pull-to-refresh)
+  //   const refreshPosts = () => {
+  //     setPage(1);
+  //     setHasMore(true);
+  //   };
+
+  if (isError) return <div>Error loading posts</div>;
 
   return (
     // <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
@@ -551,7 +757,7 @@ function NormalHomePage() {
 
           {/* post card */}
           <div className="space-y-6 max-w-[600px] mx-auto">
-            {[...(allPostsWithComments?.data ?? [])]
+            {[...(allPosts ?? [])]
               // .reverse()
               .map((post, index) => {
                 const postId = post._id || `post-${index}`;
@@ -666,7 +872,7 @@ function NormalHomePage() {
                       <div className="flex items-center gap-2">
                         <motion.button
                           onClick={() => handleLike(post._id)}
-                          disabled={isLoading}
+                          disabled={likeIsLoading}
                           className="flex items-center justify-center flex-1 gap-2 h-10 px-4 rounded-full border bg-white border-[#e6f7f7] hover:bg-[#f8fdfd] transition-all duration-200"
                           whileTap={{ scale: 0.95 }}
                         >
@@ -734,6 +940,7 @@ function NormalHomePage() {
                             </Avatar>
                             <div className="flex-1 flex gap-2">
                               <Textarea
+                                ref={commentRef}
                                 placeholder="Add a comment..."
                                 className="min-h-[40px] resize-none rounded-xl border-[#e6f7f7] focus-visible:ring-[#05A9A9]"
                                 value={commentInputs[postId] || ""}
@@ -796,71 +1003,140 @@ function NormalHomePage() {
                                 ))}
                               </>
                             ) : (
-                              <>
-                                {" "}
-                                {postComments?.data &&
-                                postComments?.data.length > 0 ? (
-                                  postComments.data.map((comment, i) => (
-                                    <motion.div
-                                      key={i}
-                                      className="flex gap-3"
-                                      initial={{ opacity: 0, y: 10 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      transition={{
-                                        duration: 0.2,
-                                        delay: i * 0.05,
-                                      }}
-                                    >
-                                      <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
-                                        <AvatarImage
-                                          src={`/placeholder-icon.png?height=32&width=32&text=${
-                                            comment.commentedBy.name || "U"
-                                          }`}
-                                        />
-                                        <AvatarFallback
-                                          className="text-white"
-                                          style={{
-                                            background:
-                                              "linear-gradient(135deg, #05A9A9, #4ecdc4)",
-                                          }}
-                                        >
-                                          {(
-                                            comment.commentedBy.name?.slice(
-                                              0,
-                                              1
-                                            ) || "U"
-                                          )?.toUpperCase()}
-                                        </AvatarFallback>
-                                      </Avatar>
-                                      <div className="flex-1 bg-[#f8fdfd] p-3 rounded-xl">
-                                        <div className="flex justify-between items-start">
-                                          <p className="font-medium text-sm text-gray-800">
-                                            {comment.commentedBy?.name ||
-                                              "Anonymous"}
+                              <div className="h-[40vh] overflow-y-auto overflow-x-hidden">
+                                {commentsByPost[expandedPost] &&
+                                commentsByPost[expandedPost]?.length > 0 ? (
+                                  commentsByPost[expandedPost].map(
+                                    (comment, i) => (
+                                      <motion.div
+                                        key={i}
+                                        className="flex gap-3"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{
+                                          duration: 0.2,
+                                          delay: i * 0.05,
+                                        }}
+                                      >
+                                        <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
+                                          <AvatarImage
+                                            src={`/placeholder-icon.png?height=32&width=32&text=${
+                                              comment.commentedBy.name || "U"
+                                            }`}
+                                          />
+                                          <AvatarFallback
+                                            className="text-white"
+                                            style={{
+                                              background:
+                                                "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                                            }}
+                                          >
+                                            {(
+                                              comment.commentedBy.name?.slice(
+                                                0,
+                                                1
+                                              ) || "U"
+                                            )?.toUpperCase()}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 bg-[#f8fdfd] p-3 rounded-xl">
+                                          <div className="flex justify-between items-start">
+                                            <p className="font-medium text-sm text-gray-800">
+                                              {comment.commentedBy?.name ||
+                                                "Anonymous"}
+                                            </p>
+                                            <span className="text-xs text-gray-500">
+                                              {formatDateSmart(
+                                                comment.createdAt,
+                                                true
+                                              ) +
+                                                " at " +
+                                                formatMessageTime(
+                                                  comment.createdAt
+                                                )}
+                                            </span>
+                                          </div>
+                                          <p className="text-sm text-gray-600 mt-1">
+                                            {comment.comment}
                                           </p>
-                                          <span className="text-xs text-gray-500">
-                                            {formatDateSmart(
-                                              comment.createdAt,
-                                              true
-                                            ) +
-                                              " at " +
-                                              formatMessageTime(
-                                                comment.createdAt
+                                          <div className="flex items-center justify-between">
+                                            <div className="flex gap-3 mt-2 duration-300">
+                                              {selectedCommnet ===
+                                                comment._id && !childComId ? (
+                                                <button
+                                                  className="text-xs text-red-500 hover:text-red-400 transition-colors"
+                                                  onClick={() =>
+                                                    CancelReplyToComment()
+                                                  }
+                                                >
+                                                  Cancel
+                                                </button>
+                                              ) : (
+                                                <button
+                                                  className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                                  onClick={() =>
+                                                    replyToComment(comment._id)
+                                                  }
+                                                >
+                                                  Reply
+                                                </button>
                                               )}
-                                          </span>
+                                              <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
+                                                Like
+                                              </button>
+                                            </div>
+                                            <div>
+                                              <button
+                                                className="text-xs flex items-center gap-2 text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                                onClick={() => {
+                                                  setSelectedCommnetReplay(
+                                                    (prev) =>
+                                                      prev.includes(comment._id)
+                                                        ? prev.filter(
+                                                            (id) =>
+                                                              id !== comment._id
+                                                          ) // Toggle off
+                                                        : [...prev, comment._id] // Toggle on
+                                                  );
+                                                }}
+                                              >
+                                                replies <IoIosArrowDown />
+                                              </button>
+                                            </div>
+                                          </div>
+                                          {selectedCommnetReplay.includes(
+                                            comment._id
+                                          ) && (
+                                            <ChildReplies
+                                              commentId={comment._id}
+                                              replyToComment={
+                                                replyToChildComment
+                                              }
+                                              childComId={childComId}
+                                              CancelReplyToComment={
+                                                CancelReplyToComment
+                                              }
+                                            />
+                                          )}
                                         </div>
-                                        <p className="text-sm text-gray-600 mt-1">
-                                          {comment.comment}
-                                        </p>
-                                      </div>
-                                    </motion.div>
-                                  ))
+                                      </motion.div>
+                                    )
+                                  )
                                 ) : (
                                   <p className="text-sm text-gray-400 text-center py-4 bg-[#f8fdfd] rounded-xl">
                                     No comments yet. Be the first to comment!
                                   </p>
                                 )}{" "}
-                              </>
+                              </div>
+                            )}
+                            {expandedPost && hasMoreComment[expandedPost] && (
+                              <button
+                                onClick={loadMoreComments}
+                                disabled={isFetchingComment}
+                                className="text-blue-500 mt-2"
+                              >
+                                {isFetchingComment ? "Loading..." : "Load More"}
+                              </button>
                             )}
                           </div>
                         </motion.div>
@@ -870,8 +1146,42 @@ function NormalHomePage() {
                 );
               })}
 
-            {(!allPostsWithComments?.data ||
-              allPostsWithComments.data.length === 0) && (
+            {(isLoading || isFetching) && (
+              <div className="w-full flex items-center justify-center h-16 rounded-lg border bg-primary/20 border-primary/40">
+                <Spinner />
+              </div>
+            )}
+
+            {!isLoading && !isFetching && hasMore && (
+              <button
+                onClick={loadMore}
+                disabled={isFetching}
+                className="load-more-btn my-4"
+              >
+                {isFetching ? "Loading..." : "Load More"}
+              </button>
+            )}
+
+            {!hasMore && allPosts.length > 0 && (
+              <div className="flex flex-col items-center justify-center py-6">
+                <div className="w-full max-w-md px-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="h-px flex-1 bg-primary-300"></div>
+                    <span className="text-sm font-medium text-primary-600 px-2">
+                      You're all caught up
+                    </span>
+                    <div className="h-px flex-1 bg-primary-300"></div>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-primary-500 text-sm">
+                      You've seen all the latest posts
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!hasMore && allPosts.length === 0 && (
               <div className="bg-white rounded-2xl shadow-lg p-8 text-center border border-[#e6f7f7]">
                 <div
                   className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5"

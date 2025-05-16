@@ -8,6 +8,7 @@ import {
   useRef,
   type ChangeEvent,
   type DragEvent,
+  useCallback,
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,16 +29,45 @@ import { getUserFullProfile } from "@/Api/profile.api";
 import { Spinner } from "@/components/ui/Spinner";
 import PostGalleryTwo from "@/components/Post/PostGalleryTwo";
 import { tos } from "@/lib/utils";
+import { PostCom } from "@/Types/post.type";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
 };
 
 function SocialHomePage() {
-  const { data: allPostsWithComments } = useQuery({
-    queryKey: ["getAllPostsWithComments"],
-    queryFn: getAllPostsWithComments,
-  });
+  const [page, setPage] = useState(1);
+  const limit = 5;
+  const [allPosts, setAllPosts] = useState<PostCom[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+
+  const { data, isLoading, isError, isFetching } = useQuery(
+    ["getAllPostsWithComments", page, limit],
+    () => getAllPostsWithComments(page, limit),
+    {
+      keepPreviousData: true,
+      staleTime: 5000,
+    }
+  );
+
+  useEffect(() => {
+    if (data && data.success) {
+      if (page === 1) {
+        setAllPosts(data.data);
+      } else if (data.data.length > 0) {
+        setAllPosts((prev) => {
+          const existingIds = new Set(prev.map((post) => post._id));
+          const newPosts = data.data.filter(
+            (post) => !existingIds.has(post._id)
+          );
+          return [...prev, ...newPosts];
+        });
+      }
+
+      setHasMore(data.data.length === limit);
+    }
+  }, [data, page, limit]);
+
   const [open, setOpen] = useState(false);
   const [currentStoryItemIndex, setCurrentStoryItemIndex] = useState(0);
   const [storyProgress, setStoryProgress] = useState(0);
@@ -340,6 +370,40 @@ function SocialHomePage() {
     };
   }, [selectedFile]);
 
+  const handleScroll = useCallback(() => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop <
+        document.documentElement.offsetHeight - 100 ||
+      isLoading ||
+      isFetching ||
+      !hasMore
+    ) {
+      return;
+    }
+    setPage((prev) => prev + 1);
+  }, [isLoading, isFetching, hasMore]);
+
+  // Add scroll event listener
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  // Manual load more function
+  const loadMore = () => {
+    if (!isFetching && hasMore) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  // Reset to page 1 if needed (e.g., on pull-to-refresh)
+  const refreshPosts = () => {
+    setPage(1);
+    setHasMore(true);
+  };
+
+  if (isError) return <div>Error loading posts</div>;
+
   return (
     // <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
     <div className="min-h-screen">
@@ -435,9 +499,9 @@ function SocialHomePage() {
           </div>
 
           {/* post card */}
-          <div className="space-y-6 max-w-xl mx-auto">
+          <div className="space-y-6 max-w-xl mx-auto my-10">
             <div className="space-y-6">
-              {[...(allPostsWithComments?.data ?? [])]
+              {[...(allPosts ?? [])]
                 // .reverse()
                 .map((post, index) => {
                   const postId = post._id || `post-${index}`;
@@ -458,8 +522,42 @@ function SocialHomePage() {
                   );
                 })}
 
-              {(!allPostsWithComments?.data ||
-                allPostsWithComments.data.length === 0) && (
+              {(isLoading || isFetching) && (
+                <div className="w-full flex items-center justify-center h-16 rounded-lg border bg-primary/20 border-primary/40">
+                  <Spinner />
+                </div>
+              )}
+
+              {!isLoading && !isFetching && hasMore && (
+                <button
+                  onClick={loadMore}
+                  disabled={isFetching}
+                  className="load-more-btn my-4"
+                >
+                  {isFetching ? "Loading..." : "Load More"}
+                </button>
+              )}
+
+              {!hasMore && allPosts.length > 0 && (
+                <div className="flex flex-col items-center justify-center py-6">
+                  <div className="w-full max-w-md px-4">
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="h-px flex-1 bg-primary-300"></div>
+                      <span className="text-sm font-medium text-primary-600 px-2">
+                        You're all caught up
+                      </span>
+                      <div className="h-px flex-1 bg-primary-300"></div>
+                    </div>
+                    <div className="mt-4 text-center">
+                      <p className="text-primary-500 text-sm">
+                        You've seen all the latest posts
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!hasMore && allPosts.length === 0 && (
                 <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
                   <div className="w-16 h-16 bg-[#05A9A9]/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Layers className="w-8 h-8 text-[#05A9A9]" />

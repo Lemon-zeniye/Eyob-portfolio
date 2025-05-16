@@ -6,16 +6,17 @@ import {
 } from "@/Types/job.type";
 import axios from "./axios";
 
-// export const getJobs = async (): Promise<JobResponse> => {
-//   const response = await axios.get<any>(`job/fetchJob`);
-//   return response.data;
-// };
-
 export const getJobs = async (
-  filters: Record<string, string> = {}
+  filters: Record<string, string> = {},
+  page: number = 1,
+  limit: number = 10
 ): Promise<JobResponse> => {
   const response = await axios.get<any>("job/findJob", {
-    params: filters,
+    params: {
+      ...filters,
+      page,
+      limit,
+    },
   });
   return response.data;
 };

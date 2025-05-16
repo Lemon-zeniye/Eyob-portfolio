@@ -58,7 +58,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isConnected, setConnected] = useState(false);
 
   useEffect(() => {
-    const socket = io("http://194.5.159.228:3002/", {
+    const socket = io("wss://awema.co", {
       transports: ["websocket"],
       autoConnect: true,
     });

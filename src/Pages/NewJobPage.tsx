@@ -19,6 +19,7 @@ import JobCardTwoSkeleton from "@/components/Jobs/JobCardTwoSkeleton";
 import { IoBusinessOutline } from "react-icons/io5";
 import { CiCircleRemove } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
+import Pagination from "@/components/ui/Pagination";
 
 function NewJobPage() {
   const filterValues: FilterCategory[] = [
@@ -65,6 +66,11 @@ function NewJobPage() {
     payment: null,
     company: "",
   });
+
+  //pagination
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [selectedFilter, setSelectedFilter] = useState({});
 
@@ -138,8 +144,8 @@ function NewJobPage() {
   };
 
   const { data: jobsData, isLoading } = useQuery({
-    queryKey: ["jobs", selectedFilter],
-    queryFn: () => getJobs(selectedFilter),
+    queryKey: ["jobs", selectedFilter, currentPage, itemsPerPage],
+    queryFn: () => getJobs(selectedFilter, currentPage, itemsPerPage),
   });
 
   useEffect(() => {
@@ -431,6 +437,16 @@ function NewJobPage() {
                 <ScrollArea.Thumb className="bg-primary" />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
+          </div>
+          <div className="sticky bottom-0 bg-gray-100 py-2">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={20}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
+              className="mt-2"
+            />
           </div>
         </div>
         {/* <div className="w-full">

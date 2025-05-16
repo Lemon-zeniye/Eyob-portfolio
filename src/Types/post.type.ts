@@ -88,3 +88,20 @@ export interface CommentNew {
   createdAt: string;
   __v: number;
 }
+
+export interface ChildCommentsRes {
+  data: ChildComments[];
+  success: boolean;
+  msg: string;
+}
+
+export interface ChildComments {
+  _id: string;
+  parentComment: string;
+  commentedBy: string;
+  comment: string;
+  likes: number;
+  deslikes: number;
+  createdAt: string;
+  __v: number;
+}

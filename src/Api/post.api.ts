@@ -1,4 +1,9 @@
-import { CommentsRes, PostComRes, PostRes } from "@/Types/post.type";
+import {
+  ChildCommentsRes,
+  CommentsRes,
+  PostComRes,
+  PostRes,
+} from "@/Types/post.type";
 import axios from "./axios";
 
 export const getAllPosts = async (): Promise<PostRes> => {
@@ -6,9 +11,15 @@ export const getAllPosts = async (): Promise<PostRes> => {
   return response.data;
 };
 
-export const getAllPostsWithComments = async (): Promise<PostComRes> => {
-  const response = await axios.get<any>(
-    `/userPost/fetchAllPostsWithCommentsAndLikes`
+export const getAllPostsWithComments = async (
+  page: number = 1,
+  limit: number = 5
+): Promise<PostComRes> => {
+  const response = await axios.get<PostComRes>(
+    `https://awema.co/api/userPost/fetchAllPostsWithCommentsAndLikes`,
+    {
+      params: { page, limit },
+    }
   );
   return response.data;
 };
@@ -46,9 +57,29 @@ export const deleteStory = async (id: string): Promise<any> => {
   return response.data;
 };
 
-export const getcComments = async (id: string): Promise<CommentsRes> => {
+export const getComments = async (
+  id: string,
+  page: number = 1,
+  limit: number = 5
+): Promise<CommentsRes> => {
   const response = await axios.get<any>(
-    `/userPost/fetchCommentsOfGivenPost/${id}`
+    `/userPost/fetchCommentsOfGivenPost/${id}`,
+    {
+      params: { page, limit },
+    }
   );
+  return response.data;
+};
+
+export const addChildComment = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>(`/userPost/addChildComment`, payload);
+  return response.data;
+};
+
+export const getChildComments = async (
+  id: string
+): Promise<ChildCommentsRes> => {
+  const response = await axios.get<any>(`/userPost/fetchChildComments/${id}
+`);
   return response.data;
 };
