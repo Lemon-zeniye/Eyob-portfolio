@@ -1,19 +1,20 @@
-import { useState } from "react"
-import { useQuery } from "react-query"
-import { getSingleUserPost } from "@/Api/profile.api"
-import { Button } from "@/components/ui/button"
-import { motion, AnimatePresence } from "framer-motion"
-import { Plus, X } from "lucide-react"
-import ActivityCard from "../Card/ActivityCard"
-import AddPost from "./AddPost"
+import { useState } from "react";
+import { useQuery } from "react-query";
+import { getSingleUserPost } from "@/Api/profile.api";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, X } from "lucide-react";
+import ActivityCard from "../Card/ActivityCard";
+import AddPost from "./AddPost";
+import { Post } from "@/Types/profile.type";
 
 function ActivityNew() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const { data: posts } = useQuery({
     queryKey: ["singleUserPost"],
     queryFn: getSingleUserPost,
-  })
+  });
 
   return (
     <div className="flex flex-col gap-6 p-2">
@@ -89,10 +90,10 @@ function ActivityNew() {
         </AnimatePresence>
       </div>
     </div>
-  )
+  );
 }
 
-function ActivityCardWrapper({ post }) {
+function ActivityCardWrapper({ post }: { post: Post }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -109,7 +110,7 @@ function ActivityCardWrapper({ post }) {
         <ActivityCard post={post} classname="w-full" onclick={() => {}} />
       </div>
     </motion.div>
-  )
+  );
 }
 
-export default ActivityNew
+export default ActivityNew;

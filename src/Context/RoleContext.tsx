@@ -33,7 +33,7 @@ export const RoleProvider: React.FC<{ children: ReactNode }> = ({
   const currentRole: Role | null = Cookies.get("role") as Role | null;
   const currentMode: Mode = Cookies.get("mode")
     ? (Cookies.get("mode") as Mode)
-    : "work";
+    : "formal";
   const [role, setRole] = useState<Role | null>(currentRole);
   const [mode, setMode] = useState<Mode>(currentMode);
 

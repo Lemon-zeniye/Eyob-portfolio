@@ -91,7 +91,7 @@ const LoginForm = () => {
       if (accessToken && refreshToken) {
         Cookies.set("accessToken", accessToken);
         Cookies.set("refreshToken", refreshToken);
-        Cookies.set("mode", "work");
+        Cookies.set("mode", "formal");
         authLogin(accessToken, refreshToken);
         const userInfo = getUserFromToken(accessToken);
         if (userInfo?.role && userInfo?.id) {

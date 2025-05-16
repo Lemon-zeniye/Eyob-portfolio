@@ -1,3 +1,4 @@
+import { Mode } from "@/Types/auth.type";
 import axios from "./axios";
 import {
   ActiveCompaniesRes,
@@ -252,5 +253,15 @@ export const getActiveCompanies = async (): Promise<ActiveCompaniesRes> => {
 
 export const referCompany = async (payload: any): Promise<any> => {
   const response = await axios.post<any>(`/user/addEmpRef`, payload);
+  return response.data;
+};
+
+export const updateUserMode = async (payload: Mode): Promise<any> => {
+  const response = await axios.patch<any>(`/user/updateUserMode`, payload);
+  return response.data;
+};
+
+export const getUserMode = async (): Promise<ActiveCompaniesRes> => {
+  const response = await axios.get("/user/fetchUserMode");
   return response.data;
 };

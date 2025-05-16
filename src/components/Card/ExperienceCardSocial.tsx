@@ -1,25 +1,25 @@
-import { useState } from "react"
-import ExpAndEduCard from "./ExpAndEduCard"
-import AddExprience from "../Profile/AddExprience"
-import { useMutation, useQuery } from "react-query"
-import { getUserCV, getUserExperience, uploadCV } from "@/Api/profile.api"
-import { Button } from "../ui/button"
-import { motion, AnimatePresence } from "framer-motion"
-import * as Dialog from "@radix-ui/react-dialog"
-import { FileText, Plus, Upload, X } from "lucide-react"
-import { formatDateToMonthYear, tos } from "@/lib/utils"
-import { Spinner } from "../ui/Spinner"
-import { getAxiosSuccessMessage } from "@/Api/axios"
+import { useState } from "react";
+import ExpAndEduCard from "./ExpAndEduCard";
+import AddExprience from "../Profile/AddExprience";
+import { useMutation, useQuery } from "react-query";
+import { getUserCV, getUserExperience, uploadCV } from "@/Api/profile.api";
+import { Button } from "../ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import * as Dialog from "@radix-ui/react-dialog";
+import { FileText, Plus, Upload, X } from "lucide-react";
+import { formatDateToMonthYear, tos } from "@/lib/utils";
+import { Spinner } from "../ui/Spinner";
+import { getAxiosSuccessMessage } from "@/Api/axios";
 
 const ExperienceCard = () => {
-  const [open, setOpen] = useState(false)
-  const [openUploadCV, setOpenUploadCV] = useState(false)
-  const [viewCV, setViewCV] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [openUploadCV, setOpenUploadCV] = useState(false);
+  const [viewCV, setViewCV] = useState(false);
 
-  const [file, setFile] = useState(null)
+  const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (e: any) => {
-    const selectedFile = e.target.files[0]
+    const selectedFile = e.target.files[0];
     if (
       selectedFile &&
       [
@@ -28,45 +28,45 @@ const ExperienceCard = () => {
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       ].includes(selectedFile.type)
     ) {
-      setFile(selectedFile)
+      setFile(selectedFile);
     } else {
-      alert("Only PDF or Word documents are allowed.")
-      setFile(null)
+      alert("Only PDF or Word documents are allowed.");
+      setFile(null);
     }
-  }
+  };
 
   const { mutate: upload, isLoading: uploading } = useMutation({
     mutationFn: uploadCV,
     onSuccess: () => {
-      setOpenUploadCV(false)
-      setFile(null)
-      tos.success("CV uploaded successfully")
+      setOpenUploadCV(false);
+      setFile(null);
+      tos.success("CV uploaded successfully");
     },
     onError: (error) => {
-      const mes = getAxiosSuccessMessage(error)
-      tos.error(mes)
+      const mes = getAxiosSuccessMessage(error);
+      tos.error(mes);
     },
-  })
+  });
 
   const { data: userCV } = useQuery({
     queryKey: ["userCV"],
     queryFn: getUserCV,
     onSuccess: () => {},
-  })
+  });
 
   const { data: experiences } = useQuery({
     queryKey: ["experiences"],
     queryFn: getUserExperience,
-  })
+  });
 
-  const fileUrl = `/${userCV?.data?.path.replace("public/", "")}`
+  const fileUrl = `/${userCV?.data?.path.replace("public/", "")}`;
 
   const handleUpload = () => {
-    if (!file) return
-    const formData = new FormData()
-    formData.append("uploadCV", file)
-    upload(formData)
-  }
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("uploadCV", file);
+    upload(formData);
+  };
 
   return (
     <div className="flex flex-col gap-6 bg-gradient-to-br from-slate-50 to-white p-6 rounded-2xl shadow-sm">
@@ -203,7 +203,7 @@ const ExperienceCard = () => {
                     <Upload className="w-6 h-6 text-[#05A9A9]" />
                   </div>
                   <span className="text-sm font-medium text-gray-700">
-                    {file ? file.name : "Click to select a file"}
+                    {file ? file?.name : "Click to select a file"}
                   </span>
                   <span className="text-xs text-gray-500">
                     PDF or Word documents only
@@ -266,7 +266,7 @@ const ExperienceCard = () => {
         </Dialog.Portal>
       </Dialog.Root>
     </div>
-  )
-}
+  );
+};
 
-export default ExperienceCard
+export default ExperienceCard;
