@@ -397,10 +397,10 @@ function SocialHomePage() {
   };
 
   // Reset to page 1 if needed (e.g., on pull-to-refresh)
-  const refreshPosts = () => {
-    setPage(1);
-    setHasMore(true);
-  };
+  // const refreshPosts = () => {
+  //   setPage(1);
+  //   setHasMore(true);
+  // };
 
   if (isError) return <div>Error loading posts</div>;
 
