@@ -1,19 +1,20 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom"
 
-import Login from "./Pages/Authentication/Login";
-import Signup from "./Pages/Authentication/Signup";
-import Settings from "./Pages/Settings";
-import Profile from "./Pages/Profile";
-import Chat from "./Pages/Chat";
-import CreateProfile from "./Pages/CreateProfile";
-import AppliedJobs from "./Pages/AppliedJobs";
-import AddJob from "./components/Jobs/AddJob";
-import JobPage from "./Pages/JobPage";
-import AppLayout from "./Pages/AppLayout";
-import PrivateRoute from "./Context/PrivateRoute";
-import { SocketProvider } from "./Context/SocketProvider";
-import JobDetailContainer from "./components/Jobs/JobDetailContainer";
-import HomePage from "./Pages/HomePage";
+import Login from "./Pages/Authentication/Login"
+import Signup from "./Pages/Authentication/Signup"
+import Settings from "./Pages/Settings"
+import Profile from "./Pages/Profile"
+import Chat from "./Pages/Chat"
+import CreateProfile from "./Pages/CreateProfile"
+import AppliedJobs from "./Pages/AppliedJobs"
+import AddJob from "./components/Jobs/AddJob"
+import JobPage from "./Pages/JobPage"
+import AppLayout from "./Pages/AppLayout"
+import PrivateRoute from "./Context/PrivateRoute"
+import { SocketProvider } from "./Context/SocketProvider"
+import JobDetailContainer from "./components/Jobs/JobDetailContainer"
+import HomePage from "./Pages/HomePage"
+import Notifications from "./Pages/Notifications"
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
     path: "/create-profile",
     element: <CreateProfile />,
   },
+
   {
     path: "/",
     element: <AppLayout />,
@@ -54,6 +56,10 @@ export const router = createBrowserRouter([
           {
             path: "jobs/:id",
             element: <JobDetailContainer />,
+          },
+          {
+            path: "/notifications",
+            element: <Notifications />,
           },
           {
             path: "chat",
@@ -89,4 +95,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+])

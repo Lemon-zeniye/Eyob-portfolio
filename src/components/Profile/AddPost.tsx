@@ -65,6 +65,7 @@ function AddPost({ onSuccess }: PostFormProps) {
     const formData = new FormData();
     if (values.postTitle) formData.append("postTitle", values.postTitle);
     if (values.postContent) formData.append("postContent", values.postContent);
+    formData.append("postType", "formal");
 
     // Append images one by one
     values.postPictures.forEach((file) => {
