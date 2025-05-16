@@ -117,6 +117,7 @@ const ProfileCard = () => {
               <img
                 src="https://awema.co/uploads/imageFile-1745421435186-646881582.png"
                 alt="Profile"
+                crossOrigin="anonymous"
                 className="z-10 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-16 sm:left-12 left-8 border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 transition"
               />
             </Dialog.Trigger>
