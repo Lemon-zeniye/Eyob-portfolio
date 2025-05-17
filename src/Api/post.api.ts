@@ -3,6 +3,7 @@ import {
   CommentsRes,
   PostComRes,
   PostRes,
+  StoryRes,
 } from "@/Types/post.type";
 import axios from "./axios";
 
@@ -39,7 +40,7 @@ export const addStory = async (payload: any): Promise<any> => {
   return response.data;
 };
 
-export const getUserStorys = async (): Promise<any> => {
+export const getUserStories = async (): Promise<StoryRes> => {
   const response = await axios.get<any>(`/user/getUserStories`);
   return response.data;
 };
@@ -81,5 +82,13 @@ export const getChildComments = async (
 ): Promise<ChildCommentsRes> => {
   const response = await axios.get<any>(`/userPost/fetchChildComments/${id}
 `);
+  return response.data;
+};
+
+export const Commentlike = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>(
+    `/userPost/commentLikeOrDeslike`,
+    payload
+  );
   return response.data;
 };

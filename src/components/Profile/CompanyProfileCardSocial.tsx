@@ -1,11 +1,10 @@
-import user from "../../assets/user.jpg";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import ActivityNew from "./ActivityNew";
 import {
   deleteUserPicture,
   getCompanyProfile,
-  getUserPicture,
+  updateUserProfilePic,
   uploadUserPicture,
 } from "@/Api/profile.api";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -29,31 +28,18 @@ import EditCompanyProfile from "./EditCompanyProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Cookies from "js-cookie";
 
 const CompanyProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [, setUserInfo] = useState<UserInfo | null>(null);
-  const { data: userPicture } = useQuery({
-    queryKey: ["userPicture"],
-    queryFn: getUserPicture,
-  });
   const [editProfile, setEditProfile] = useState(false);
   const [shareProfile, setShareProfile] = useState(false);
-  const [tempImage, setTempImage] = useState<string>("");
   const [, setActiveTab] = useState("about");
-
-  useEffect(() => {
-    if (userPicture?.data) {
-      const newImageUrl = `https://awema.co/${userPicture.data.path.replace(
-        "public/",
-        ""
-      )}`;
-      setTempImage(newImageUrl);
-    } else {
-      setTempImage(user);
-    }
-  }, [userPicture]);
+  const [profileImage, setprofileImage] = useState<string | undefined>(
+    Cookies.get("profilePic")
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -68,7 +54,7 @@ const CompanyProfileCard = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setTempImage(URL.createObjectURL(file)); // Preview
+      setprofileImage(URL.createObjectURL(file)); // Preview
     }
   };
 
@@ -79,10 +65,32 @@ const CompanyProfileCard = () => {
 
   const { mutate, isLoading: uploading } = useMutation({
     mutationFn: uploadUserPicture,
-    onSuccess: () => {
+    onSuccess: (res) => {
       setOpen(false);
       setSelectedFile(null);
       tos.success("Profile uploaded successfully");
+      const newImageUrl = `https://awema.co/${res?.data.path.replace(
+        "public/",
+        ""
+      )}`;
+      Cookies.set("profilePic", newImageUrl);
+    },
+    onError: (error) => {
+      console.error("Upload failed", error);
+    },
+  });
+
+  const { mutate: updateProfilePic, isLoading: updating } = useMutation({
+    mutationFn: updateUserProfilePic,
+    onSuccess: (res) => {
+      setOpen(false);
+      setSelectedFile(null);
+      tos.success("Profile updated successfully");
+      const newImageUrl = `https://awema.co/${res?.data.path.replace(
+        "public/",
+        ""
+      )}`;
+      Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
       console.error("Upload failed", error);
@@ -104,7 +112,11 @@ const CompanyProfileCard = () => {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("imageFile", selectedFile);
-    mutate(formData);
+    if (profileImage) {
+      updateProfilePic(formData);
+    } else {
+      mutate(formData);
+    }
   };
 
   return (
@@ -121,7 +133,7 @@ const CompanyProfileCard = () => {
                 <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
                   <Avatar className="w-32 h-32 border-4 border-white shadow-xl cursor-pointer hover:opacity-90 transition">
                     <AvatarImage
-                      src={tempImage || "/placeholder.svg"}
+                      src={profileImage || "/placeholder.svg"}
                       alt="Profile"
                     />
                     <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-2xl">
@@ -148,7 +160,7 @@ const CompanyProfileCard = () => {
                   <div className="flex flex-col items-center gap-4">
                     <Avatar className="w-36 h-36 border-4 border-white shadow-lg">
                       <AvatarImage
-                        src={tempImage || "/placeholder.svg"}
+                        src={profileImage || "/placeholder.svg"}
                         alt="Preview"
                       />
                       <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-2xl">
@@ -175,7 +187,7 @@ const CompanyProfileCard = () => {
                   </div>
 
                   <div className="flex justify-end gap-3">
-                    {userPicture?.data?.path && (
+                    {profileImage && (
                       <Button
                         onClick={() => deleteProfilePic()}
                         variant="destructive"
@@ -195,11 +207,12 @@ const CompanyProfileCard = () => {
                       disabled={uploading || !selectedFile}
                       className="gap-2"
                     >
-                      {uploading ? (
+                      {uploading || updating ? (
                         <Loader className="animate-spin" />
                       ) : (
                         <>
-                          <Upload size={16} /> Upload
+                          <Upload size={16} />{" "}
+                          {profileImage ? "Update" : "Upload"}
                         </>
                       )}
                     </Button>

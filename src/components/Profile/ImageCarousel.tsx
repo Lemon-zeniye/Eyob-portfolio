@@ -1,27 +1,32 @@
-import React, { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs"
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
 
 interface ImageCarouselProps {
-  images: string[]
+  images: string[];
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [direction, setDirection] = useState(0) // -1 for left, 1 for right
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0); // -1 for left, 1 for right
+
+  // Check if we should treat this as a single image (array with length 1)
+  const isSingleImage = images.length <= 1;
 
   const goToPrevious = () => {
-    setDirection(-1)
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
-  }
+    if (isSingleImage) return;
+    setDirection(-1);
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
 
   const goToNext = () => {
-    setDirection(1)
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-  }
+    if (isSingleImage) return;
+    setDirection(1);
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
 
   return (
-    <div className="relative w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-lg">
+    <div className="relative flex-shrink-0 w-full h-44 sm:h-32 overflow-hidden">
       <AnimatePresence initial={false} custom={direction}>
         <motion.img
           key={images[currentIndex]}
@@ -32,41 +37,47 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: direction > 0 ? -100 : 100, opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="absolute w-full h-full object-cover rounded-lg"
+          className="absolute w-full h-full object-cover rounded-sm"
         />
       </AnimatePresence>
 
-      {/* Navigation Buttons */}
-      <button
-        onClick={goToPrevious}
-        className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-black/20 py-1 text-black rounded-r"
-      >
-        <BsChevronCompactLeft />
-      </button>
-      <button
-        onClick={goToNext}
-        className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-black/20 text-black py-1 rounded-l"
-      >
-        <BsChevronCompactRight />
-      </button>
-
-      {/* Dots */}
-      <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex gap-1">
-        {images.map((_, i) => (
+      {/* Navigation Buttons - only show if multiple images */}
+      {!isSingleImage && (
+        <>
           <button
-            key={i}
-            onClick={() => {
-              setDirection(i > currentIndex ? 1 : -1)
-              setCurrentIndex(i)
-            }}
-            className={`w-2 h-2 rounded-full ${
-              i === currentIndex ? "bg-white" : "bg-gray-400"
-            }`}
-          ></button>
-        ))}
-      </div>
-    </div>
-  )
-}
+            onClick={goToPrevious}
+            className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-black/20 py-1 text-black rounded-r"
+          >
+            <BsChevronCompactLeft />
+          </button>
+          <button
+            onClick={goToNext}
+            className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-black/20 text-black py-1 rounded-l"
+          >
+            <BsChevronCompactRight />
+          </button>
+        </>
+      )}
 
-export default ImageCarousel
+      {/* Dots - only show if multiple images */}
+      {!isSingleImage && (
+        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex gap-1">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                setDirection(i > currentIndex ? 1 : -1);
+                setCurrentIndex(i);
+              }}
+              className={`w-2 h-2 rounded-full ${
+                i === currentIndex ? "bg-white" : "bg-gray-400"
+              }`}
+            ></button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ImageCarousel;

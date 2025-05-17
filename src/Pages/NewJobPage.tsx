@@ -4,14 +4,13 @@ import JobCard from "@/components/Jobs/JobCard";
 import { Button } from "@/components/ui/button";
 import { FilterCategory, SelectedValues } from "@/Types/job.type";
 import { ChevronDownIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FiFilter, FiSearch } from "react-icons/fi";
-import { useQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import JobCardTwo from "@/components/Jobs/JobCardGrid";
 import { PiColumnsFill } from "react-icons/pi";
 import { TbLayoutGridFilled } from "react-icons/tb";
 import { motion, AnimatePresence } from "framer-motion";
-import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { useIsMobile } from "@/hooks/use-isMobile";
 import MobileFilter from "@/components/Jobs/MobileFiltter";
 import JobCardSkeleton from "@/components/Jobs/JobCardSkeleton";
@@ -19,7 +18,7 @@ import JobCardTwoSkeleton from "@/components/Jobs/JobCardTwoSkeleton";
 import { IoBusinessOutline } from "react-icons/io5";
 import { CiCircleRemove } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-import Pagination from "@/components/ui/Pagination";
+import { Spinner } from "@/components/ui/Spinner";
 
 function NewJobPage() {
   const filterValues: FilterCategory[] = [
@@ -53,12 +52,8 @@ function NewJobPage() {
   const [openCategories, setOpenCategories] = useState<string[]>(
     filterValues.map((filter) => filter.category.value)
   );
-
   const [gridOne, setGridOne] = useState(true);
-  // const [selectedJob, setSelectedJob] = useState<Job | undefined>(undefined);
-  // const [openJobDetail, setOpenJobDetail] = useState<boolean>(false);
   const navigate = useNavigate();
-
   const [selectedValues, setSelectedValues] = useState<SelectedValues>({
     jobTitle: "",
     jobType: null,
@@ -66,14 +61,7 @@ function NewJobPage() {
     payment: null,
     company: "",
   });
-
-  //pagination
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-
   const [selectedFilter, setSelectedFilter] = useState({});
-
   const [mobileFilter, setMobileFilter] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<{
     [key: string]: string[];
@@ -143,14 +131,48 @@ function NewJobPage() {
     setSelectedFilters({});
   };
 
-  const { data: jobsData, isLoading } = useQuery({
-    queryKey: ["jobs", selectedFilter, currentPage, itemsPerPage],
-    queryFn: () => getJobs(selectedFilter, currentPage, itemsPerPage),
-  });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error,
+  } = useInfiniteQuery(
+    ["jobs", selectedFilter],
+    ({ pageParam = 1 }) => getJobs(selectedFilter, pageParam, 5),
+    {
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.data.length > 0 ? allPages.length + 1 : undefined;
+      },
+    }
+  );
 
+  const scrollableDivRef = useRef<HTMLDivElement>(null);
+  const handleScroll = useCallback(() => {
+    if (!scrollableDivRef.current) return;
+
+    const { scrollTop, clientHeight, scrollHeight } = scrollableDivRef.current;
+
+    // Check if scrolled near the bottom of the div (with 100px buffer)
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+
+    // Early return if conditions aren't met
+    if (!isNearBottom || isLoading || isFetchingNextPage || !hasNextPage) {
+      return;
+    }
+
+    fetchNextPage();
+  }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
+
+  // Add scroll event listener
   useEffect(() => {
-    console.log("selected value", selectedValues);
-  }, [selectedValues]);
+    const div = scrollableDivRef.current;
+    if (!div) return;
+
+    div.addEventListener("scroll", handleScroll);
+    return () => div.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   const applyFilteredValues = (values: SelectedValues) => {
     const cleaned = Object.entries(values).reduce(
@@ -164,10 +186,6 @@ function NewJobPage() {
     );
     setSelectedFilter(cleaned);
   };
-
-  // useEffect(() => {
-  //   queryClient.invalidateQueries({ queryKey: ["jobs"] });
-  // }, [selectedFilter]);
 
   const isMobile = useIsMobile();
 
@@ -352,101 +370,125 @@ function NewJobPage() {
               </div>
             </div>
           </div>
-          <div className="mt-4   h-[64vh]">
-            <ScrollArea.Root className="w-full h-full overflow-hidden rounded">
-              <ScrollArea.Viewport className="w-full h-full">
-                <AnimatePresence mode="wait">
-                  {gridOne ? (
-                    <motion.div
-                      key="list"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="w-full space-y-4"
-                    >
-                      {isLoading ? (
-                        Array.from({ length: 4 }).map((_, idx) => (
-                          <JobCardSkeleton key={idx} />
-                        ))
-                      ) : jobsData?.data && jobsData?.data?.length > 0 ? (
-                        jobsData.data?.reverse().map((job) => (
-                          <JobCard
-                            key={job._id}
-                            job={job}
-                            onClick={() => {
-                              // setOpenJobDetail(true);
-                              // setSelectedJob(job);
-                            }}
-                          />
-                        ))
-                      ) : (
-                        <div className="w-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
-                          <h2 className="text-xl font-semibold">
-                            No jobs found
-                          </h2>
-                          <p className="text-sm text-gray-400 mt-1">
-                            Try adjusting your filters or check back later.
-                          </p>
+          <div
+            className="w-full h-[64vh] overflow-y-auto overflow-x-hidden rounded"
+            ref={scrollableDivRef}
+          >
+            <AnimatePresence mode="wait">
+              {gridOne ? (
+                <motion.div
+                  key="list"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full space-y-4"
+                >
+                  {isLoading ? (
+                    // Initial loading state
+                    Array.from({ length: 4 }).map((_, idx) => (
+                      <JobCardSkeleton key={idx} />
+                    ))
+                  ) : error ? (
+                    // Error state
+                    <div className="w-full flex flex-col items-center justify-center py-12 text-center text-red-500">
+                      <h2 className="text-xl font-semibold">
+                        Error loading jobs
+                      </h2>
+                      <p className="text-sm text-red-400 mt-1">
+                        {(error as Error).message}
+                      </p>
+                    </div>
+                  ) : data?.pages && data?.pages?.[0]?.data?.length > 0 ? (
+                    // Success state with jobs
+                    <div>
+                      {data.pages.map((page, i) => (
+                        <div key={i} className="space-y-4">
+                          {page.data.map((job) => (
+                            <JobCard
+                              key={job._id}
+                              job={job}
+                              onClick={() => {
+                                // setOpenJobDetail(true);
+                                // setSelectedJob(job);
+                              }}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                      {isFetchingNextPage && (
+                        <div className="py-[1rem] my-2 flex item-center justify-center bg-primary/10 z-20">
+                          <Spinner />
                         </div>
                       )}
-                    </motion.div>
+                    </div>
                   ) : (
-                    <motion.div
-                      key="grid"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="w-full grid gap-y-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                    >
-                      {isLoading ? (
-                        Array.from({ length: 6 }).map((_, i) => (
-                          <JobCardTwoSkeleton key={i} />
-                        ))
-                      ) : jobsData?.data && jobsData?.data?.length > 0 ? (
-                        jobsData.data?.reverse().map((job) => (
+                    // Empty state
+                    <div className="w-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
+                      <h2 className="text-xl font-semibold">No jobs found</h2>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Try adjusting your filters or check back later.
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full space-y-4"
+                >
+                  {isLoading ? (
+                    // Initial loading state
+                    Array.from({ length: 4 }).map((_, idx) => (
+                      <JobCardTwoSkeleton key={idx} />
+                    ))
+                  ) : error ? (
+                    // Error state
+                    <div className="w-full flex flex-col items-center justify-center py-12 text-center text-red-500">
+                      <h2 className="text-xl font-semibold">
+                        Error loading jobs
+                      </h2>
+                      <p className="text-sm text-red-400 mt-1">
+                        {(error as Error).message}
+                      </p>
+                    </div>
+                  ) : data?.pages && data?.pages?.[0]?.data?.length > 0 ? (
+                    // Success state with jobs - Single grid container for all jobs
+                    <div className="w-full grid gap-y-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                      {data.pages.map((page) =>
+                        page.data.map((job) => (
                           <JobCardTwo
                             key={job._id}
                             job={job}
                             onClick={() => {
                               // setOpenJobDetail(true);
                               // setSelectedJob(job);
-                              navigate(`/jobs/${job._id}`);
                             }}
                           />
                         ))
-                      ) : (
-                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
-                          <h2 className="text-xl font-semibold">
-                            No jobs found
-                          </h2>
-                          <p className="text-sm text-gray-400 mt-1">
-                            Try adjusting your filters or check back later.
-                          </p>
+                      )}
+                      {isFetchingNextPage && (
+                        <div className="col-span-full py-[1rem] my-2 flex item-center justify-center bg-primary/10 z-20">
+                          <Spinner />
                         </div>
                       )}
-                    </motion.div>
+                    </div>
+                  ) : (
+                    // Empty state
+                    <div className="w-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
+                      <h2 className="text-xl font-semibold">No jobs found</h2>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Try adjusting your filters or check back later.
+                      </p>
+                    </div>
                   )}
-                </AnimatePresence>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar
-                orientation="vertical"
-                className="w-1 bg-gray-200"
-              >
-                <ScrollArea.Thumb className="bg-primary" />
-              </ScrollArea.Scrollbar>
-            </ScrollArea.Root>
-          </div>
-          <div className="sticky bottom-0 bg-gray-100 py-2">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={20}
-              itemsPerPage={itemsPerPage}
-              onPageChange={setCurrentPage}
-              onItemsPerPageChange={setItemsPerPage}
-              className="mt-2"
-            />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
         {/* <div className="w-full">
@@ -483,3 +525,99 @@ function NewJobPage() {
 }
 
 export default NewJobPage;
+
+// <div className="mt-4   h-[64vh]">
+//   <ScrollArea.Root className="w-full h-full overflow-hidden rounded">
+//     <ScrollArea.Viewport className="w-full h-full">
+//       <AnimatePresence mode="wait">
+//         {gridOne ? (
+//           <motion.div
+//             key="list"
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             exit={{ opacity: 0 }}
+//             transition={{ duration: 0.3 }}
+//             className="w-full space-y-4"
+//           >
+//             {isLoading ? (
+//               Array.from({ length: 4 }).map((_, idx) => (
+//                 <JobCardSkeleton key={idx} />
+//               ))
+//             ) : jobsData?.data && jobsData?.data?.length > 0 ? (
+//               jobsData.data?.reverse().map((job) => (
+//                 <JobCard
+//                   key={job._id}
+//                   job={job}
+//                   onClick={() => {
+//                     // setOpenJobDetail(true);
+//                     // setSelectedJob(job);
+//                   }}
+//                 />
+//               ))
+//             ) : (
+//               <div className="w-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
+//                 <h2 className="text-xl font-semibold">
+//                   No jobs found
+//                 </h2>
+//                 <p className="text-sm text-gray-400 mt-1">
+//                   Try adjusting your filters or check back later.
+//                 </p>
+//               </div>
+//             )}
+//           </motion.div>
+//         ) : (
+//           <motion.div
+//             key="grid"
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             exit={{ opacity: 0 }}
+//             transition={{ duration: 0.3 }}
+//             className="w-full grid gap-y-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+//           >
+//             {isLoading ? (
+//               Array.from({ length: 6 }).map((_, i) => (
+//                 <JobCardTwoSkeleton key={i} />
+//               ))
+//             ) : jobsData?.data && jobsData?.data?.length > 0 ? (
+//               jobsData.data?.reverse().map((job) => (
+//                 <JobCardTwo
+//                   key={job._id}
+//                   job={job}
+//                   onClick={() => {
+//                     // setOpenJobDetail(true);
+//                     // setSelectedJob(job);
+//                     navigate(`/jobs/${job._id}`);
+//                   }}
+//                 />
+//               ))
+//             ) : (
+//               <div className="col-span-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
+//                 <h2 className="text-xl font-semibold">
+//                   No jobs found
+//                 </h2>
+//                 <p className="text-sm text-gray-400 mt-1">
+//                   Try adjusting your filters or check back later.
+//                 </p>
+//               </div>
+//             )}
+//           </motion.div>
+//         )}
+//       </AnimatePresence>
+//     </ScrollArea.Viewport>
+//     <ScrollArea.Scrollbar
+//       orientation="vertical"
+//       className="w-1 bg-gray-200"
+//     >
+//       <ScrollArea.Thumb className="bg-primary" />
+//     </ScrollArea.Scrollbar>
+//   </ScrollArea.Root>
+// </div>
+// <div className="sticky bottom-0 bg-gray-100 py-2">
+//   <Pagination
+//     currentPage={currentPage}
+//     totalPages={20}
+//     itemsPerPage={itemsPerPage}
+//     onPageChange={setCurrentPage}
+//     onItemsPerPageChange={setItemsPerPage}
+//     className="mt-2"
+//   />

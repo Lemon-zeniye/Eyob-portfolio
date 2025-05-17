@@ -1,4 +1,8 @@
-import { addStory, getAllPostsWithComments } from "@/Api/post.api";
+import {
+  addStory,
+  getAllPostsWithComments,
+  getUserStories,
+} from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -28,7 +32,7 @@ import Cookies from "js-cookie";
 import { getUserFullProfile } from "@/Api/profile.api";
 import { Spinner } from "@/components/ui/Spinner";
 import PostGalleryTwo from "@/components/Post/PostGalleryTwo";
-import { tos } from "@/lib/utils";
+import { tos, transformStories } from "@/lib/utils";
 import { PostCom } from "@/Types/post.type";
 
 type StoryFile = File & {
@@ -78,133 +82,6 @@ function SocialHomePage() {
   const [selectedFile, setSelectedFile] = useState<StoryFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const stories = [
-    {
-      id: 1,
-      username: "sarah_j",
-      title: "Mountain Trip",
-      avatar: "https://picsum.photos/seed/avatar1/80/80",
-      items: [
-        {
-          id: "s1-1",
-          image: "https://picsum.photos/seed/mountainview/720/1280",
-        },
-        {
-          id: "s1-2",
-          image: "https://picsum.photos/seed/hikingtrail/720/1280",
-        },
-      ],
-    },
-    {
-      id: 2,
-      username: "mike_design",
-      title: "New Project",
-      avatar: "https://picsum.photos/seed/avatar2/80/80",
-      items: [
-        {
-          id: "s2-1",
-          image: "https://picsum.photos/seed/designmockup/720/1280",
-        },
-      ],
-    },
-    {
-      id: 3,
-      username: "travel_lisa",
-      title: "Paris",
-      avatar: "https://picsum.photos/seed/avatar3/80/80",
-      items: [
-        {
-          id: "s3-1",
-          image: "https://picsum.photos/seed/eiffeltower/720/1280",
-        },
-        {
-          id: "s3-2",
-          image: "https://picsum.photos/seed/louvremuseum/720/1280",
-        },
-        {
-          id: "s3-3",
-          image: "https://picsum.photos/seed/seineriver/720/1280",
-        },
-      ],
-    },
-    {
-      id: 4,
-      username: "photo_chris",
-      title: "Portraits",
-      avatar: "https://picsum.photos/seed/avatar4/80/80",
-      items: [
-        {
-          id: "s4-1",
-          image: "https://picsum.photos/seed/portrait1/720/1280",
-        },
-        {
-          id: "s4-2",
-          image: "https://picsum.photos/seed/portrait2/720/1280",
-        },
-      ],
-    },
-    {
-      id: 5,
-      username: "fitness_alex",
-      title: "Workout",
-      avatar: "https://picsum.photos/seed/avatar5/80/80",
-      items: [
-        {
-          id: "s5-1",
-          image: "https://picsum.photos/seed/gymsession/720/1280",
-        },
-      ],
-    },
-    {
-      id: 6,
-      username: "food_maria",
-      title: "Recipes",
-      avatar: "https://picsum.photos/seed/avatar6/80/80",
-      items: [
-        {
-          id: "s6-1",
-          image: "https://picsum.photos/seed/pastarecipe/720/1280",
-        },
-        {
-          id: "s6-2",
-          image: "https://picsum.photos/seed/dessert/720/1280",
-        },
-      ],
-    },
-    {
-      id: 7,
-      username: "food_maria",
-      title: "Recipes",
-      avatar: "https://picsum.photos/seed/avatar6/80/80",
-      items: [
-        {
-          id: "s6-1",
-          image: "https://picsum.photos/seed/pastarecipe/720/1280",
-        },
-        {
-          id: "s6-2",
-          image: "https://picsum.photos/seed/dessert/720/1280",
-        },
-      ],
-    },
-    {
-      id: 8,
-      username: "food_maria",
-      title: "Recipes",
-      avatar: "https://picsum.photos/seed/avatar6/80/80",
-      items: [
-        {
-          id: "s6-1",
-          image: "https://picsum.photos/seed/pastarecipe/720/1280",
-        },
-        {
-          id: "s6-2",
-          image: "https://picsum.photos/seed/dessert/720/1280",
-        },
-      ],
-    },
-  ];
 
   const [viewingStory, setViewingStory] = useState<null | {
     id: number;
@@ -273,13 +150,20 @@ function SocialHomePage() {
   const { mutate: addUserStory, isLoading: storyLoading } = useMutation({
     mutationFn: addStory,
     onSuccess: () => {
-      queryClient.invalidateQueries("getAllPostsWithComments");
+      queryClient.invalidateQueries("userStories");
       setOpenFileUpload(false);
       removeFile();
       tos.success("Story added Successfully");
     },
     onError: () => {},
   });
+
+  const { data: userStories } = useQuery({
+    queryKey: ["userStories"],
+    queryFn: getUserStories,
+  });
+
+  const stories = userStories ? transformStories(userStories.data) : [];
 
   // file uploader
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {

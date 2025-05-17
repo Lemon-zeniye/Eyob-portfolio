@@ -1,61 +1,9 @@
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
-// import user from "../../assets/user.jpg";
-// import { Button } from "../ui/button";
-// import { Link } from "react-router-dom";
-// import { useAuth } from "@/Context/AuthContext";
-// import { useState } from "react";
-
-// const UserDropdown = () => {
-//   const { logout } = useAuth();
-//   const [open, setOpen] = useState(false);
-
-//   return (
-//     <DropdownMenu open={open} onOpenChange={setOpen}>
-//       <div
-//         onMouseEnter={() => setOpen(true)}
-//         onMouseLeave={() => setOpen(false)}
-//         className="relative"
-//       >
-//         <DropdownMenuTrigger asChild>
-//           <img
-//             className="w-10 h-10 rounded-full cursor-pointer"
-//             src={user}
-//             alt="User Profile"
-//           />
-//         </DropdownMenuTrigger>
-//         <DropdownMenuContent
-//           className="w-[10rem] mt-2"
-//           sideOffset={5}
-//           onMouseEnter={() => setOpen(true)}
-//           onMouseLeave={() => setOpen(false)}
-//         >
-//           <div className="flex flex-col gap-2 w-full">
-//             <Link
-//               className="w-full flex items-center justify-center py-1 border rounded-md"
-//               to={"/profile"}
-//             >
-//               View Profile
-//             </Link>
-//             <Button onClick={logout} variant={"link"} className="text-red-500">
-//               Log Out
-//             </Button>
-//           </div>
-//         </DropdownMenuContent>
-//       </div>
-//     </DropdownMenu>
-//   );
-// };
-
-// export default UserDropdown;
-
-import user from "../../assets/user.jpg";
-import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/Context/AuthContext";
+import { useQuery } from "react-query";
+import { getUserPicture } from "@/Api/profile.api";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 const UserDropdown = () => {
   const navigate = useNavigate();
@@ -65,31 +13,79 @@ const UserDropdown = () => {
     navigate("/login");
   };
 
+  const { data: userPicture } = useQuery({
+    queryKey: ["userPicture"],
+    queryFn: getUserPicture,
+  });
+
+  const [profileImage, setprofileImage] = useState<string>("");
+
+  useEffect(() => {
+    if (userPicture?.data) {
+      const newImageUrl = `https://awema.co/${userPicture.data.path.replace(
+        "public/",
+        ""
+      )}`;
+      Cookies.set("profilePic", newImageUrl);
+      setprofileImage(newImageUrl);
+    }
+  }, [userPicture]);
+
   return (
     <div className="relative group inline-block">
       {/* Trigger */}
       <img
-        className="w-10 h-10 rounded-full cursor-pointer"
-        src={user}
+        className="w-10 h-10 border border-primary rounded-full cursor-pointer"
+        src={profileImage}
         alt="User Profile"
       />
 
       {/* Dropdown on Hover */}
-      <div className="absolute right-0  w-40 bg-white border rounded-md shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 z-50">
-        <div className="flex flex-col gap-2 p-2">
+      <div className="absolute right-0 w-48 bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 origin-top-right z-50 backdrop-blur-sm bg-white/80">
+        <div className="flex flex-col p-2 space-y-1">
           <Link
             to="/profile"
-            className="w-full text-center py-1 border rounded-md hover:bg-gray-100 transition-colors"
+            className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-150 flex items-center gap-2 hover:translate-x-1"
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
             View Profile
           </Link>
-          <Button
+
+          <div className="border-t border-gray-100 my-1"></div>
+
+          <button
             onClick={() => handleLogout()}
-            variant="link"
-            className="text-red-500 w-full hover:underline"
+            className="px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg transition-all duration-150 flex items-center gap-2 group"
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 group-hover:animate-pulse"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
             Log Out
-          </Button>
+          </button>
         </div>
       </div>
     </div>

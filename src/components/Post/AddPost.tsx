@@ -5,12 +5,14 @@ import {
   FaImage,
   FaTimes,
   FaEllipsisH,
-  FaThumbsUp,
-  FaComment,
-  FaShare,
+  // FaThumbsUp,
+  // FaComment,
+  // FaShare,
 } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
 import { useMutation, useQueryClient } from "react-query";
+import { Spinner } from "../ui/Spinner";
+// import { FiUploadCloud } from "react-icons/fi";
 
 export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
   const [title, setTitle] = useState("");
@@ -46,7 +48,7 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
     setImagePreviews(newPreviews);
   };
 
-  const { mutate } = useMutation({
+  const { mutate, isLoading } = useMutation({
     mutationFn: createPost,
     onSuccess: () => {
       onSuccess();
@@ -77,35 +79,36 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden min-h-[50vh] max-h-[78vh] overflow-y-auto border border-gray-100">
       {/* Post creator header */}
-      <div className="p-4 flex items-center justify-between border-b">
+      <div className="p-4 flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden">
+          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
             <img
               src="https://i.pravatar.cc/150?img=3"
               alt="User"
               className="w-full h-full object-cover"
             />
           </div>
+          <span className="font-medium text-gray-800">You</span>
         </div>
-        <button className="text-gray-500 hover:text-gray-700">
-          <FaEllipsisH />
+        <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
+          <FaEllipsisH className="text-lg" />
         </button>
       </div>
 
       {/* Post content */}
-      <div className="p-4">
+      <div className="p-5">
         <input
           type="text"
-          placeholder="Title (optional)"
-          className="w-full text-lg font-semibold mb-2 outline-none placeholder-gray-400"
+          placeholder="Add a title (optional)"
+          className="w-full text-xl font-semibold mb-3 outline-none placeholder-gray-400 focus:placeholder-gray-300 transition-colors"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
         <textarea
           placeholder="What's on your mind?"
-          className="w-full min-h-[100px] outline-none resize-none placeholder-gray-400"
+          className="w-full min-h-[100px] outline-none resize-none placeholder-gray-400 focus:placeholder-gray-300 text-gray-700 leading-relaxed transition-colors"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -114,41 +117,49 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
       {/* Image previews */}
       {imagePreviews.length > 0 && (
         <div
-          className={`p-4 border-t ${
-            imagePreviews.length > 1 ? "grid grid-cols-2 gap-2" : ""
+          className={`px-5 pb-5 ${
+            imagePreviews.length > 1
+              ? "flex md:grid md:grid-cols-2 gap-3 overflow-x-auto"
+              : ""
           }`}
         >
+          {/* Horizontal scroll on mobile */}
+          {/* <div className={`flex md:grid  gap-3 overflow-x-auto`}> */}
           {imagePreviews.map((preview, index) => (
-            <div key={index} className="relative group">
+            <div
+              key={index}
+              className="relative group rounded-xl overflow-hidden shadow-sm border border-gray-100 min-w-[250px] max-w-[90%] md:min-w-0"
+            >
               <img
                 src={preview}
                 alt={`Preview ${index}`}
-                className={`rounded-lg ${
+                className={`${
                   imagePreviews.length === 1
                     ? "w-full"
-                    : "h-40 w-full object-cover"
+                    : "h-48 w-full object-cover"
                 }`}
               />
               <button
                 onClick={() => removeImage(index)}
-                className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
               >
                 <FaTimes size={14} />
               </button>
             </div>
           ))}
+          {/* </div> */}
         </div>
       )}
 
       {/* Post actions */}
-      <div className="p-3 border-t flex justify-between items-center">
-        <div className="flex items-center space-x-4">
+      <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center">
+        <div className="flex items-center space-x-2">
           <button
-            className="flex items-center space-x-1 border px-2 py-2 border-primary text-gray-500 hover:text-gray-700"
+            className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
             onClick={() => fileInputRef.current?.click()}
           >
-            <FaImage className={`text-lg text-primary`} />
-            <span>Upload Photo</span>
+            <FaImage className="text-lg text-primary" />
+            <span className="text-sm font-medium">Photo</span>
           </button>
           <input
             type="file"
@@ -160,16 +171,33 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
           />
         </div>
         <button
-          className={`px-4 py-2 text-white font-medium flex items-center space-x-2 bg-primary`}
+          className={`px-5 py-2.5 rounded-lg text-white font-medium flex items-center space-x-2 bg-primary hover:bg-primary/90 transition-colors shadow-sm ${
+            !description && !title && imagePreviews.length === 0
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
           onClick={handleSubmit}
+          disabled={!description && !title && imagePreviews.length === 0}
         >
-          <span>Post</span>
-          <FiSend />
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <>
+              <span>Post</span>
+              <FiSend className="text-lg" />
+            </>
+          )}
         </button>
       </div>
+    </div>
+  );
+};
 
-      {/* Sample post interactions (optional) */}
-      <div className="border-t p-2 hidden">
+{
+  /* Sample post interactions (optional) */
+}
+{
+  /* <div className="border-t p-2 hidden">
         <div className="flex justify-between text-gray-500 text-sm px-2 py-1">
           <span>0 likes</span>
           <span>0 comments</span>
@@ -188,7 +216,5 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
             <span>Share</span>
           </button>
         </div>
-      </div>
-    </div>
-  );
-};
+      </div> */
+}

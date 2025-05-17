@@ -1,20 +1,25 @@
 import { CommentNew, PostCom } from "@/Types/post.type";
 import { motion, Variants } from "framer-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FaChevronLeft,
   FaChevronRight,
   FaEllipsisV,
   FaTrash,
 } from "react-icons/fa";
-import image1 from "../../assets/image1.jpg";
-import image2 from "../../assets/image2.webp";
-import image3 from "../../assets/image3.webp";
-import image4 from "../../assets/image4.jpg";
-import image5 from "../../assets/image5.jpg";
-import image6 from "../../assets/image6.jpg";
+// import image1 from "../../assets/image1.jpg";
+// import image2 from "../../assets/image2.webp";
+// import image3 from "../../assets/image3.webp";
+// import image4 from "../../assets/image4.jpg";
+// import image5 from "../../assets/image5.jpg";
+// import image6 from "../../assets/image6.jpg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatDateSmart, formatMessageTime, tos } from "@/lib/utils";
+import {
+  formatDateSmart,
+  formatImageUrls,
+  formatMessageTime,
+  tos,
+} from "@/lib/utils";
 import { FaRegComment } from "react-icons/fa";
 import { RiSendPlaneLine } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
@@ -23,6 +28,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   addChildComment,
   addComment,
+  Commentlike,
   getChildComments,
   getComments,
   likeOrDeslike,
@@ -34,6 +40,7 @@ import { Textarea } from "../ui/textarea";
 import { Send } from "lucide-react";
 import Cookies from "js-cookie";
 import { IoIosArrowDown } from "react-icons/io";
+import { Spinner } from "../ui/Spinner";
 
 interface PostCardProps {
   post: PostCom;
@@ -43,7 +50,8 @@ interface PostCardProps {
 const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
-  const postImages = [image1, image2, image3, image4, image5, image6];
+  // const postImages =;
+  const [postImages, setPostImages] = useState<string | string[]>("");
   const queryClient = useQueryClient();
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>(
@@ -67,7 +75,10 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   const [replierName, setReplierName] = useState<string | undefined>(undefined);
   const [childComId, setChildComId] = useState<string | undefined>(undefined);
 
-  //   postImages
+  useEffect(() => {
+    const postImages = formatImageUrls(post?.postPictures);
+    setPostImages(postImages);
+  }, [post]);
 
   const variants: Variants = {
     hidden: { opacity: 0, y: 20 },
@@ -75,16 +86,17 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   };
 
   const nextImage = (): void => {
-    setCurrentImageIndex((prev) => (prev + 1) % (postImages.length - 1));
+    setCurrentImageIndex((prev) => (prev + 1) % postImages.length);
   };
 
   const prevImage = (): void => {
     setCurrentImageIndex(
-      (prev) => (prev - 1 + (postImages.length - 1)) % (postImages.length - 1)
+      (prev) => (prev - 1 + postImages.length) % postImages.length
     );
   };
 
   const currentImages = [postImages[currentImageIndex]].filter(Boolean);
+  const hasNoImage = currentImages.length === 0;
 
   // Mutation Function
   const { mutate, isLoading } = useMutation({
@@ -95,8 +107,27 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     onError: () => {},
   });
 
-  const handleLike = (id: string) => {
-    mutate({ like: "like", postId: id });
+  // Mutation Function
+  const { mutate: likeComment, isLoading: isLoadingCommentLike } = useMutation({
+    mutationFn: Commentlike,
+    onSuccess: () => {
+      queryClient.invalidateQueries("getAllPostsWithComments");
+    },
+    onError: () => {},
+  });
+
+  const handleLike = (id: string, isLikedByUser: boolean) => {
+    const payload = isLikedByUser ? "neutralize" : "like";
+    mutate({ like: payload, postId: id });
+  };
+
+  const handleCommentLike = (parentComment: string, childComment?: string) => {
+    const payload = "like";
+    likeComment({
+      parentComment,
+      childComment,
+      like: payload,
+    });
   };
   const isCommentsExpanded = expandedComments.includes(post._id);
 
@@ -200,6 +231,8 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     setExpandedComments((prev) => {
       if (prev.includes(postId)) {
         // If already expanded, remove it
+        setCommentsByPost((prev) => ({ ...prev, [postId]: [] }));
+        setCommentPages((prev) => ({ ...prev, [postId]: 1 }));
         return prev.filter((id) => id !== postId);
       } else {
         // If not expanded, add it
@@ -223,7 +256,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
       [post._id]: nextPage,
     }));
 
-    queryClient.invalidateQueries(["postComments", post._id, nextPage]);
+    refetch();
   };
 
   const replyToComment = (commentId: string) => {
@@ -279,32 +312,67 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container */}
-      <div className="relative">
-        <div className="h-[600px] w-full max-w-[600px] mx-auto">
-          {currentImages.map((image, idx) => (
-            <div key={idx} className="h-full">
-              <motion.img
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                src={
-                  image ||
-                  `/placeholder.svg?height=600&width=800&text=${encodeURIComponent(
-                    post.postTitle || "Post Image"
-                  )}`
-                }
-                alt={post.postTitle || "Post"}
-                className="w-full h-full object-cover rounded-b-xl md:rounded-b-3xl"
-              />
+      <div className="relative ">
+        {hasNoImage ? (
+          <div className="min-h-[48vh] py-[5rem] flex items-center pl-4 border-2 border-primary/30 rounded-3xl">
+            <div className="p-2 space-y-1 md:space-y-2 ">
+              <h3 className="font-semibold text-lg">{post.postTitle}</h3>
+              <div className="space-y-2">
+                <p className="text-gray-600 text-sm">
+                  {post.postContent || "No description provided."}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {["photography", "design", "creative"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 bg-[#05A9A9]/10 text-[#05A9A9] rounded-full text-xs font-medium"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="h-[600px] w-full max-w-[600px] mx-auto">
+            {currentImages.map((image, idx) => (
+              <div key={idx} className="h-full">
+                <motion.img
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  src={
+                    image ||
+                    `/placeholder.svg?height=600&width=800&text=${encodeURIComponent(
+                      post.postTitle || "Post Image"
+                    )}`
+                  }
+                  alt={post.postTitle || "Post"}
+                  className="w-full h-full object-cover rounded-b-xl md:rounded-b-3xl"
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
-        {/* Top Gradient Shadow (Small) */}
-        <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
+        {!hasNoImage ? (
+          <>
+            {/* Top Gradient Shadow (Small) */}
+            <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
 
-        {/* Bottom Gradient Shadow (Small) */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t rounded-b-xl md:rounded-b-3xl from-black/50 to-transparent pointer-events-none" />
+            {/* Bottom Gradient Shadow (Small) */}
+            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t rounded-b-xl md:rounded-b-3xl from-black/50 to-transparent pointer-events-none" />
+          </>
+        ) : (
+          <>
+            {/* Top Gradient Shadow */}
+            {/* <div className="absolute top-0 left-0 right-0 h-14 bg-gradient-to-b from-primary/50 to-transparent pointer-events-none" /> */}
+
+            {/* Bottom Gradient Shadow (Small) */}
+            {/* <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t rounded-b-xl md:rounded-b-3xl from-primary/50 to-transparent pointer-events-none" /> */}
+          </>
+        )}
 
         {/* Top Absolute for Profile */}
         <div className="absolute top-0 left-0 right-0 p-2 md:p-4">
@@ -331,7 +399,11 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                 </div>
               </div>
 
-              <div className="ml-2 md:ml-3 font-semibold text-white">
+              <div
+                className={`ml-2 md:ml-3 font-semibold ${
+                  hasNoImage ? "text-black" : "text-white"
+                } `}
+              >
                 <div className="flex items-center gap-1 md:gap-2 text-sm md:text-lg font-medium">
                   <span className="truncate max-w-[100px] md:max-w-none">
                     {post.postOwner?.name || "Anonymous"}
@@ -344,7 +416,11 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
               </div>
             </div>
 
-            <button className="text-white hover:text-gray-100 group relative">
+            <button
+              className={`group relative ${
+                hasNoImage ? "text-gray-600" : "text-white"
+              }`}
+            >
               <div className="flex items-center gap-1">
                 <FaEllipsisV className="w-4 h-4 md:w-5 md:h-5" />
 
@@ -370,7 +446,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-[80%] max-w-md px-4">
           <div className="flex justify-between items-center bg-[#FFC55B]/50 backdrop-blur-md rounded-full p-1 md:p-3 shadow-md shadow-white/20 border-2 border-[#FFC55B]/10">
             <motion.button
-              onClick={() => handleLike(post._id)}
+              onClick={() => handleLike(post._id, post.isLikedByUser)}
               disabled={isLoading}
               className="flex items-center justify-center flex-1 gap-1 md:gap-2 h-7 md:h-9 px-2 md:px-4 bg-transparent hover:scale-110 transition-transform"
               whileTap={{ scale: 0.9 }}
@@ -425,17 +501,17 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
         </div>
 
         {/* Multiple Image Indicators */}
-        {postImages.length > 2 && (
+        {postImages.length > 1 && (
           <>
             {/* Dots Indicator */}
             <div className="absolute bottom-16 md:bottom-24 left-0 right-0 flex justify-center gap-1">
               {Array.from({
-                length: Math.ceil(postImages.length / 2),
+                length: Math.ceil(postImages.length),
               }).map((_, idx) => (
                 <div
                   key={idx}
                   className={`w-2 h-2 rounded-full ${
-                    idx === Math.floor(currentImageIndex / 2)
+                    idx === Math.floor(currentImageIndex)
                       ? "bg-white/70"
                       : "bg-white/50"
                   }`}
@@ -477,22 +553,26 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 
       {/* Post Content */}
       <div className="p-2 space-y-1 md:space-y-2">
-        <h3 className="font-semibold text-lg">{post.postTitle}</h3>
-        <div className="space-y-2">
-          <p className="text-gray-600 text-sm">
-            {post.postContent || "No description provided."}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {["photography", "design", "creative"].map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-1 bg-[#05A9A9]/10 text-[#05A9A9] rounded-full text-xs font-medium"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        </div>
+        {!hasNoImage && (
+          <>
+            <h3 className="font-semibold text-lg">{post.postTitle}</h3>
+            <div className="space-y-2">
+              <p className="text-gray-600 text-sm">
+                {post.postContent || "No description provided."}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {["photography", "design", "creative"].map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-1 bg-[#05A9A9]/10 text-[#05A9A9] rounded-full text-xs font-medium"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         <Separator className="my-3" />
 
@@ -582,10 +662,10 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                   ))}
                 </>
               ) : (
-                <div className="h-[40vh] overflow-y-auto overflow-x-hidden">
+                <div className="min-h-[5vh] max-h-[44vh] overflow-y-auto overflow-x-hidden">
                   {commentsByPost[post._id] &&
                   commentsByPost[post._id]?.length > 0 ? (
-                    commentsByPost[post._id].map((comment, i) => (
+                    commentsByPost[post._id].map((comment: CommentNew, i) => (
                       <motion.div
                         key={i}
                         className="flex gap-3 my-2 group"
@@ -649,8 +729,17 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                                       Reply
                                     </button>
                                   )}
-                                  <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
-                                    Like
+                                  <button
+                                    className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                    onClick={() =>
+                                      handleCommentLike(comment._id)
+                                    }
+                                  >
+                                    {isLoadingCommentLike ? (
+                                      <Spinner className="text-primary" />
+                                    ) : (
+                                      "Like"
+                                    )}
                                   </button>
                                 </div>
                                 <div>
@@ -679,6 +768,8 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                               replyToComment={replyToChildComment}
                               childComId={childComId}
                               CancelReplyToComment={CancelReplyToComment}
+                              handleCommentLike={handleCommentLike}
+                              isLoadingCommentLike={isLoadingCommentLike}
                             />
                           )}
                         </div>
@@ -710,23 +801,25 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
           </div>
         )}
       </div>
-      {post._id && hasMoreComment[post._id] && (
-        <button
-          onClick={loadMoreComments}
-          disabled={isFetching}
-          className="text-blue-500 mt-2"
-        >
-          {isFetching ? "Loading..." : "Load More"}
-        </button>
-      )}
-      {isCommentsExpanded && (
-        <span
-          className="text-gray-700 text-sm mt-1 cursor-pointer hover:text-gray-600"
-          onClick={() => toggleComments(post._id)}
-        >
-          Hide Comments
-        </span>
-      )}
+      <div className="flex gap-3 items-center">
+        {post._id && hasMoreComment[post._id] && (
+          <button
+            onClick={loadMoreComments}
+            disabled={isFetching}
+            className="text-primary mt-2"
+          >
+            {isFetching ? <Spinner /> : "Load More"}
+          </button>
+        )}
+        {isCommentsExpanded && (
+          <span
+            className="text-gray-700 text-sm mt-1 cursor-pointer hover:text-gray-600"
+            onClick={() => toggleComments(post._id)}
+          >
+            Hide Comments
+          </span>
+        )}
+      </div>
       <hr className="my-1 border border-gray-400" />
     </motion.div>
   );
@@ -739,18 +832,27 @@ export const ChildReplies = ({
   replyToComment,
   childComId,
   CancelReplyToComment,
+  handleCommentLike,
+  isLoadingCommentLike,
 }: {
   commentId: string;
   replyToComment: (id: string, replierName: string, childComId: string) => void;
   childComId: string | undefined;
   CancelReplyToComment: () => void;
+  handleCommentLike: (parentComment: string, childComment?: string) => void;
+  isLoadingCommentLike: boolean;
 }) => {
   const { data: childComments, isLoading } = useQuery({
     queryKey: ["childComment", commentId],
     queryFn: () => getChildComments(commentId),
   });
 
-  if (isLoading) return <div>Loading replies...</div>;
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center my-2">
+        <Spinner className="text-primary" />
+      </div>
+    );
 
   return (
     <div className="ml-4">
@@ -809,8 +911,11 @@ export const ChildReplies = ({
                         Reply
                       </button>
                     )}
-                    <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
-                      Like
+                    <button
+                      className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
+                      onClick={() => handleCommentLike(commentId, childComId)}
+                    >
+                      {isLoadingCommentLike ? <Spinner /> : "Like"}
                     </button>
                   </div>
                   <div></div>

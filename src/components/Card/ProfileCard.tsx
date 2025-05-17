@@ -1,5 +1,4 @@
 import EmptyCard from "./EmptyCard";
-import user from "../../assets/user.jpg";
 import Tabs from "../Tabs/TabsLine";
 import ExperienceCard from "./ExperienceCard";
 import EducationCard from "./EducationCard";
@@ -9,13 +8,13 @@ import { useMutation, useQuery } from "react-query";
 import ActivityNew from "../Profile/ActivityNew";
 import {
   deleteUserPicture,
-  getUserPicture,
   getUserProfile,
+  updateUserProfilePic,
   uploadUserPicture,
 } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import CustomVideoPlayer from "../Video/Video";
 import { UserInfo } from "@/Types/profile.type";
 import { getUserFromToken, tos } from "@/lib/utils";
@@ -30,25 +29,11 @@ const ProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const { data: userPicture } = useQuery({
-    queryKey: ["userPicture"],
-    queryFn: getUserPicture,
-  });
   const [editProfile, setEditProfile] = useState(false);
   const [shareProfile, setShareProfile] = useState(false);
-  const [tempImage, setTempImage] = useState<string>("");
-
-  useEffect(() => {
-    if (userPicture?.data) {
-      const newImageUrl = `https://awema.co/${userPicture.data.path.replace(
-        "public/",
-        ""
-      )}`;
-      setTempImage(newImageUrl);
-    } else {
-      setTempImage(user);
-    }
-  }, [userPicture]);
+  const [profileImage, setprofileImage] = useState<string | undefined>(
+    Cookies.get("profilePic")
+  );
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
@@ -63,7 +48,7 @@ const ProfileCard = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setTempImage(URL.createObjectURL(file)); // Preview
+      setprofileImage(URL.createObjectURL(file)); // Preview
     }
   };
 
@@ -74,10 +59,32 @@ const ProfileCard = () => {
 
   const { mutate, isLoading: uploading } = useMutation({
     mutationFn: uploadUserPicture,
-    onSuccess: () => {
+    onSuccess: (res) => {
       setOpen(false);
       setSelectedFile(null);
       tos.success("Profile uploaded successfully");
+      const newImageUrl = `https://awema.co/${res?.data.path.replace(
+        "public/",
+        ""
+      )}`;
+      Cookies.set("profilePic", newImageUrl);
+    },
+    onError: (error) => {
+      console.error("Upload failed", error);
+    },
+  });
+
+  const { mutate: updateProfilePic, isLoading: updating } = useMutation({
+    mutationFn: updateUserProfilePic,
+    onSuccess: (res) => {
+      setOpen(false);
+      setSelectedFile(null);
+      tos.success("Profile updated successfully");
+      const newImageUrl = `https://awema.co/${res?.data.path.replace(
+        "public/",
+        ""
+      )}`;
+      Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
       console.error("Upload failed", error);
@@ -89,6 +96,7 @@ const ProfileCard = () => {
     onSuccess: () => {
       setOpen(false);
       setSelectedFile(null);
+      Cookies.remove("profilePic");
     },
     onError: (error) => {
       console.error("Upload failed", error);
@@ -99,7 +107,11 @@ const ProfileCard = () => {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("imageFile", selectedFile);
-    mutate(formData);
+    if (profileImage) {
+      updateProfilePic(formData);
+    } else {
+      mutate(formData);
+    }
   };
 
   return (
@@ -115,10 +127,10 @@ const ProfileCard = () => {
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>
               <img
-                src="https://awema.co/uploads/imageFile-1745421435186-646881582.png"
+                src={profileImage}
                 alt="Profile"
-                crossOrigin="anonymous"
-                className="z-10 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-16 sm:left-12 left-8 border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 transition"
+                // crossOrigin="anonymous"
+                className="z-10 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-10 sm:left-12 left-8 object-cover border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 transition"
               />
             </Dialog.Trigger>
 
@@ -138,20 +150,30 @@ const ProfileCard = () => {
 
                 <div className="flex flex-col items-center gap-4">
                   <img
-                    src={tempImage}
+                    src={profileImage}
                     alt="Preview"
                     className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-primary shadow-md object-cover"
                   />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-white file:hover:bg-primary/80"
-                  />
+                  <label className="w-full">
+                    <div className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-xl p-4 cursor-pointer hover:bg-gray-50 transition">
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload size={24} className="text-gray-500" />
+                        <span className="text-sm text-gray-600">
+                          Choose a file or drag & drop
+                        </span>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </div>
+                  </label>
                 </div>
 
                 <div className="flex justify-end gap-3">
-                  {userPicture?.data?.path && (
+                  {profileImage && (
                     <button
                       onClick={() => deleteProfilePic()}
                       className="px-4 py-2 text-sm rounded-md border text-white bg-red-500 hover:bg-red-500/90 transition"
@@ -161,10 +183,16 @@ const ProfileCard = () => {
                   )}
                   <button
                     onClick={handleUpload}
-                    disabled={uploading || !selectedFile}
+                    disabled={uploading || updating || !selectedFile}
                     className="px-4 py-2 text-sm rounded-md bg-primary text-white hover:bg-primary/90 transition disabled:opacity-50"
                   >
-                    {uploading ? <Spinner /> : "Upload"}
+                    {uploading || updating ? (
+                      <Spinner />
+                    ) : profileImage ? (
+                      "Update"
+                    ) : (
+                      "Upload"
+                    )}
                   </button>
                 </div>
               </Dialog.Content>
@@ -207,7 +235,7 @@ const ProfileCard = () => {
         </Button>
       </div>
 
-      <div className="flex flex-row sm-phone:bg-white sm-phone:border sm:border-none sm:bg-none justify-between sm-phone:px-0 sm:px-12 min-h-[40vh]">
+      <div className="flex flex-row sm-phone:bg-white sm-phone:border sm:border-none sm:bg-none justify-between px-0 sm:px-12 min-h-[40vh]">
         <Tabs
           tabs={[
             "Activity",

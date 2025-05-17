@@ -105,3 +105,34 @@ export interface ChildComments {
   createdAt: string;
   __v: number;
 }
+
+export interface StoryItem {
+  id: string;
+  image: string; // Only one image per story
+}
+
+export interface Story {
+  id: number;
+  username: string;
+  title: string;
+  avatar: string;
+  items: StoryItem[]; // But API will only return 1 item
+}
+
+export interface StoryApiResponse {
+  _id: string;
+  userid: string;
+  filename: string;
+  path: string;
+  likes: number;
+  deslikes: number;
+  views: number;
+  createdAt: Date | string;
+  __v?: number;
+}
+
+export interface StoryRes {
+  data: StoryApiResponse[];
+  success: boolean;
+  msg: string;
+}

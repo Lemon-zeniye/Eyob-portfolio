@@ -87,7 +87,9 @@ export const getUserCV = async (): Promise<FileResponse> => {
   return response.data;
 };
 
-export const uploadUserPicture = async (payload: any): Promise<any> => {
+export const uploadUserPicture = async (
+  payload: any
+): Promise<FileResponse> => {
   const response = await axios.post<any>("user/uploadUserPicture", payload);
   return response.data;
 };
@@ -263,5 +265,12 @@ export const updateUserMode = async (payload: Mode): Promise<any> => {
 
 export const getUserMode = async (): Promise<ActiveCompaniesRes> => {
   const response = await axios.get("/user/fetchUserMode");
+  return response.data;
+};
+
+export const updateUserProfilePic = async (
+  payload: any
+): Promise<FileResponse> => {
+  const response = await axios.patch<any>(`/user/updateUserPicture`, payload);
   return response.data;
 };

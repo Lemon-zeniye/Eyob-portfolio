@@ -1,8 +1,8 @@
 import EmptyCard from "./EmptyCard";
 import { Post } from "@/Types/profile.type";
-import { formatDateToMonthYear, tos } from "@/lib/utils";
+import { formatDateToMonthYear, formatImageUrls, tos } from "@/lib/utils";
 import { MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { deletePost } from "@/Api/profile.api";
 import { CiCalendar } from "react-icons/ci";
@@ -22,6 +22,14 @@ function sliceTo168Characters(text: string): string {
 const ActivityCard = ({ post, classname, onclick }: ActivityCardProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const queryClient = useQueryClient();
+  const [postImages, setPostImages] = useState<string | string[]>("");
+
+  useEffect(() => {
+    const postImages = formatImageUrls(post?.postPictures);
+    setPostImages(postImages);
+  }, [post]);
+
+  const hasImage = postImages.length > 0;
 
   // const postPictureURL =
   //   post.postPictures?.length > 0
@@ -38,26 +46,26 @@ const ActivityCard = ({ post, classname, onclick }: ActivityCardProps) => {
 
   return (
     <EmptyCard
-      cardClassname={`relative  ${classname}`}
-      contentClassname="flex flex-row gap-4 cursor-pointer p-0"
+      cardClassname={`relative ${classname}`}
+      contentClassname="flex flex-col sm:flex-row gap-4 items-center cursor-pointer p-1"
       onClick={onclick}
     >
-      <ImageCarousel
-        images={[
-          "https://i.pravatar.cc/100?img=3",
-          "https://i.pravatar.cc/100?img=4",
-          "https://i.pravatar.cc/100?img=5",
-        ]}
-      />
+      {hasImage && (
+        <div className="w-full sm:w-32">
+          <ImageCarousel
+            images={Array.isArray(postImages) ? postImages : [postImages]}
+          />
+        </div>
+      )}
 
-      <div className="flex flex-col pb-2 gap-2 justify-between">
+      <div className="flex flex-col p-2 gap-2 justify-between w-full sm:w-2/3">
         <div>
           <p className="text-lg font-semibold">{post.postTitle}</p>
-          <p className="">{sliceTo168Characters(post.postContent)}</p>
+          <p>{sliceTo168Characters(post.postContent)}</p>
         </div>
-        <div className="flex gap-2 items-center text-sm text-gray-500 ">
+        <div className="flex gap-2 items-center text-sm text-gray-500">
           <CiCalendar className="w-4 h-4" />
-          <span className="">{formatDateToMonthYear(post.postDate)}</span>
+          <span>{formatDateToMonthYear(post.postDate)}</span>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import { JwtPayload, UserInfo } from "@/Types/profile.type";
 import { toast } from "sonner";
 import { Role } from "@/Types/auth.type";
 import { format, isToday, isYesterday } from "date-fns";
+import { Story, StoryApiResponse } from "@/Types/post.type";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -197,3 +198,43 @@ export function toMonthDayYear(dateString: string): string {
 
   return date.toLocaleDateString("en-US", options);
 }
+
+type PathInput = string | string[] | null | undefined;
+
+export const formatImageUrls = (
+  paths: PathInput,
+  baseUrl: string = "https://awema.co"
+): string | string[] => {
+  const formatSinglePath = (path: string | null | undefined): string => {
+    if (!path) return "";
+    return `${baseUrl}/${path.replace("public/", "")}`;
+  };
+
+  if (Array.isArray(paths)) {
+    return paths.map((path) => formatSinglePath(path));
+  }
+
+  return formatSinglePath(paths);
+};
+
+const formatImageUrl = (
+  path: string,
+  baseUrl: string = "https://awema.co"
+): string => {
+  return `${baseUrl}/${path.replace("public/", "")}`;
+};
+
+export const transformStories = (apiStories: StoryApiResponse[]): Story[] => {
+  return apiStories.map((story, index) => ({
+    id: index + 1, // or use story._id if you prefer
+    username: `user_${story.userid.substring(0, 5)}`, // adjust as needed
+    title: story.filename.split(".")[0] || `Story ${index + 1}`, // use filename as title
+    avatar: `https://i.pravatar.cc/100?img=${index + 1}`, // default or fetch from user data
+    items: [
+      {
+        id: `story-${story._id}`,
+        image: formatImageUrl(story.path),
+      },
+    ],
+  }));
+};

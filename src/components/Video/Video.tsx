@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaFile, FaPause } from "react-icons/fa";
 import { FaPlay } from "react-icons/fa6";
 import { FaVolumeMute } from "react-icons/fa";
@@ -6,7 +6,7 @@ import { FaVolumeUp } from "react-icons/fa";
 import { MdOutlineUpload } from "react-icons/md";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useMutation, useQuery } from "react-query";
-import { X } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import {
   deleteUserVideo,
   getUserVideo,
@@ -15,6 +15,8 @@ import {
 } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
 import { Button } from "../ui/button";
+import { tos } from "@/lib/utils";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 const CustomVideoPlayer = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -23,15 +25,17 @@ const CustomVideoPlayer = () => {
   const [videoURL, setVideoURL] = useState<string | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
-
+  const [showControls, setShowControls] = useState(true);
+  const [thumbnailURL, setThumbnailURL] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
+  // Fetch video from server
   const {} = useQuery({
     queryKey: ["userVedio"],
     queryFn: getUserVideo,
     onSuccess: (response) => {
-      if (response) {
+      if (response && !selectedFile) {
+        // Only update server video if user hasn't selected a new one
         const videoURL = `https://awema.co/${response.data.path.replace(
           "public/",
           ""
@@ -42,17 +46,42 @@ const CustomVideoPlayer = () => {
   });
 
   const togglePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+  useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    if (video.paused) {
-      video.play();
-      setIsPlaying(true);
-    } else {
-      video.pause();
-      setIsPlaying(false);
-    }
-  };
+    const captureThumbnail = () => {
+      // Seek to a specific time (e.g., 2 seconds)
+      video.currentTime = 2;
+
+      video.onseeked = () => {
+        // Create a canvas to capture the frame
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx && ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert to data URL
+        setThumbnailURL(canvas.toDataURL());
+      };
+    };
+
+    video.addEventListener("loadedmetadata", captureThumbnail);
+
+    return () => {
+      video.removeEventListener("loadedmetadata", captureThumbnail);
+    };
+  }, [videoURL]);
 
   const toggleMute = () => {
     const video = videoRef.current;
@@ -66,8 +95,12 @@ const CustomVideoPlayer = () => {
     mutationFn: uploadUserVideo,
     onSuccess: () => {
       setSelectedFile(null);
-      setIsUpdating(false);
       setOpen(false);
+      tos.success("Success");
+    },
+    onError: (err: any) => {
+      const msg = getAxiosErrorMessage(err);
+      tos.error(msg);
     },
   });
 
@@ -75,8 +108,12 @@ const CustomVideoPlayer = () => {
     mutationFn: updateUserVideo,
     onSuccess: () => {
       setSelectedFile(null);
-      setIsUpdating(false);
       setOpen(false);
+      tos.success("Success");
+    },
+    onError: (err: any) => {
+      const msg = getAxiosErrorMessage(err);
+      tos.error(msg);
     },
   });
 
@@ -84,7 +121,7 @@ const CustomVideoPlayer = () => {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("videoFile", selectedFile);
-    if (isUpdating) {
+    if (videoURL && selectedFile) {
       updateVideo(formData);
     } else {
       mutate(formData);
@@ -111,25 +148,32 @@ const CustomVideoPlayer = () => {
 
   return (
     <>
-      <div className="relative w-full max-w-[1350px] bg-[#D9D9D9] rounded-lg overflow-hidden  border border-[#BFBFBF]/30">
+      <div
+        className="relative w-full max-w-[1350px] bg-[#D9D9D9] rounded-lg overflow-hidden border border-[#BFBFBF]/30 group"
+        onMouseEnter={() => setShowControls(true)}
+        onMouseLeave={() => setShowControls(false)}
+      >
         <video
           ref={videoRef}
           src={videoURL}
-          poster="/poster.png"
-          className="w-full h-[300px] object-cover"
+          className="w-full h-[200px] md:h-[300px] object-cover"
           loop
+          poster={thumbnailURL || undefined}
+          muted={isMuted}
         />
 
-        <button
-          onClick={togglePlayPause}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white bg-[#05A9A9] p-5 rounded-full hover:bg-[#05A9A9]/90 transition-all duration-300 transform hover:scale-110 shadow-lg"
-        >
-          {isPlaying ? (
-            <FaPause size={24} />
-          ) : (
-            <FaPlay size={24} className="ml-1" />
-          )}
-        </button>
+        {showControls && (
+          <button
+            onClick={togglePlayPause}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white bg-[#05A9A9]/70 p-5 rounded-full hover:bg-[#05A9A9]/90 transition-all duration-300 transform hover:scale-110 shadow-lg"
+          >
+            {isPlaying ? (
+              <FaPause size={24} />
+            ) : (
+              <FaPlay size={24} className="ml-1" />
+            )}
+          </button>
+        )}
 
         <div className="absolute top-4 right-4 flex space-x-2">
           <button
@@ -182,16 +226,30 @@ const CustomVideoPlayer = () => {
                     />
                   </div>
 
+                  <div
+                    className="w-full"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <div className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-xl p-4 cursor-pointer hover:bg-gray-50 transition">
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload size={24} className="text-gray-500" />
+                        <span className="text-sm text-gray-600">
+                          Choose a file
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
                   {!selectedFile && (
                     <div className="flex justify-end gap-4">
-                      <Button
+                      {/* <Button
                         onClick={() => {
                           openFileDialog(), setIsUpdating(true);
                         }}
                         className="bg-[#05A9A9] hover:bg-[#05A9A9]/90 text-white px-6 py-2 rounded-lg transition-all shadow-md"
                       >
                         Update
-                      </Button>
+                      </Button> */}
                       <Button
                         onClick={() => deleteMutation.mutate()}
                         className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-all shadow-md"

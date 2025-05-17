@@ -1,13 +1,8 @@
+import { formatImageUrls } from "@/lib/utils";
 import { PostCom } from "@/Types/post.type";
 import { motion, Variants } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import image1 from "../../assets/image1.jpg";
-import image2 from "../../assets/image2.webp";
-import image3 from "../../assets/image3.webp";
-import image4 from "../../assets/image4.jpg";
-import image5 from "../../assets/image5.jpg";
-import image6 from "../../assets/image6.jpg";
 
 interface PostCardProps {
   post: PostCom;
@@ -17,7 +12,9 @@ interface PostCardProps {
 const PostGallery: React.FC<PostCardProps> = ({ post, index }) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
-  const postImages = [image1, image2, image3, image4, image5, image6];
+  // const postImages = [image1, image2, image3, image4, image5, image6];
+  const [postImages, setPostImages] = useState<string | string[]>("");
+
   //   postImages
 
   const variants: Variants = {
@@ -26,14 +23,19 @@ const PostGallery: React.FC<PostCardProps> = ({ post, index }) => {
   };
 
   const nextImage = (): void => {
-    setCurrentImageIndex((prev) => (prev + 1) % (postImages.length - 1));
+    setCurrentImageIndex((prev) => (prev + 1) % postImages.length);
   };
 
   const prevImage = (): void => {
     setCurrentImageIndex(
-      (prev) => (prev - 1 + (postImages.length - 1)) % (postImages.length - 1)
+      (prev) => (prev - 1 + postImages.length) % postImages.length
     );
   };
+
+  useEffect(() => {
+    const postImages = formatImageUrls(post?.postPictures);
+    setPostImages(postImages);
+  }, [post]);
 
   const currentImages = [postImages[currentImageIndex]].filter(Boolean);
 
@@ -70,17 +72,17 @@ const PostGallery: React.FC<PostCardProps> = ({ post, index }) => {
         </div>
 
         {/* Multiple Image Indicators */}
-        {postImages.length > 2 && (
+        {postImages.length > 1 && (
           <>
             {/* Dots Indicator */}
             <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1">
               {Array.from({
-                length: Math.ceil(postImages.length / 2),
+                length: Math.ceil(postImages.length),
               }).map((_, idx) => (
                 <div
                   key={idx}
                   className={`w-2 h-2 rounded-full ${
-                    idx === Math.floor(currentImageIndex / 2)
+                    idx === Math.floor(currentImageIndex)
                       ? "bg-white"
                       : "bg-white/50"
                   }`}

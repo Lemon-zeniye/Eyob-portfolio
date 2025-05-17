@@ -2,8 +2,10 @@ import {
   addChildComment,
   addComment,
   addStory,
+  Commentlike,
   getAllPostsWithComments,
   getComments,
+  getUserStories,
   likeOrDeslike,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
@@ -39,10 +41,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { formatDateSmart, formatMessageTime, tos } from "@/lib/utils";
+import {
+  formatDateSmart,
+  formatMessageTime,
+  tos,
+  transformStories,
+} from "@/lib/utils";
 import PostGallery from "@/components/Post/PostGallery";
 import Cookies from "js-cookie";
-import { deletePost, getUserFullProfile } from "@/Api/profile.api";
+import {
+  deletePost,
+  getUserFullProfile,
+  getUserPicture,
+} from "@/Api/profile.api";
 import { FaEllipsisH, FaTrash } from "react-icons/fa";
 import { Spinner } from "@/components/ui/Spinner";
 import { CommentNew, PostCom } from "@/Types/post.type";
@@ -89,6 +100,7 @@ function NormalHomePage() {
   );
 
   const [childComId, setChildComId] = useState<string | undefined>(undefined);
+  const [profileImage, setprofileImage] = useState<string>();
 
   const { data, isLoading, isError, isFetching } = useQuery(
     ["getAllPostsWithComments", page, limit],
@@ -116,133 +128,6 @@ function NormalHomePage() {
       setHasMore(data.data.length >= limit);
     }
   }, [data, page, limit]);
-
-  const stories = [
-    {
-      id: 1,
-      username: "sarah_j",
-      title: "Mountain Trip",
-      avatar: "https://picsum.photos/seed/avatar1/80/80",
-      items: [
-        {
-          id: "s1-1",
-          image: "https://picsum.photos/seed/mountainview/720/1280",
-        },
-        {
-          id: "s1-2",
-          image: "https://picsum.photos/seed/hikingtrail/720/1280",
-        },
-      ],
-    },
-    {
-      id: 2,
-      username: "mike_design",
-      title: "New Project",
-      avatar: "https://picsum.photos/seed/avatar2/80/80",
-      items: [
-        {
-          id: "s2-1",
-          image: "https://picsum.photos/seed/designmockup/720/1280",
-        },
-      ],
-    },
-    {
-      id: 3,
-      username: "travel_lisa",
-      title: "Paris",
-      avatar: "https://picsum.photos/seed/avatar3/80/80",
-      items: [
-        {
-          id: "s3-1",
-          image: "https://picsum.photos/seed/eiffeltower/720/1280",
-        },
-        {
-          id: "s3-2",
-          image: "https://picsum.photos/seed/louvremuseum/720/1280",
-        },
-        {
-          id: "s3-3",
-          image: "https://picsum.photos/seed/seineriver/720/1280",
-        },
-      ],
-    },
-    {
-      id: 4,
-      username: "photo_chris",
-      title: "Portraits",
-      avatar: "https://picsum.photos/seed/avatar4/80/80",
-      items: [
-        {
-          id: "s4-1",
-          image: "https://picsum.photos/seed/portrait1/720/1280",
-        },
-        {
-          id: "s4-2",
-          image: "https://picsum.photos/seed/portrait2/720/1280",
-        },
-      ],
-    },
-    {
-      id: 5,
-      username: "fitness_alex",
-      title: "Workout",
-      avatar: "https://picsum.photos/seed/avatar5/80/80",
-      items: [
-        {
-          id: "s5-1",
-          image: "https://picsum.photos/seed/gymsession/720/1280",
-        },
-      ],
-    },
-    {
-      id: 6,
-      username: "food_maria",
-      title: "Recipes",
-      avatar: "https://picsum.photos/seed/avatar6/80/80",
-      items: [
-        {
-          id: "s6-1",
-          image: "https://picsum.photos/seed/pastarecipe/720/1280",
-        },
-        {
-          id: "s6-2",
-          image: "https://picsum.photos/seed/dessert/720/1280",
-        },
-      ],
-    },
-    {
-      id: 7,
-      username: "food_maria",
-      title: "Recipes",
-      avatar: "https://picsum.photos/seed/avatar6/80/80",
-      items: [
-        {
-          id: "s6-1",
-          image: "https://picsum.photos/seed/pastarecipe/720/1280",
-        },
-        {
-          id: "s6-2",
-          image: "https://picsum.photos/seed/dessert/720/1280",
-        },
-      ],
-    },
-    {
-      id: 8,
-      username: "food_maria",
-      title: "Recipes",
-      avatar: "https://picsum.photos/seed/avatar6/80/80",
-      items: [
-        {
-          id: "s6-1",
-          image: "https://picsum.photos/seed/pastarecipe/720/1280",
-        },
-        {
-          id: "s6-2",
-          image: "https://picsum.photos/seed/dessert/720/1280",
-        },
-      ],
-    },
-  ];
 
   const [viewingStory, setViewingStory] = useState<null | {
     id: number;
@@ -365,6 +250,21 @@ function NormalHomePage() {
     enabled: !!userId,
   });
 
+  const { data: userPicture } = useQuery({
+    queryKey: ["userPicture"],
+    queryFn: getUserPicture,
+  });
+
+  useEffect(() => {
+    if (userPicture?.data) {
+      const newImageUrl = `https://awema.co/${userPicture.data.path.replace(
+        "public/",
+        ""
+      )}`;
+      setprofileImage(newImageUrl);
+    }
+  }, [userPicture]);
+
   ///// mutuation
   const { mutate, isLoading: likeIsLoading } = useMutation({
     mutationFn: likeOrDeslike,
@@ -374,10 +274,27 @@ function NormalHomePage() {
     onError: () => {},
   });
 
+  const { mutate: likeComment, isLoading: isLoadingCommentLike } = useMutation({
+    mutationFn: Commentlike,
+    onSuccess: () => {
+      queryClient.invalidateQueries("getAllPostsWithComments");
+    },
+    onError: () => {},
+  });
+
+  const handleCommentLike = (parentComment: string, childComment?: string) => {
+    const payload = "like";
+    likeComment({
+      parentComment,
+      childComment,
+      like: payload,
+    });
+  };
+
   const { mutate: addUserStory, isLoading: storyLoading } = useMutation({
     mutationFn: addStory,
     onSuccess: () => {
-      queryClient.invalidateQueries("getAllPostsWithComments");
+      queryClient.invalidateQueries("userStories");
       setOpenFileUpload(false);
       removeFile();
       tos.success("Story added Successfully");
@@ -412,6 +329,13 @@ function NormalHomePage() {
     },
     onError: () => {},
   });
+
+  const { data: userStories } = useQuery({
+    queryKey: ["userStories"],
+    queryFn: getUserStories,
+  });
+
+  const stories = userStories ? transformStories(userStories.data) : [];
 
   const { mutate: childComment } = useMutation({
     mutationFn: addChildComment,
@@ -822,9 +746,11 @@ function NormalHomePage() {
                       </button>
                     </div>
 
-                    <div className="w-full  bg-gray-100">
-                      <PostGallery key={post._id} post={post} index={index} />
-                    </div>
+                    {post?.postPictures?.length > 0 ? (
+                      <div className="w-full  bg-gray-100">
+                        <PostGallery key={post._id} post={post} index={index} />
+                      </div>
+                    ) : null}
 
                     <div className="p-5">
                       <div className="mb-3">
@@ -1003,14 +929,14 @@ function NormalHomePage() {
                                 ))}
                               </>
                             ) : (
-                              <div className="h-[40vh] overflow-y-auto overflow-x-hidden">
+                              <div className="min-h-[5vh] max-h-[40vh] overflow-y-auto overflow-x-hidden">
                                 {commentsByPost[expandedPost] &&
                                 commentsByPost[expandedPost]?.length > 0 ? (
                                   commentsByPost[expandedPost].map(
                                     (comment, i) => (
                                       <motion.div
                                         key={i}
-                                        className="flex gap-3"
+                                        className="flex my-3"
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{
@@ -1116,6 +1042,12 @@ function NormalHomePage() {
                                               CancelReplyToComment={
                                                 CancelReplyToComment
                                               }
+                                              handleCommentLike={
+                                                handleCommentLike
+                                              }
+                                              isLoadingCommentLike={
+                                                isLoadingCommentLike
+                                              }
                                             />
                                           )}
                                         </div>
@@ -1133,9 +1065,9 @@ function NormalHomePage() {
                               <button
                                 onClick={loadMoreComments}
                                 disabled={isFetchingComment}
-                                className="text-blue-500 mt-2"
+                                className="text-primary mt-2"
                               >
-                                {isFetchingComment ? "Loading..." : "Load More"}
+                                {isFetchingComment ? <Spinner /> : "Load More"}
                               </button>
                             )}
                           </div>
@@ -1156,9 +1088,9 @@ function NormalHomePage() {
               <button
                 onClick={loadMore}
                 disabled={isFetching}
-                className="load-more-btn my-4"
+                className="text-primary my-4"
               >
-                {isFetching ? "Loading..." : "Load More"}
+                {isFetching ? <Spinner /> : "Load More"}
               </button>
             )}
 
@@ -1221,10 +1153,7 @@ function NormalHomePage() {
               <div className="px-5 pb-5 pt-0 -mt-10">
                 {/* Profile Header */}
                 <Avatar className="w-20 h-20 border-4">
-                  <AvatarImage
-                    src="https://i.pravatar.cc/100?img=7"
-                    alt="Your profile"
-                  />
+                  <AvatarImage src={profileImage} alt="Your profile" />
                   <AvatarFallback className="bg-[#03a9a9]/10 text-[#03a9a9] text-xl">
                     {userFullProfile?.data.name
                       .split(" ")
