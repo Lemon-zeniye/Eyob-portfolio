@@ -98,6 +98,7 @@ const LoginForm = () => {
           setRole(userInfo.role);
           Cookies.set("role", userInfo.role);
           Cookies.set("userId", userInfo.id);
+          userInfo?.name && Cookies.set("userName", userInfo.name);
         } else {
           setRole("user");
           Cookies.set("role", "user");

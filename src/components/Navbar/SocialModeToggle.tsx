@@ -1,6 +1,6 @@
 import { updateUserMode } from "@/Api/profile.api";
 import { useRole } from "@/Context/RoleContext";
-import { tos } from "@/lib/utils";
+// import { tos } from "@/lib/utils";
 import { Mode } from "@/Types/auth.type";
 import { motion, AnimatePresence } from "framer-motion";
 import Cookies from "js-cookie";
@@ -19,7 +19,7 @@ const SocialModeToggle = () => {
   const { mutate } = useMutation({
     mutationFn: updateUserMode,
     onSuccess: () => {
-      tos.success("Success");
+      // tos.success("Success");
     },
   });
 

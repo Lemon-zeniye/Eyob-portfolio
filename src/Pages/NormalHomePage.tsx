@@ -49,11 +49,7 @@ import {
 } from "@/lib/utils";
 import PostGallery from "@/components/Post/PostGallery";
 import Cookies from "js-cookie";
-import {
-  deletePost,
-  getUserFullProfile,
-  getUserPicture,
-} from "@/Api/profile.api";
+import { deletePost, getUserFullProfile } from "@/Api/profile.api";
 import { FaEllipsisH, FaTrash } from "react-icons/fa";
 import { Spinner } from "@/components/ui/Spinner";
 import { CommentNew, PostCom } from "@/Types/post.type";
@@ -100,8 +96,8 @@ function NormalHomePage() {
   );
 
   const [childComId, setChildComId] = useState<string | undefined>(undefined);
-  const [profileImage, setprofileImage] = useState<string>();
 
+  const profileImage = Cookies.get("profilePic");
   const { data, isLoading, isError, isFetching } = useQuery(
     ["getAllPostsWithComments", page, limit],
     () => getAllPostsWithComments(page, limit),
@@ -249,21 +245,6 @@ function NormalHomePage() {
     },
     enabled: !!userId,
   });
-
-  const { data: userPicture } = useQuery({
-    queryKey: ["userPicture"],
-    queryFn: getUserPicture,
-  });
-
-  useEffect(() => {
-    if (userPicture?.data) {
-      const newImageUrl = `https://awema.co/${userPicture.data.path.replace(
-        "public/",
-        ""
-      )}`;
-      setprofileImage(newImageUrl);
-    }
-  }, [userPicture]);
 
   ///// mutuation
   const { mutate, isLoading: likeIsLoading } = useMutation({
@@ -1152,9 +1133,9 @@ function NormalHomePage() {
               <div className="h-32 bg-gradient-to-br bg-[#03a9a9]  "></div>
               <div className="px-5 pb-5 pt-0 -mt-10">
                 {/* Profile Header */}
-                <Avatar className="w-20 h-20 border-4">
+                <Avatar className="w-20 h-20 border-4 p-0.5 rounded-full bg-gradient-to-br from-[#03a9a9] to-[#03c9c9] shadow-md">
                   <AvatarImage src={profileImage} alt="Your profile" />
-                  <AvatarFallback className="bg-[#03a9a9]/10 text-[#03a9a9] text-xl">
+                  <AvatarFallback className="bg-[#03a9a9]/10 text-white text-xl">
                     {userFullProfile?.data.name
                       .split(" ")
                       .map((n) => n[0])

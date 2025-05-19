@@ -22,6 +22,8 @@ import AboutCard from "./AboutCard";
 import EmployeeCard from "./EmployeeCard";
 import EditCompanyProfile from "./EditCompanyProfile";
 import Cookies from "js-cookie";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 const CompanyProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -29,9 +31,8 @@ const CompanyProfileCard = () => {
   const [, setUserInfo] = useState<UserInfo | null>(null);
   const [editProfile, setEditProfile] = useState(false);
   const [shareProfile, setShareProfile] = useState(false);
-  const [profileImage, setprofileImage] = useState<string | undefined>(
-    Cookies.get("profilePic")
-  );
+  const userProfileImg = Cookies.get("profilePic");
+  const [profileImage, setprofileImage] = useState<string>("");
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -68,7 +69,8 @@ const CompanyProfileCard = () => {
       Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -85,7 +87,8 @@ const CompanyProfileCard = () => {
       Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -97,7 +100,8 @@ const CompanyProfileCard = () => {
       Cookies.remove("profilePic");
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -105,7 +109,7 @@ const CompanyProfileCard = () => {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("imageFile", selectedFile);
-    if (profileImage) {
+    if (userProfileImg) {
       updateProfilePic(formData);
     } else {
       mutate(formData);
@@ -124,11 +128,16 @@ const CompanyProfileCard = () => {
           </div>
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>
-              <img
-                src="https://awema.co/uploads/imageFile-1745421435186-646881582.png"
-                alt="Profile"
-                className="z-50 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-16 sm:left-12 left-8 border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 transition"
-              />
+              <Avatar className="z-50 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-16 sm:left-12 left-8 border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 object-cover transition">
+                <AvatarImage
+                  src={profileImage || userProfileImg}
+                  alt="Profile"
+                  className="object-cover"
+                />
+                <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-2xl">
+                  {companyProfile?.data.name?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
             </Dialog.Trigger>
 
             <Dialog.Portal>
@@ -170,7 +179,7 @@ const CompanyProfileCard = () => {
                 </div>
 
                 <div className="flex justify-end gap-3">
-                  {profileImage && (
+                  {userProfileImg && (
                     <button
                       onClick={() => deleteProfilePic()}
                       className="px-4 py-2 text-sm rounded-md border text-white bg-red-500 hover:bg-red-500/90 transition"
@@ -185,7 +194,7 @@ const CompanyProfileCard = () => {
                   >
                     {uploading ? (
                       <Spinner />
-                    ) : profileImage ? (
+                    ) : userProfileImg ? (
                       "Update"
                     ) : (
                       "Upload"

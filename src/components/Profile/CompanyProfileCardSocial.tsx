@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Cookies from "js-cookie";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 const CompanyProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -37,9 +38,8 @@ const CompanyProfileCard = () => {
   const [editProfile, setEditProfile] = useState(false);
   const [shareProfile, setShareProfile] = useState(false);
   const [, setActiveTab] = useState("about");
-  const [profileImage, setprofileImage] = useState<string | undefined>(
-    Cookies.get("profilePic")
-  );
+  const [profileImage, setprofileImage] = useState<string>("");
+  const userProfileImg = Cookies.get("profilePic");
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -76,7 +76,8 @@ const CompanyProfileCard = () => {
       Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -93,7 +94,8 @@ const CompanyProfileCard = () => {
       Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -104,7 +106,8 @@ const CompanyProfileCard = () => {
       setSelectedFile(null);
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -112,7 +115,7 @@ const CompanyProfileCard = () => {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("imageFile", selectedFile);
-    if (profileImage) {
+    if (userProfileImg) {
       updateProfilePic(formData);
     } else {
       mutate(formData);
@@ -133,8 +136,9 @@ const CompanyProfileCard = () => {
                 <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
                   <Avatar className="w-32 h-32 border-4 border-white shadow-xl cursor-pointer hover:opacity-90 transition">
                     <AvatarImage
-                      src={profileImage || "/placeholder.svg"}
+                      src={profileImage || userProfileImg}
                       alt="Profile"
+                      className="object-cover"
                     />
                     <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-2xl">
                       {companyProfile?.data.name?.charAt(0) || "U"}
@@ -187,7 +191,7 @@ const CompanyProfileCard = () => {
                   </div>
 
                   <div className="flex justify-end gap-3">
-                    {profileImage && (
+                    {userProfileImg && (
                       <Button
                         onClick={() => deleteProfilePic()}
                         variant="destructive"
@@ -212,7 +216,7 @@ const CompanyProfileCard = () => {
                       ) : (
                         <>
                           <Upload size={16} />{" "}
-                          {profileImage ? "Update" : "Upload"}
+                          {userProfileImg ? "Update" : "Upload"}
                         </>
                       )}
                     </Button>

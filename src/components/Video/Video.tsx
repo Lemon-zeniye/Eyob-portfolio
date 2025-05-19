@@ -28,6 +28,7 @@ const CustomVideoPlayer = () => {
   const [showControls, setShowControls] = useState(true);
   const [thumbnailURL, setThumbnailURL] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [isUpdate, setIsUpdate] = useState(false);
 
   // Fetch video from server
   const {} = useQuery({
@@ -41,6 +42,7 @@ const CustomVideoPlayer = () => {
           ""
         )}`;
         setVideoURL(videoURL);
+        setIsUpdate(true);
       }
     },
   });
@@ -72,7 +74,7 @@ const CustomVideoPlayer = () => {
         ctx && ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         // Convert to data URL
-        setThumbnailURL(canvas.toDataURL());
+        setThumbnailURL(canvas?.toDataURL());
       };
     };
 
@@ -97,6 +99,7 @@ const CustomVideoPlayer = () => {
       setSelectedFile(null);
       setOpen(false);
       tos.success("Success");
+      setIsUpdate(false);
     },
     onError: (err: any) => {
       const msg = getAxiosErrorMessage(err);
@@ -110,6 +113,7 @@ const CustomVideoPlayer = () => {
       setSelectedFile(null);
       setOpen(false);
       tos.success("Success");
+      setIsUpdate(false);
     },
     onError: (err: any) => {
       const msg = getAxiosErrorMessage(err);
@@ -121,7 +125,7 @@ const CustomVideoPlayer = () => {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("videoFile", selectedFile);
-    if (videoURL && selectedFile) {
+    if (isUpdate) {
       updateVideo(formData);
     } else {
       mutate(formData);

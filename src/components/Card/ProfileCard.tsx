@@ -24,6 +24,7 @@ import { IoMdShare } from "react-icons/io";
 import EditProfile from "../Profile/EditProfile";
 import ShareProfile from "../Profile/ShareProfile";
 import Cookies from "js-cookie";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 const ProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -34,6 +35,7 @@ const ProfileCard = () => {
   const [profileImage, setprofileImage] = useState<string | undefined>(
     Cookies.get("profilePic")
   );
+  const userProfileImg = Cookies.get("profilePic");
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
@@ -70,7 +72,8 @@ const ProfileCard = () => {
       Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -87,7 +90,8 @@ const ProfileCard = () => {
       Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -99,7 +103,8 @@ const ProfileCard = () => {
       Cookies.remove("profilePic");
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -107,7 +112,7 @@ const ProfileCard = () => {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("imageFile", selectedFile);
-    if (profileImage) {
+    if (userProfileImg) {
       updateProfilePic(formData);
     } else {
       mutate(formData);
@@ -127,7 +132,7 @@ const ProfileCard = () => {
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>
               <img
-                src={profileImage}
+                src={profileImage || userProfileImg}
                 alt="Profile"
                 // crossOrigin="anonymous"
                 className="z-10 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-10 sm:left-12 left-8 object-cover border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 transition"
@@ -173,7 +178,7 @@ const ProfileCard = () => {
                 </div>
 
                 <div className="flex justify-end gap-3">
-                  {profileImage && (
+                  {userProfileImg && (
                     <button
                       onClick={() => deleteProfilePic()}
                       className="px-4 py-2 text-sm rounded-md border text-white bg-red-500 hover:bg-red-500/90 transition"
@@ -188,7 +193,7 @@ const ProfileCard = () => {
                   >
                     {uploading || updating ? (
                       <Spinner />
-                    ) : profileImage ? (
+                    ) : userProfileImg ? (
                       "Update"
                     ) : (
                       "Upload"

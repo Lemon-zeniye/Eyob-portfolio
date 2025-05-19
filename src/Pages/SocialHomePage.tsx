@@ -82,6 +82,7 @@ function SocialHomePage() {
   const [selectedFile, setSelectedFile] = useState<StoryFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const profileImage = Cookies.get("profilePic");
 
   const [viewingStory, setViewingStory] = useState<null | {
     id: number;
@@ -477,10 +478,7 @@ function SocialHomePage() {
               ></div>
               <div className="px-5 pb-5 pt-0 -mt-14">
                 <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                  <AvatarImage
-                    src="https://i.pravatar.cc/100?img=7"
-                    alt="Your profile"
-                  />
+                  <AvatarImage src={profileImage} alt="Your profile" />
                   <AvatarFallback
                     className="text-white text-xl"
                     style={{

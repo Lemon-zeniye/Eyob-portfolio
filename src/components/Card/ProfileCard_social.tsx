@@ -36,6 +36,7 @@ import OrganizationCard from "./OrganizationCard";
 import EditProfile from "../Profile/EditProfile";
 import ShareProfile from "../Profile/ShareProfile";
 import CustomVideoPlayer from "../Video/Video";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 const ProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -46,6 +47,9 @@ const ProfileCard = () => {
   const [profileImage, setprofileImage] = useState<string | undefined>(
     Cookies.get("profilePic")
   );
+
+  const userProfileImg = Cookies.get("profilePic");
+
   const [, setActiveTab] = useState("activity");
 
   const { data: userData } = useQuery({
@@ -83,7 +87,8 @@ const ProfileCard = () => {
       Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -100,7 +105,8 @@ const ProfileCard = () => {
       Cookies.set("profilePic", newImageUrl);
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -112,7 +118,8 @@ const ProfileCard = () => {
       Cookies.remove("profilePic");
     },
     onError: (error) => {
-      console.error("Upload failed", error);
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
     },
   });
 
@@ -120,7 +127,7 @@ const ProfileCard = () => {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("imageFile", selectedFile);
-    if (profileImage) {
+    if (userProfileImg) {
       updateProfilePic(formData);
     } else {
       mutate(formData);
@@ -141,7 +148,7 @@ const ProfileCard = () => {
                   <Dialog.Trigger asChild>
                     <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-white shadow-xl cursor-pointer hover:opacity-90 transition">
                       <AvatarImage
-                        src={profileImage || "/placeholder.svg"}
+                        src={profileImage || userProfileImg}
                         alt="Profile"
                       />
                       <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-xl md:text-2xl">
@@ -193,7 +200,7 @@ const ProfileCard = () => {
                       </div>
 
                       <div className="flex justify-end gap-3">
-                        {profileImage && (
+                        {userProfileImg && (
                           <Button
                             onClick={() => deleteProfilePic()}
                             variant="destructive"
@@ -218,7 +225,7 @@ const ProfileCard = () => {
                           ) : (
                             <>
                               <Upload size={16} />{" "}
-                              {profileImage ? "Update" : "Upload"}
+                              {userProfileImg ? "Update" : "Upload"}
                             </>
                           )}
                         </Button>

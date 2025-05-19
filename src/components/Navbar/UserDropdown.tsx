@@ -2,8 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/Context/AuthContext";
 import { useQuery } from "react-query";
 import { getUserPicture } from "@/Api/profile.api";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Cookies from "js-cookie";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const UserDropdown = () => {
   const navigate = useNavigate();
@@ -12,33 +13,39 @@ const UserDropdown = () => {
     logout();
     navigate("/login");
   };
-
-  const { data: userPicture } = useQuery({
-    queryKey: ["userPicture"],
-    queryFn: getUserPicture,
-  });
-
   const [profileImage, setprofileImage] = useState<string>("");
 
-  useEffect(() => {
-    if (userPicture?.data) {
-      const newImageUrl = `https://awema.co/${userPicture.data.path.replace(
-        "public/",
-        ""
-      )}`;
-      Cookies.set("profilePic", newImageUrl);
-      setprofileImage(newImageUrl);
-    }
-  }, [userPicture]);
+  const {} = useQuery({
+    queryKey: ["userPicture"],
+    queryFn: getUserPicture,
+    onSuccess: (res) => {
+      if (res && res?.data) {
+        const newImageUrl = `https://awema.co/${res?.data.path.replace(
+          "public/",
+          ""
+        )}`;
+        Cookies.set("profilePic", newImageUrl);
+        setprofileImage(newImageUrl);
+      }
+    },
+  });
 
   return (
     <div className="relative group inline-block">
       {/* Trigger */}
-      <img
-        className="w-10 h-10 border border-primary rounded-full cursor-pointer"
-        src={profileImage}
-        alt="User Profile"
-      />
+
+      <div>
+        <Avatar className="w-10 h-10 border border-primary rounded-full cursor-pointer">
+          <AvatarImage
+            src={profileImage || "/placeholder.svg"}
+            alt="Profile"
+            className="object-cover"
+          />
+          <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-sm">
+            {Cookies.get("userName")?.charAt(0) || "U"}
+          </AvatarFallback>
+        </Avatar>
+      </div>
 
       {/* Dropdown on Hover */}
       <div className="absolute right-0 w-48 bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 origin-top-right z-50 backdrop-blur-sm bg-white/80">
