@@ -280,6 +280,12 @@ export const routeMeta = [
   {
     path: "/chat",
     headerName: "Chat",
+    backRoute: "/",
+    isChildRoute: false,
+  },
+  {
+    path: "/user/:name",
+    headerName: "User Profile",
     backRoute: "/chat",
     isChildRoute: false,
   },
