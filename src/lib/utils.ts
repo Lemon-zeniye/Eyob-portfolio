@@ -217,7 +217,7 @@ export const formatImageUrls = (
   return formatSinglePath(paths);
 };
 
-const formatImageUrl = (
+export const formatImageUrl = (
   path: string,
   baseUrl: string = "https://awema.co"
 ): string => {

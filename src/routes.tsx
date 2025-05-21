@@ -1,20 +1,21 @@
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter } from "react-router-dom";
 
-import Login from "./Pages/Authentication/Login"
-import Signup from "./Pages/Authentication/Signup"
-import Settings from "./Pages/Settings"
-import Profile from "./Pages/Profile"
-import Chat from "./Pages/Chat"
-import CreateProfile from "./Pages/CreateProfile"
-import AppliedJobs from "./Pages/AppliedJobs"
-import AddJob from "./components/Jobs/AddJob"
-import JobPage from "./Pages/JobPage"
-import AppLayout from "./Pages/AppLayout"
-import PrivateRoute from "./Context/PrivateRoute"
-import { SocketProvider } from "./Context/SocketProvider"
-import JobDetailContainer from "./components/Jobs/JobDetailContainer"
-import HomePage from "./Pages/HomePage"
-import Notifications from "./Pages/Notifications"
+import Login from "./Pages/Authentication/Login";
+import Signup from "./Pages/Authentication/Signup";
+import Settings from "./Pages/Settings";
+import Profile from "./Pages/Profile";
+import Chat from "./Pages/Chat";
+import CreateProfile from "./Pages/CreateProfile";
+import AppliedJobs from "./Pages/AppliedJobs";
+import AddJob from "./components/Jobs/AddJob";
+import JobPage from "./Pages/JobPage";
+import AppLayout from "./Pages/AppLayout";
+import PrivateRoute from "./Context/PrivateRoute";
+import { SocketProvider } from "./Context/SocketProvider";
+import JobDetailContainer from "./components/Jobs/JobDetailContainer";
+import HomePage from "./Pages/HomePage";
+import Notifications from "./Pages/Notifications";
+import UserProfilePage from "./Pages/UserProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -69,6 +70,10 @@ export const router = createBrowserRouter([
               </SocketProvider>
             ),
           },
+          {
+            path: "/user/:name",
+            element: <UserProfilePage />,
+          },
         ],
       },
       {
@@ -95,4 +100,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-])
+]);

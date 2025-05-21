@@ -4,14 +4,19 @@ import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
 
 interface ImageCarouselProps {
   images: string[];
+  aspectRatio?: "square" | "landscape";
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
+const ImageCarousel: React.FC<ImageCarouselProps> = ({
+  images,
+  aspectRatio = "landscape",
+}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(0); // -1 for left, 1 for right
+  const [direction, setDirection] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
-  // Check if we should treat this as a single image (array with length 1)
   const isSingleImage = images.length <= 1;
+  const heightClass = aspectRatio === "square" ? "h-full" : "h-40 sm:h-40";
 
   const goToPrevious = () => {
     if (isSingleImage) return;
@@ -26,55 +31,77 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
   };
 
   return (
-    <div className="relative flex-shrink-0 w-full h-44 sm:h-32 overflow-hidden">
+    <div
+      className={`relative w-full ${heightClass} overflow-hidden rounded-lg bg-gray-100`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <AnimatePresence initial={false} custom={direction}>
-        <motion.img
+        <motion.div
           key={images[currentIndex]}
-          src={images[currentIndex]}
-          alt={`Slide ${currentIndex}`}
           custom={direction}
-          initial={{ x: direction > 0 ? 100 : -100, opacity: 0 }}
+          initial={{ x: direction > 0 ? "100%" : "-100%", opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          exit={{ x: direction > 0 ? -100 : 100, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="absolute w-full h-full object-cover rounded-sm"
-        />
+          exit={{ x: direction > 0 ? "-100%" : "100%", opacity: 0 }}
+          transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+          className="absolute inset-0"
+        >
+          <img
+            src={images[currentIndex]}
+            alt={`Slide ${currentIndex}`}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </motion.div>
       </AnimatePresence>
 
-      {/* Navigation Buttons - only show if multiple images */}
+      {/* Navigation Buttons */}
       {!isSingleImage && (
         <>
-          <button
-            onClick={goToPrevious}
-            className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-black/20 py-1 text-black rounded-r"
+          <motion.button
+            onClick={(e) => {
+              e.stopPropagation();
+              goToPrevious();
+            }}
+            className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/30 backdrop-blur-sm text-white shadow-sm"
           >
-            <BsChevronCompactLeft />
-          </button>
-          <button
-            onClick={goToNext}
-            className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-black/20 text-black py-1 rounded-l"
+            <BsChevronCompactLeft size={20} />
+          </motion.button>
+          <motion.button
+            onClick={(e) => {
+              e.stopPropagation();
+              goToNext();
+            }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/30 backdrop-blur-sm text-white shadow-sm"
           >
-            <BsChevronCompactRight />
-          </button>
+            <BsChevronCompactRight size={20} />
+          </motion.button>
         </>
       )}
 
-      {/* Dots - only show if multiple images */}
+      {/* Dots Indicator */}
       {!isSingleImage && (
-        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex gap-1">
+        <motion.div
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 1 : 0.7 }}
+          transition={{ duration: 0.2 }}
+        >
           {images.map((_, i) => (
             <button
               key={i}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setDirection(i > currentIndex ? 1 : -1);
                 setCurrentIndex(i);
               }}
-              className={`w-2 h-2 rounded-full ${
-                i === currentIndex ? "bg-white" : "bg-gray-400"
+              className={`w-2 h-2 rounded-full transition-all ${
+                i === currentIndex ? "bg-white w-4" : "bg-white/50"
               }`}
-            ></button>
+              aria-label={`Go to slide ${i + 1}`}
+            />
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

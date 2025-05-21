@@ -17,8 +17,13 @@ import { Spinner } from "../ui/Spinner";
 import { Button } from "../ui/button";
 import { tos } from "@/lib/utils";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import { UserData } from "@/Types/profile.type";
 
-const CustomVideoPlayer = () => {
+const CustomVideoPlayer = ({
+  otherUser,
+}: {
+  otherUser: UserData | undefined;
+}) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -179,21 +184,23 @@ const CustomVideoPlayer = () => {
           </button>
         )}
 
-        <div className="absolute top-4 right-4 flex space-x-2">
-          <button
-            onClick={toggleMute}
-            className="text-[#767676] bg-white p-2 rounded-full hover:bg-primary hover:text-white transition-all shadow-sm"
-          >
-            {isMuted ? <FaVolumeMute size={18} /> : <FaVolumeUp size={18} />}
-          </button>
+        {otherUser && (
+          <div className="absolute top-4 right-4 flex space-x-2">
+            <button
+              onClick={toggleMute}
+              className="text-[#767676] bg-white p-2 rounded-full hover:bg-primary hover:text-white transition-all shadow-sm"
+            >
+              {isMuted ? <FaVolumeMute size={18} /> : <FaVolumeUp size={18} />}
+            </button>
 
-          <button
-            onClick={() => setOpen(true)}
-            className="text-[#767676] bg-white p-2 rounded-full hover:bg-primary hover:text-white transition-all shadow-sm"
-          >
-            <MdOutlineUpload size={18} />
-          </button>
-        </div>
+            <button
+              onClick={() => setOpen(true)}
+              className="text-[#767676] bg-white p-2 rounded-full hover:bg-primary hover:text-white transition-all shadow-sm"
+            >
+              <MdOutlineUpload size={18} />
+            </button>
+          </div>
+        )}
       </div>
 
       <div>

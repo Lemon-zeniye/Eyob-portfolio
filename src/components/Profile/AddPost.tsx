@@ -12,24 +12,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImagePlusIcon, TrashIcon } from "lucide-react";
 import { Input } from "../ui/input";
 import { useMutation, useQueryClient } from "react-query";
-import { createPost } from "@/Api/profile.api";
+import { createPost, updatePost } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
-import { tos } from "@/lib/utils";
+import { formatImageUrls, tos } from "@/lib/utils";
+import { Post } from "@/Types/profile.type";
 
 type PostFormProps = {
+  initialData: Post | undefined;
   onSuccess: () => void;
 };
 
-function AddPost({ onSuccess }: PostFormProps) {
+function AddPost({ initialData, onSuccess }: PostFormProps) {
   const form = useForm({
     defaultValues: {
-      postTitle: "",
-      postContent: "",
+      postTitle: initialData?.postTitle ?? "",
+      postContent: initialData?.postContent ?? "",
       postPictures: [] as File[],
     },
   });
 
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const editImages: string[] = initialData?.postPictures
+    ? ([] as string[]).concat(formatImageUrls(initialData.postPictures))
+    : [];
+
+  const [imagePreviews, setImagePreviews] = useState<string[]>(editImages);
   const queryClient = useQueryClient();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +48,15 @@ function AddPost({ onSuccess }: PostFormProps) {
 
   const { mutate, isLoading } = useMutation({
     mutationFn: createPost,
+    onSuccess: () => {
+      onSuccess();
+      queryClient.invalidateQueries("singleUserPost");
+      tos.success("Success");
+    },
+  });
+
+  const { mutate: update, isLoading: isUpdating } = useMutation({
+    mutationFn: updatePost,
     onSuccess: () => {
       onSuccess();
       queryClient.invalidateQueries("singleUserPost");
@@ -73,7 +88,11 @@ function AddPost({ onSuccess }: PostFormProps) {
     });
 
     // Call mutation with FormData
-    mutate(formData);
+    if (initialData) {
+      update({ id: initialData._id, payload: formData });
+    } else {
+      mutate(formData);
+    }
   };
 
   return (
@@ -159,7 +178,13 @@ function AddPost({ onSuccess }: PostFormProps) {
 
           <div className="w-full flex items-center justify-end">
             <Button type="submit" className="px-6">
-              {isLoading ? <Spinner /> : "Post"}
+              {isLoading || isUpdating ? (
+                <Spinner />
+              ) : initialData ? (
+                "Edit Post"
+              ) : (
+                "Post"
+              )}
             </Button>
           </div>
         </form>

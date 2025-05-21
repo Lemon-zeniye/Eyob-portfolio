@@ -11,11 +11,12 @@ import {
   FetchSkillsResponse,
   FileResponse,
   GetOrganizationsResponse,
-  JobCategoriesResponse,
   PostPayload,
+  SkillCategoriesResponse,
   UserFullProfileRes,
   UserPostResponse,
   UserProfileRes,
+  UserSkillsRes,
 } from "@/Types/profile.type";
 
 export const getUserJob = async (): Promise<EducationResponse> => {
@@ -26,6 +27,17 @@ export const getUserJob = async (): Promise<EducationResponse> => {
 // POST
 export const createPost = async (payload: any): Promise<PostPayload> => {
   const response = await axios.post<any>("/userPost/postContent", payload);
+  return response.data;
+};
+
+export const updatePost = async ({
+  id,
+  payload,
+}: {
+  id: string;
+  payload: any;
+}): Promise<PostPayload> => {
+  const response = await axios.put<any>(`/userPost/updatePost/${id}`, payload);
   return response.data;
 };
 
@@ -45,6 +57,17 @@ export const getEducations = async (): Promise<EducationResponse> => {
   return response.data;
 };
 
+export const updateEducation = async ({
+  id,
+  payload,
+}: {
+  id: string;
+  payload: any;
+}): Promise<any> => {
+  const response = await axios.put<any>(`/education/updateEdu/${id}`, payload);
+  return response.data;
+};
+
 //Experience
 export const addExperience = async (payload: any): Promise<any> => {
   const response = await axios.post<any>("/experience/add", payload);
@@ -56,9 +79,25 @@ export const getUserExperience = async (): Promise<ExperienceResponse> => {
   return response.data;
 };
 
+export const updateUserExperience = async ({
+  id,
+  payload,
+}: {
+  id: string;
+  payload: any;
+}): Promise<any> => {
+  const response = await axios.put<any>(`experience/updateExp/${id}`, payload);
+  return response.data;
+};
+
 //Skill
-export const getUserSkills = async (): Promise<FetchSkillsResponse> => {
+export const getSkills = async (): Promise<FetchSkillsResponse> => {
   const response = await axios.get<any>("/skill/fetchSkills");
+  return response.data;
+};
+
+export const getUserSkills = async (): Promise<UserSkillsRes> => {
+  const response = await axios.get<any>("/experience/fetchUserSkills");
   return response.data;
 };
 
@@ -66,9 +105,8 @@ export const addSkill = async (payload: any): Promise<any> => {
   const response = await axios.post<any>("/skill/addSkill", payload);
   return response.data;
 };
-
-export const getJobCategory = async (): Promise<JobCategoriesResponse> => {
-  const response = await axios.get<any>("/job/fetchJobCategories");
+export const addUserSkill = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>("/experience/addUserSkill", payload);
   return response.data;
 };
 
@@ -128,6 +166,20 @@ export const getUserOrganization =
 export const addUserOrganization = async (payload: any): Promise<any> => {
   const response = await axios.post<any>(
     "/organization/addOrganization",
+    payload
+  );
+  return response.data;
+};
+
+export const updateUserOrganization = async ({
+  id,
+  payload,
+}: {
+  id: string;
+  payload: any;
+}): Promise<any> => {
+  const response = await axios.patch<any>(
+    `/organization/updateOrganization/${id}`,
     payload
   );
   return response.data;
@@ -272,5 +324,16 @@ export const updateUserProfilePic = async (
   payload: any
 ): Promise<FileResponse> => {
   const response = await axios.patch<any>(`/user/updateUserPicture`, payload);
+  return response.data;
+};
+
+export const fetchSkillCategories =
+  async (): Promise<SkillCategoriesResponse> => {
+    const response = await axios.get("skill/fetchSkillCategories");
+    return response.data;
+  };
+
+export const follow = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>(`/follow/followEntity`, payload);
   return response.data;
 };

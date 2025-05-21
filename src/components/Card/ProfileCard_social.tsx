@@ -21,12 +21,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
   deleteUserPicture,
+  follow,
   getUserProfile,
   updateUserProfilePic,
   uploadUserPicture,
 } from "@/Api/profile.api";
 import { getUserFromToken, tos } from "@/lib/utils";
-import type { UserInfo } from "@/Types/profile.type";
+import type { UserData, UserInfo } from "@/Types/profile.type";
 
 import ActivityNew from "../Profile/ActivityNew";
 import ExperienceCard from "./ExperienceCard";
@@ -37,8 +38,10 @@ import EditProfile from "../Profile/EditProfile";
 import ShareProfile from "../Profile/ShareProfile";
 import CustomVideoPlayer from "../Video/Video";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import { FaUserPlus } from "react-icons/fa";
+import { Spinner } from "../ui/Spinner";
 
-const ProfileCard = () => {
+const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [, setOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -50,7 +53,9 @@ const ProfileCard = () => {
 
   const userProfileImg = Cookies.get("profilePic");
 
-  const [, setActiveTab] = useState("activity");
+  const [activeTab, setActiveTab] = useState(
+    !otherUser ? "activity" : "experience"
+  );
 
   const { data: userData } = useQuery({
     queryKey: ["userProfile"],
@@ -123,6 +128,17 @@ const ProfileCard = () => {
     },
   });
 
+  const { mutate: followUser, isLoading: isFollowLoading } = useMutation({
+    mutationFn: follow,
+    onSuccess: () => {
+      tos.success("Success");
+    },
+    onError: (error) => {
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
+    },
+  });
+
   const handleUpload = () => {
     if (!selectedFile) return;
     const formData = new FormData();
@@ -140,7 +156,7 @@ const ProfileCard = () => {
         <CardContent className="p-0">
           <div className="">
             <div className="w-full relative bg-gradient-to-r from-[#05A9A9] to-[#4ecdc4] rounded-b-[40px]">
-              <CustomVideoPlayer />
+              <CustomVideoPlayer otherUser={otherUser} />
 
               {/* Avatar positioned at bottom center */}
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
@@ -239,39 +255,54 @@ const ProfileCard = () => {
 
           <div className="mt-16 md:mt-20 px-6 text-center">
             <h2 className="text-2xl font-bold">
-              {userInfo?.name || "User Name"}
+              {otherUser?.name ?? userInfo?.name}
             </h2>
 
             <div className="flex flex-col items-center gap-1 mt-1 text-gray-600">
               {userData?.data?.position && (
                 <div className="flex items-center gap-1">
                   <Briefcase size={14} />
-                  <span>{userData.data.position}</span>
+                  <span>{otherUser?.position ?? userData.data.position}</span>
                 </div>
               )}
 
               {userData?.data?.location && (
                 <div className="flex items-center gap-1">
                   <MapPin size={14} />
-                  <span>{userData.data.location}</span>
+                  <span>{otherUser?.location ?? userData.data.location}</span>
                 </div>
               )}
             </div>
 
             {userData?.data?.bio && (
               <p className="mt-3 text-gray-600 max-w-lg mx-auto">
-                {userData.data.bio}
+                {otherUser?.bio ?? userData.data.bio}
               </p>
             )}
 
             <div className="flex justify-center gap-4 mt-6">
-              <Button
-                variant="outline"
-                className="rounded-full px-6 gap-2 border-purple-200 text-primary hover:bg-primary hover:text-white"
-                onClick={() => setEditProfile(true)}
-              >
-                <Edit size={16} /> Edit Profile
-              </Button>
+              {!otherUser ? (
+                <Button
+                  variant="outline"
+                  className="rounded-full px-6 gap-2 border-purple-200 text-primary hover:bg-primary hover:text-white"
+                  onClick={() => setEditProfile(true)}
+                >
+                  <Edit size={16} /> Edit Profile
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="rounded-full px-6 gap-2 border-purple-200 text-primary hover:bg-primary hover:text-white"
+                  onClick={() =>
+                    followUser({
+                      followedId: otherUser._id,
+                    })
+                  }
+                >
+                  <FaUserPlus size={16} />{" "}
+                  {isFollowLoading ? <Spinner /> : "Follow"}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 className="rounded-full px-6 gap-2 border-primary text-primary hover:bg-purple-50 hover:text-primary"
@@ -284,19 +315,22 @@ const ProfileCard = () => {
 
           <div className="mt-8 px-4 sm:px-6">
             <Tabs
-              defaultValue="activity"
+              defaultValue={!otherUser ? "activity" : "experience"}
+              value={activeTab}
               className="w-full"
               onValueChange={setActiveTab}
             >
               {/* Scrollable container for mobile */}
               <div className="relative">
-                <TabsList className="flex w-full overflow-x-auto pb-2 md:grid md:grid-cols-3 lg:grid-cols-5 md:rounded-full bg-gray-100 p-1 gap-1 hide-scrollbar">
-                  <TabsTrigger
-                    value="activity"
-                    className="whitespace-nowrap rounded-full px-4 py-2 text-sm data-[state=active]:bg-white data-[state=active]:text-primary flex-shrink-0 md:flex-shrink"
-                  >
-                    Activity
-                  </TabsTrigger>
+                <TabsList className="flex w-full justify-around overflow-x-auto items-center md:flex md:rounded-full bg-gray-100 overflow-y-hidden">
+                  {!otherUser && (
+                    <TabsTrigger
+                      value="activity"
+                      className="whitespace-nowrap rounded-full px-4 py-2 text-sm data-[state=active]:bg-white data-[state=active]:text-primary flex-shrink-0 md:flex-shrink"
+                    >
+                      Activity
+                    </TabsTrigger>
+                  )}
                   <TabsTrigger
                     value="experience"
                     className="whitespace-nowrap rounded-full px-4 py-2 text-sm data-[state=active]:bg-white data-[state=active]:text-primary flex-shrink-0 md:flex-shrink"
@@ -325,20 +359,24 @@ const ProfileCard = () => {
               </div>
 
               <div className="mt-6 pb-8 min-h-[40vh]">
-                <TabsContent value="activity">
-                  <ActivityNew />
-                </TabsContent>
+                {!otherUser && (
+                  <TabsContent value="activity">
+                    <ActivityNew />
+                  </TabsContent>
+                )}
                 <TabsContent value="experience">
-                  <ExperienceCard />
+                  <ExperienceCard otherUserExperience={otherUser?.experience} />
                 </TabsContent>
                 <TabsContent value="education">
-                  <EducationCard />
+                  <EducationCard otherUserEducation={otherUser?.education} />
                 </TabsContent>
                 <TabsContent value="skills">
-                  <SkillCard />
+                  <SkillCard otherUserSkill={otherUser?.skills} />
                 </TabsContent>
                 <TabsContent value="organization">
-                  <OrganizationCard />
+                  <OrganizationCard
+                    otherUserOrganization={otherUser?.organization}
+                  />
                 </TabsContent>
               </div>
             </Tabs>

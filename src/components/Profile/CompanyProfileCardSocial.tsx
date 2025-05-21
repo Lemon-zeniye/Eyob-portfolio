@@ -128,7 +128,7 @@ const CompanyProfileCard = () => {
         <CardContent className="p-0">
           <div className="relative">
             <div className="w-full h-48 md:h-64 bg-gradient-to-r from-[#05A9A9] to-[#4ecdc4] rounded-b-[40px]">
-              <CustomVideoPlayer />
+              <CustomVideoPlayer otherUser={undefined} />
             </div>
 
             <Dialog.Root open={open} onOpenChange={setOpen}>

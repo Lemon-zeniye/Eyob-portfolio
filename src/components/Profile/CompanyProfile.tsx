@@ -124,7 +124,7 @@ const CompanyProfileCard = () => {
       <div className="flex flex-col gap-20">
         <div className="relative">
           <div className="w-full">
-            <CustomVideoPlayer />
+            <CustomVideoPlayer otherUser={undefined} />
           </div>
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>

@@ -9,29 +9,32 @@ import {
 import * as Select from "@radix-ui/react-select";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Input } from "../ui/input";
-import { CalendarIcon } from "lucide-react";
-import * as Popover from "@radix-ui/react-popover";
-import { format } from "date-fns";
-import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useMutation, useQueryClient } from "react-query";
-import { addEducation } from "@/Api/profile.api";
+import { addEducation, updateEducation } from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/auth.api";
 import { Spinner } from "../ui/Spinner";
 import { getDateParts, tos } from "@/lib/utils";
+import { UserEducation } from "../Types";
 
-function AddEducation({ onSuccess }: { onSuccess: () => void }) {
+function AddEducation({
+  onSuccess,
+  initialData,
+}: {
+  onSuccess: () => void;
+  initialData: UserEducation | undefined;
+}) {
   const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
-      institution: "",
-      degree: "",
-      fieldOfStudy: "",
-      graduationYear: new Date(),
-      gpa: undefined,
-      currentlyStudying: false,
+      institution: initialData?.institution ?? "",
+      degree: initialData?.degree ?? "",
+      fieldOfStudy: initialData?.fieldOfStudy ?? "",
+      graduationYear: initialData?.graduationYear ?? undefined,
+      gpa: initialData?.gpa ?? undefined,
+      currentlyStudying: initialData?.currentlyStudying ?? false,
     },
   });
 
@@ -47,12 +50,31 @@ function AddEducation({ onSuccess }: { onSuccess: () => void }) {
       tos.error(message);
     },
   });
+
+  const { mutate: update, isLoading: isUpdating } = useMutation({
+    mutationFn: updateEducation,
+    onSuccess: () => {
+      tos.success("Education updated Successfully");
+      queryClient.invalidateQueries("educations");
+      onSuccess();
+    },
+    onError: (error: any) => {
+      const message = getAxiosErrorMessage(error);
+      tos.error(message);
+    },
+  });
+
   const onSubmit = (data: any) => {
     const graduationYear = getDateParts(data.graduationYear).year;
     const currentlyStudying =
       data?.currentlyStudying === undefined ? false : data.currentlyStudying;
     const payload = { ...data, graduationYear, currentlyStudying };
-    mutate({ eduRequest: [payload] });
+
+    if (initialData) {
+      update({ id: initialData._id, payload: payload });
+    } else {
+      mutate({ eduRequest: [payload] });
+    }
   };
 
   return (
@@ -186,10 +208,10 @@ function AddEducation({ onSuccess }: { onSuccess: () => void }) {
                 value: 0,
                 message: "GPA must be positive",
               },
-              //  max: {
-              //   value: 4,
-              //   message: "GPA must be  positive",
-              // }
+              max: {
+                value: 4,
+                message: "GPA must be  positive",
+              },
             }}
             name="gpa"
             render={({ field }) => (
@@ -212,42 +234,21 @@ function AddEducation({ onSuccess }: { onSuccess: () => void }) {
             name="graduationYear"
             rules={{
               required: "Graduation year is required",
+              maxLength: {
+                value: 4,
+                message: "Graduation year can only be four characters",
+              },
             }}
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Graduation Date</FormLabel>
+                <FormLabel>Graduation Year</FormLabel>
                 <FormControl>
-                  <Popover.Root>
-                    <Popover.Trigger asChild>
-                      <button
-                        className="flex items-center justify-between w-full h-10 px-3 border rounded-md bg-white text-gray-500 text-sm focus:outline-none"
-                        type="button"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {field.value
-                          ? format(field.value, "PPP")
-                          : "Select graduation date"}
-                        <CalendarIcon className="w-4 h-4 text-gray-600" />
-                      </button>
-                    </Popover.Trigger>
-
-                    <Popover.Portal>
-                      <Popover.Content
-                        align="start"
-                        sideOffset={8}
-                        className="z-[100] bg-white p-3 rounded-md shadow-md border"
-                      >
-                        <DayPicker
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          captionLayout="dropdown"
-                          fromYear={1900}
-                          toYear={new Date().getFullYear()}
-                        />
-                      </Popover.Content>
-                    </Popover.Portal>
-                  </Popover.Root>
+                  <Input
+                    placeholder="Enter your graduation year"
+                    {...field}
+                    type="number"
+                    step="0.1"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -278,7 +279,15 @@ function AddEducation({ onSuccess }: { onSuccess: () => void }) {
             )}
           />
           <div className="flex items-center justify-end my-2 w-full">
-            <Button>{isLoading ? <Spinner /> : "Add Education"}</Button>
+            <Button>
+              {isLoading || isUpdating ? (
+                <Spinner />
+              ) : initialData ? (
+                "Update Education"
+              ) : (
+                "Add Education"
+              )}
+            </Button>
           </div>
         </form>
       </FormProvider>

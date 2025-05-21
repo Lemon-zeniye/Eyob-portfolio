@@ -571,23 +571,21 @@ function SocialHomePage() {
                     )}
 
                   {userFullProfile?.data.skills &&
-                    userFullProfile?.data.skills?.[0]?.skill?.length > 0 && (
+                    userFullProfile?.data.skills?.length > 0 && (
                       <div className="mt-5">
                         <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2 mb-2">
                           <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
                           Skills
                         </h4>
                         <div className="flex flex-wrap gap-2 mt-2">
-                          {userFullProfile.data.skills[0].skill
-                            .slice(0, 8)
-                            .map((skill, i) => (
-                              <span
-                                key={i}
-                                className="px-3 py-1 bg-[#e6f7f7] text-[#05A9A9] rounded-full text-xs font-medium"
-                              >
-                                {skill}
-                              </span>
-                            ))}
+                          {userFullProfile.data.skills.map((ski) => (
+                            <span
+                              key={ski._id}
+                              className="px-3 py-1 bg-[#e6f7f7] text-[#05A9A9] rounded-full text-xs font-medium"
+                            >
+                              {ski.skill}
+                            </span>
+                          ))}
                         </div>
                       </div>
                     )}

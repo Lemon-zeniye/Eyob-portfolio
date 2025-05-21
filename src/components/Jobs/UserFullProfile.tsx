@@ -246,9 +246,7 @@ const UserProfile = ({
                         key={index}
                         className="bg-indigo-100 text-indigo-800 text-sm px-3 py-1 rounded-full"
                       >
-                        {skill?.skill?.map((ski) => (
-                          <div key={ski}>{ski}</div>
-                        ))}
+                        {skill.skill}
                       </span>
                     ))}
                   </div>

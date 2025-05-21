@@ -8,6 +8,7 @@ import { useMutation, useQuery } from "react-query";
 import ActivityNew from "../Profile/ActivityNew";
 import {
   deleteUserPicture,
+  follow,
   getUserProfile,
   updateUserProfilePic,
   uploadUserPicture,
@@ -16,7 +17,7 @@ import { Spinner } from "../ui/Spinner";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Upload, X } from "lucide-react";
 import CustomVideoPlayer from "../Video/Video";
-import { UserInfo } from "@/Types/profile.type";
+import { UserData, UserInfo } from "@/Types/profile.type";
 import { getUserFromToken, tos } from "@/lib/utils";
 import OrganizationCard from "./OrganizationCard";
 import { Button } from "../ui/button";
@@ -25,8 +26,9 @@ import EditProfile from "../Profile/EditProfile";
 import ShareProfile from "../Profile/ShareProfile";
 import Cookies from "js-cookie";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import { IoPersonAdd } from "react-icons/io5";
 
-const ProfileCard = () => {
+const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -95,6 +97,17 @@ const ProfileCard = () => {
     },
   });
 
+  const { mutate: followUser, isLoading: isFollowLoading } = useMutation({
+    mutationFn: follow,
+    onSuccess: () => {
+      tos.success("Success");
+    },
+    onError: (error) => {
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
+    },
+  });
+
   const { mutate: deleteProfilePic, isLoading: isDeleting } = useMutation({
     mutationFn: deleteUserPicture,
     onSuccess: () => {
@@ -127,7 +140,7 @@ const ProfileCard = () => {
       <div className="flex flex-col gap-20">
         <div className="relative">
           <div className="w-full">
-            <CustomVideoPlayer />
+            <CustomVideoPlayer otherUser={otherUser} />
           </div>
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>
@@ -208,28 +221,48 @@ const ProfileCard = () => {
         <div className="w-full sm-phone:px-0 sm:px-12 flex flex-col">
           <div className="w-full px-2 flex flex-row justify-between items-center">
             <div className="flex flex-col gap-1">
-              <p className="text-2xl font-bold">{userInfo?.name}</p>
-              <p className="font-extralight">
-                {userData?.data?.position ?? "No Position specified"}
+              <p className="text-2xl font-bold">
+                {otherUser?.name ?? userInfo?.name}
               </p>
               <p className="font-extralight">
-                {userData?.data?.location ?? "No Location specified"}
+                {otherUser?.position ??
+                  userData?.data?.position ??
+                  "No Position specified"}
+              </p>
+              <p className="font-extralight">
+                {otherUser?.location ??
+                  userData?.data?.location ??
+                  "No Location specified"}
               </p>
               <p className="md:text-base font-extralight">
-                {userData?.data?.bio ?? "No bio yet"}
+                {otherUser?.bio ?? userData?.data?.bio ?? "No bio yet"}
               </p>
             </div>
           </div>
         </div>
       </div>
       <div className="flex items-center gap-6 w-full sm-phone:px-0 sm:px-12 ">
-        <Button
-          className="border-primary text-primary hover:text-primary"
-          variant="outline"
-          onClick={() => setEditProfile(true)}
-        >
-          Edit Profile
-        </Button>
+        {otherUser ? (
+          <Button
+            className="border-primary flex items-center gap-2  text-primary hover:text-primary"
+            variant="outline"
+            onClick={() =>
+              followUser({
+                followedId: otherUser._id,
+              })
+            }
+          >
+            <IoPersonAdd /> {isFollowLoading ? <Spinner /> : "Follow"}
+          </Button>
+        ) : (
+          <Button
+            className="border-primary text-primary hover:text-primary"
+            variant="outline"
+            onClick={() => setEditProfile(true)}
+          >
+            Edit Profile
+          </Button>
+        )}
         <Button
           className="flex items-center gap-2 border-primary text-primary hover:text-primary"
           variant="outline"
@@ -241,21 +274,30 @@ const ProfileCard = () => {
       </div>
 
       <div className="flex flex-row sm-phone:bg-white sm-phone:border sm:border-none sm:bg-none justify-between px-0 sm:px-12 min-h-[40vh]">
-        <Tabs
-          tabs={[
-            "Activity",
-            "Experience",
-            "Education",
-            "Skills",
-            "Organization",
-          ]}
-        >
-          <ActivityNew />
-          <ExperienceCard />
-          <EducationCard />
-          <SkillCard />
-          <OrganizationCard />
-        </Tabs>
+        {!otherUser ? (
+          <Tabs
+            tabs={[
+              "Activity",
+              "Experience",
+              "Education",
+              "Skills",
+              "Organization",
+            ]}
+          >
+            <ActivityNew />
+            <ExperienceCard otherUserExperience={undefined} />
+            <EducationCard otherUserEducation={undefined} />
+            <SkillCard otherUserSkill={undefined} />
+            <OrganizationCard otherUserOrganization={undefined} />
+          </Tabs>
+        ) : (
+          <Tabs tabs={["Experience", "Education", "Skills", "Organization"]}>
+            <ExperienceCard otherUserExperience={otherUser?.experience} />
+            <EducationCard otherUserEducation={otherUser?.education} />
+            <SkillCard otherUserSkill={otherUser?.skills} />
+            <OrganizationCard otherUserOrganization={otherUser?.organization} />
+          </Tabs>
+        )}
       </div>
 
       <Dialog.Root open={editProfile} onOpenChange={setEditProfile}>

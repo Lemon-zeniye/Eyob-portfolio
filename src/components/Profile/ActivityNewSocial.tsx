@@ -16,6 +16,8 @@ function ActivityNew() {
     queryFn: getSingleUserPost,
   });
 
+  const [initialData, setInitialData] = useState<Post | undefined>(undefined);
+
   return (
     <div className="flex flex-col gap-6 p-2">
       <div className="flex justify-between items-center">
@@ -54,7 +56,15 @@ function ActivityNew() {
             >
               {posts && posts.data.length > 0 ? (
                 posts.data.map((item) => (
-                  <ActivityCardWrapper key={item._id} post={item} />
+                  <ActivityCardWrapper
+                    key={item._id}
+                    post={item}
+                    onclick={(id) => {
+                      const pos = posts.data.find((p) => p._id === id);
+                      setInitialData(pos);
+                      setOpen(true);
+                    }}
+                  />
                 ))
               ) : (
                 <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-50 rounded-2xl border border-gray-100">
@@ -84,7 +94,10 @@ function ActivityNew() {
               }}
               className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
             >
-              <AddPost onSuccess={() => setOpen(false)} />
+              <AddPost
+                initialData={initialData}
+                onSuccess={() => setOpen(false)}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -93,7 +106,13 @@ function ActivityNew() {
   );
 }
 
-function ActivityCardWrapper({ post }: { post: Post }) {
+function ActivityCardWrapper({
+  post,
+  onclick,
+}: {
+  post: Post;
+  onclick: (id: string) => void;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -107,7 +126,13 @@ function ActivityCardWrapper({ post }: { post: Post }) {
       className="transform transition-all duration-300"
     >
       <div className="overflow-hidden rounded-2xl shadow-sm border border-gray-100 hover:border-purple-200 bg-white">
-        <ActivityCard post={post} classname="w-full" onclick={() => {}} />
+        <ActivityCard
+          post={post}
+          classname="w-full"
+          onclick={() => {
+            onclick;
+          }}
+        />
       </div>
     </motion.div>
   );

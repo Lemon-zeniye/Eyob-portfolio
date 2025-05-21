@@ -17,23 +17,33 @@ import "react-day-picker/dist/style.css";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useMutation, useQueryClient } from "react-query";
-import { addExperience } from "@/Api/profile.api";
+import { addExperience, updateUserExperience } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
 import { tos } from "@/lib/utils";
+import { Textarea } from "../ui/textarea";
+import { UserExperience } from "../Types";
 
-function AddExprience({ onSuccess }: { onSuccess: () => void }) {
+function AddExprience({
+  onSuccess,
+  initialData,
+}: {
+  onSuccess: () => void;
+  initialData: UserExperience | undefined;
+}) {
   const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
-      entity: "",
-      jobTitle: "",
-      employmentType: "",
-      location: "",
-      locationType: "",
-      startDate: undefined,
-      endDate: undefined,
-      expDescription: "sample description",
-      workingAt: false,
+      entity: initialData?.entity ?? "",
+      jobTitle: initialData?.jobTitle ?? "",
+      employmentType: initialData?.employmentType ?? "",
+      location: initialData?.location ?? "",
+      locationType: initialData?.locationType ?? "",
+      startDate: initialData?.startDate
+        ? new Date(initialData?.startDate)
+        : undefined,
+      endDate: initialData?.endDate ? new Date(initialData.endDate) : undefined,
+      expDescription: initialData?.expDescription ?? "",
+      workingAt: initialData?.workingAt ?? false,
     },
   });
 
@@ -45,8 +55,20 @@ function AddExprience({ onSuccess }: { onSuccess: () => void }) {
       tos.success("Success");
     },
   });
+  const { mutate: update, isLoading: isUpdating } = useMutation({
+    mutationFn: updateUserExperience,
+    onSuccess: () => {
+      onSuccess();
+      queryClient.invalidateQueries({ queryKey: ["experiences"] });
+      tos.success("Success");
+    },
+  });
   const onSubmit = (data: any) => {
-    mutate({ expRequest: [data] });
+    if (initialData) {
+      update({ id: initialData._id, payload: data });
+    } else {
+      mutate({ expRequest: [data] });
+    }
   };
   return (
     <div className="p-2 md:p-0">
@@ -334,6 +356,21 @@ function AddExprience({ onSuccess }: { onSuccess: () => void }) {
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="expDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Enter Description" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="workingAt"
@@ -359,7 +396,15 @@ function AddExprience({ onSuccess }: { onSuccess: () => void }) {
             )}
           />
           <div className="flex items-center justify-end">
-            <Button>{isLoading ? <Spinner /> : "Add Experience"}</Button>
+            <Button>
+              {isLoading || isUpdating ? (
+                <Spinner />
+              ) : initialData ? (
+                "Edit Experience"
+              ) : (
+                "Add Experience"
+              )}
+            </Button>
           </div>
         </form>
       </FormProvider>

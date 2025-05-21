@@ -6,36 +6,37 @@ import {
   FormMessage,
   FormLabel,
 } from "../ui/form";
-import * as Select from "@radix-ui/react-select";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
+// import * as Select from "@radix-ui/react-select";
+// import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Button } from "../ui/button";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { addSkill, getJobCategory } from "@/Api/profile.api";
+import { useMutation, useQueryClient } from "react-query";
+import { addUserSkill } from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import { Textarea } from "../ui/textarea";
 import { tos } from "@/lib/utils";
+import { Input } from "../ui/input";
 
 function AddSkill({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
-      name: "",
+      skill: "",
       category: "",
       company: "",
-      details: "",
+      skillDescription: "",
     },
   });
 
-  const { data: categories } = useQuery({
-    queryKey: ["jobCategories"],
-    queryFn: getJobCategory,
-  });
+  // const { data: categories } = useQuery({
+  //   queryKey: ["fetchSkillCategories"],
+  //   queryFn: fetchSkillCategories,
+  // });
 
   const { mutate, isLoading } = useMutation({
-    mutationFn: addSkill,
+    mutationFn: addUserSkill,
     onSuccess: () => {
-      tos.success("Education added Successfully");
+      tos.success("Skill added Successfully");
       queryClient.invalidateQueries("skills");
       onSuccess();
     },
@@ -46,18 +47,13 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
   });
 
   const onSubmit = (data: any) => {
-    const payload = {
-      name: data.name,
-      category: data.category,
-    };
-
-    mutate(payload);
+    mutate(data);
   };
   return (
     <div className="p-2 md:p-0">
       <FormProvider {...form}>
         <form className="" onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
+          {/* <FormField
             control={form.control}
             name="name"
             rules={{
@@ -74,7 +70,7 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
                     value={field.value}
                   >
                     <Select.Trigger className="flex items-center justify-between w-full h-10 px-3 border rounded-md bg-white text-gray-500 text-sm focus:outline-none">
-                      <Select.Value placeholder="Employment Type" />
+                      <Select.Value placeholder="Skill Name" />
                       <Select.Icon>
                         <ChevronDownIcon className="w-4 h-4 text-gray-600" />
                       </Select.Icon>
@@ -100,9 +96,34 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
+            control={form.control}
+            rules={{
+              required: "Skill Name is required",
+              minLength: {
+                value: 3,
+                message: "Skill Name must be at least 3 characters",
+              },
+            }}
+            name="skill"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Skill Name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your Skill Name"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* <FormField
             control={form.control}
             name="category"
             rules={{
@@ -146,9 +167,26 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
+            control={form.control}
+            rules={{
+              required: "Category is required",
+            }}
+            name="category"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <Input placeholder="Category" {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* <FormField
             control={form.control}
             name="company"
             rules={{
@@ -191,20 +229,33 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
                 <FormMessage />
               </FormItem>
             )}
+          /> */}
+
+          <FormField
+            control={form.control}
+            rules={{
+              required: "Company is required",
+            }}
+            name="company"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Company</FormLabel>
+                <FormControl>
+                  <Input placeholder="Company" {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
           <FormField
             control={form.control}
-            name="details"
+            name="skillDescription"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Details</FormLabel>
+                <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea
-                    className="text-gray-500"
-                    placeholder="Enter Details"
-                    {...field}
-                  />
+                  <Textarea placeholder="Enter Details" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

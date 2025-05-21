@@ -1,6 +1,6 @@
 import EmptyCard from "./EmptyCard";
 import { TbBriefcase2 } from "react-icons/tb";
-import { FiMapPin } from "react-icons/fi";
+import { FiEdit2, FiMapPin, FiTrash2 } from "react-icons/fi";
 import { LuGraduationCap } from "react-icons/lu";
 import { FaRegStar } from "react-icons/fa";
 import { useState } from "react";
@@ -14,6 +14,7 @@ import {
   deleteSkill,
 } from "@/Api/profile.api";
 import { tos } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ExpAndEduCardProps {
   id: string;
@@ -27,7 +28,8 @@ interface ExpAndEduCardProps {
   gpa?: number;
   type: "Edu" | "Exp" | "Ski" | "Org";
   orgEmail?: string;
-  onClick?: () => void;
+  showIcon: boolean;
+  onClick?: (id: string) => void;
 }
 type SectionType = "Edu" | "Exp" | "Ski" | "Org";
 const ExpAndEduCard = ({
@@ -42,6 +44,7 @@ const ExpAndEduCard = ({
   gpa,
   type,
   orgEmail,
+  showIcon,
   onClick,
 }: ExpAndEduCardProps) => {
   const [showMenu, setShowMenu] = useState(false);
@@ -102,7 +105,6 @@ const ExpAndEduCard = ({
   };
   return (
     <EmptyCard
-      onClick={onClick}
       cardClassname="relative px-5"
       contentClassname="flex flex-row gap-5 py-4"
     >
@@ -148,27 +150,51 @@ const ExpAndEduCard = ({
         )}
       </div>
       {/* 3-dot menu */}
-      <div
-        className="absolute top-3 right-4 group z-10"
-        onClick={(e) => e.stopPropagation()}
-        onMouseEnter={() => setShowMenu(true)}
-        onMouseLeave={() => setShowMenu(false)}
-      >
-        <MoreHorizontal className="w-5 h-5 text-gray-500 hover:text-gray-700 cursor-pointer" />
+      {showIcon && (
+        <div
+          className="absolute top-3 right-4 group z-10"
+          onClick={(e) => e.stopPropagation()}
+          onMouseEnter={() => setShowMenu(true)}
+          onMouseLeave={() => setShowMenu(false)}
+        >
+          <MoreHorizontal className="w-5 h-5 text-gray-500 hover:text-gray-700 cursor-pointer" />
 
-        {showMenu && (
-          <div className="absolute right-0 mt-0 bg-white shadow-md rounded-md border text-sm z-20">
-            <button
-              className="px-4 py-2 text-red-500 hover:bg-gray-100 w-full text-left"
-              onClick={() => {
-                deleteCard(type, id);
-              }}
-            >
-              Delete
-            </button>
-          </div>
-        )}
-      </div>
+          {showMenu && (
+            <AnimatePresence>
+              {showMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute right-0 mt-0 w-40 bg-white rounded-lg shadow-lg border border-gray-100 z-20 overflow-hidden"
+                >
+                  <button
+                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClick?.(id);
+                      setShowMenu(false);
+                    }}
+                  >
+                    <FiEdit2 size={14} />
+                    Edit
+                  </button>
+                  <button
+                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteCard(type, id);
+                    }}
+                  >
+                    <FiTrash2 size={14} />
+                    Delete
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
+        </div>
+      )}
     </EmptyCard>
   );
 };

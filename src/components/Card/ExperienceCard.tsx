@@ -10,13 +10,25 @@ import { X } from "lucide-react";
 import { formatDateToMonthYear, tos } from "@/lib/utils";
 import { Spinner } from "../ui/Spinner";
 import { getAxiosSuccessMessage } from "@/Api/axios";
+import { useRole } from "@/Context/RoleContext";
+import ExpAndEduCardSocial from "./ExpAndEduCardSocial";
+import { UserExperience } from "../Types";
+import { FiEye, FiFile, FiPlus, FiUpload, FiX } from "react-icons/fi";
 
-const ExperienceCard = () => {
+const ExperienceCard = ({
+  otherUserExperience,
+}: {
+  otherUserExperience: UserExperience[] | undefined;
+}) => {
   const [open, setOpen] = useState(false);
   const [openUploadCV, setOpenUploadCV] = useState(false);
   const [viewCV, setViewCV] = useState(false);
+  const { mode } = useRole();
+  const [initialData, setInitialData] = useState<UserExperience | undefined>(
+    undefined
+  );
 
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
@@ -52,11 +64,13 @@ const ExperienceCard = () => {
     queryKey: ["userCV"],
     queryFn: getUserCV,
     onSuccess: () => {},
+    enabled: !otherUserExperience,
   });
 
   const { data: experiences } = useQuery({
     queryKey: ["experiences"],
     queryFn: getUserExperience,
+    enabled: !otherUserExperience,
   });
 
   const fileUrl = `/${userCV?.data?.path.replace("public/", "")}`;
@@ -67,35 +81,54 @@ const ExperienceCard = () => {
     formData.append("uploadCV", file);
     upload(formData);
   };
+  const displayData = otherUserExperience || experiences?.data;
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-row gap-2 justify-end items-end px-2">
-        <Button
-          variant="outline"
-          className="border-primary"
-          onClick={() => setOpenUploadCV(true)}
-        >
-          Upload CV
-        </Button>
-        <Button
-          variant="outline"
-          className="border-primary"
-          onClick={() => setViewCV(true)}
-        >
-          View CV
-        </Button>
-        <Button
-          className={`${
-            !open
-              ? "bg-primary hover:bg-primary/80"
-              : "bg-red-500 hover:bg-red-500/80"
-          }`}
-          onClick={() => setOpen(!open)}
-        >
-          {open ? "Cancel" : "Add"}
-        </Button>
-      </div>
+      {!otherUserExperience && (
+        <div className="flex items-center justify-between">
+          {open ? (
+            <h1 className="text-lg py-2 items-center font-semibold">
+              Add Experience
+            </h1>
+          ) : (
+            <div></div>
+          )}
+          <div className="flex flex-row gap-2 justify-end items-end px-2">
+            <Button
+              variant="outline"
+              className="border-primary p-3"
+              onClick={() => setOpenUploadCV(true)}
+            >
+              <FiUpload size={20} />
+            </Button>
+            <Button
+              variant="outline"
+              className="border-primary p-3"
+              onClick={() => setViewCV(true)}
+            >
+              <FiEye size={20} />
+            </Button>
+            <button
+              onClick={() => setOpen(!open)}
+              className={`
+                        p-3 rounded-full transition-all duration-300
+                        ${
+                          !open
+                            ? "bg-primary hover:bg-primary/90 text-white"
+                            : "bg-red-500 hover:bg-red-600 text-white"
+                        }
+                        shadow-md hover:shadow-lg
+                        transform hover:scale-105
+                        focus:outline-none focus:ring-2 focus:ring-opacity-50
+                        ${!open ? "focus:ring-primary" : "focus:ring-red-500"}
+                      `}
+            >
+              {open ? <FiX size={20} /> : <FiPlus size={20} />}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="relative">
         <AnimatePresence mode="wait">
@@ -108,23 +141,49 @@ const ExperienceCard = () => {
               transition={{ type: "tween", ease: "easeInOut" }}
               className="grid sm-phone:grid-cols-1 lg:grid-cols-2 sm-phone:gap-8 lg:gap-10 px-2"
             >
-              {experiences &&
-                experiences?.data.map((item, index) => (
-                  <ExpAndEduCard
-                    id={item._id}
-                    key={index}
-                    institution={item.entity}
-                    date={`${formatDateToMonthYear(
-                      item.startDate
-                    )} - ${formatDateToMonthYear(item.endDate)}`}
-                    location={item.location}
-                    title={item.jobTitle}
-                    isNotSkills
-                    type="Exp"
-                    locationType={item.locationType}
-                    onClick={() => {}}
-                  />
-                ))}
+              {displayData && mode === "formal"
+                ? displayData.map((item) => (
+                    <ExpAndEduCard
+                      key={item._id}
+                      id={item._id}
+                      institution={item.entity}
+                      date={`${formatDateToMonthYear(
+                        item.startDate
+                      )} - ${formatDateToMonthYear(item.endDate)}`}
+                      location={item.location}
+                      title={item.jobTitle}
+                      isNotSkills
+                      type="Exp"
+                      locationType={item.locationType}
+                      showIcon={!otherUserExperience}
+                      onClick={(id: string) => {
+                        const exp = displayData.find((exp) => exp._id === id);
+                        setOpen(true);
+                        setInitialData(exp);
+                      }}
+                    />
+                  ))
+                : displayData?.map((item) => (
+                    <ExpAndEduCardSocial
+                      key={item._id}
+                      id={item._id}
+                      institution={item.entity}
+                      date={`${formatDateToMonthYear(
+                        item.startDate
+                      )} - ${formatDateToMonthYear(item.endDate)}`}
+                      location={item.location}
+                      title={item.jobTitle}
+                      isNotSkills
+                      type="Exp"
+                      locationType={item.locationType}
+                      showIcon={!otherUserExperience}
+                      onClick={(id: string) => {
+                        const exp = displayData.find((exp) => exp._id === id);
+                        setOpen(true);
+                        setInitialData(exp);
+                      }}
+                    />
+                  ))}
             </motion.div>
           ) : (
             <motion.div
@@ -134,10 +193,10 @@ const ExperienceCard = () => {
               exit={{ x: "100%" }}
               transition={{ type: "tween", ease: "easeInOut" }}
             >
-              <h1 className="text-lg py-2 items-center font-semibold">
-                Add Experience
-              </h1>
-              <AddExprience onSuccess={() => setOpen(false)} />
+              <AddExprience
+                initialData={initialData}
+                onSuccess={() => setOpen(false)}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -152,25 +211,68 @@ const ExperienceCard = () => {
                 Upload CV
               </Dialog.Title>
               <Dialog.Close asChild>
-                <button className="text-gray-500 hover:text-gray-800">
+                <button className="text-gray-500 hover:text-gray-800 transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </Dialog.Close>
             </div>
 
             <div className="space-y-4">
+              {/* Hidden file input */}
               <input
                 type="file"
+                id="cv-upload"
                 accept=".pdf,.doc,.docx"
                 onChange={handleFileChange}
-                className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-white file:hover:bg-primary/80"
+                className="hidden"
               />
+
+              {/* Custom upload area */}
+              <label
+                htmlFor="cv-upload"
+                className="flex flex-col items-center justify-center w-full p-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors hover:bg-gray-50"
+              >
+                <FiUpload className="w-10 h-10 text-gray-400 mb-3" />
+                <p className="text-sm text-gray-600 mb-1">
+                  <span className="font-medium text-primary">
+                    Click to upload
+                  </span>{" "}
+                  or drag and drop
+                </p>
+                <p className="text-xs text-gray-500">
+                  PDF, DOC, or DOCX (Max. 5MB)
+                </p>
+              </label>
+
+              {/* Selected file display */}
+              {file && (
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-gray-200">
+                  <div className="flex items-center">
+                    <FiFile className="w-5 h-5 text-gray-500 mr-2" />
+                    <span className="text-sm font-medium">{file?.name}</span>
+                  </div>
+                  <button
+                    onClick={() => setFile(null)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <FiX className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
               <Button
                 onClick={handleUpload}
                 disabled={!file || uploading}
                 className="w-full"
               >
-                {uploading ? <Spinner /> : "Submit"}
+                {uploading ? (
+                  <div className="flex items-center justify-center">
+                    <Spinner className="mr-2" />
+                    Uploading...
+                  </div>
+                ) : (
+                  "Upload CV"
+                )}
               </Button>
             </div>
           </Dialog.Content>

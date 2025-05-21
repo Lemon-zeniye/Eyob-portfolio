@@ -1149,117 +1149,118 @@ function NormalHomePage() {
                 <p className="text-gray-500 text-sm">
                   {userFullProfile?.data.position || "No position specified"}
                 </p>
-
-                {/* Stats */}
-                <div className="flex justify-between mt-4 text-center border-y py-3">
-                  <div>
-                    <p className="font-bold">248</p>
-                    <p className="text-xs text-gray-500">Posts</p>
+                <div className="h-[60vh] overflow-y-auto pb-10">
+                  {/* Stats */}
+                  <div className="flex justify-between mt-4 text-center border-y py-3">
+                    <div>
+                      <p className="font-bold">248</p>
+                      <p className="text-xs text-gray-500">Posts</p>
+                    </div>
+                    <div>
+                      <p className="font-bold">1,432</p>
+                      <p className="text-xs text-gray-500">Followers</p>
+                    </div>
+                    <div>
+                      <p className="font-bold">526</p>
+                      <p className="text-xs text-gray-500">Following</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold">1,432</p>
-                    <p className="text-xs text-gray-500">Followers</p>
-                  </div>
-                  <div>
-                    <p className="font-bold">526</p>
-                    <p className="text-xs text-gray-500">Following</p>
-                  </div>
-                </div>
 
-                {/* Bio */}
-                <p className="text-gray-600 text-sm mt-3">
-                  {userFullProfile?.data.bio || "No bio available"}
-                </p>
+                  {/* Bio */}
+                  <p className="text-gray-600 text-sm mt-3">
+                    {userFullProfile?.data.bio || "No bio available"}
+                  </p>
 
-                {/* Current Role (if available) */}
-                {userFullProfile?.data.experience?.find(
-                  (exp) => exp.workingAt
-                ) && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-sm text-gray-700">
-                      Currently
-                    </h4>
-                    <p className="font-medium">
-                      {
-                        userFullProfile.data.experience.find(
-                          (exp) => exp.workingAt
-                        )?.jobTitle
-                      }
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {
-                        userFullProfile.data.experience.find(
-                          (exp) => exp.workingAt
-                        )?.entity
-                      }
-                    </p>
-                  </div>
-                )}
-
-                {/* Education Summary */}
-                {userFullProfile?.data.education &&
-                  userFullProfile?.data.education?.length > 0 && (
-                    <div className="mt-4">
+                  {/* Current Role (if available) */}
+                  {userFullProfile?.data.experience?.find(
+                    (exp) => exp.workingAt
+                  ) && (
+                    <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                       <h4 className="font-medium text-sm text-gray-700">
-                        Education
+                        Currently
                       </h4>
-                      {userFullProfile.data.education.slice(0, 2).map((edu) => (
-                        <div key={edu._id} className="mt-1">
-                          <p className="font-medium">{edu.institution}</p>
-                          <p className="text-sm text-gray-600">
-                            {edu.degree}
-                            {edu.fieldOfStudy && `, ${edu.fieldOfStudy}`}
-                          </p>
-                        </div>
-                      ))}
+                      <p className="font-medium">
+                        {
+                          userFullProfile.data.experience.find(
+                            (exp) => exp.workingAt
+                          )?.jobTitle
+                        }
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {
+                          userFullProfile.data.experience.find(
+                            (exp) => exp.workingAt
+                          )?.entity
+                        }
+                      </p>
                     </div>
                   )}
 
-                {/* Skills Cloud */}
-                {userFullProfile?.data.skills &&
-                  userFullProfile?.data.skills?.[0]?.skill?.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="font-medium text-sm text-gray-700">
-                        Skills
-                      </h4>
-                      <div className="flex flex-wrap gap-1.5 mt-2">
-                        {userFullProfile.data.skills[0].skill
-                          .slice(0, 8)
-                          .map((skill, i) => (
-                            <span
-                              key={i}
-                              className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Organizations */}
-                {userFullProfile?.data.organization &&
-                  userFullProfile?.data.organization?.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="font-medium text-sm text-gray-700">
-                        Organizations
-                      </h4>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {userFullProfile.data.organization
-                          .slice(0, 3)
-                          .map((org) => (
-                            <div key={org._id} className="flex items-center">
-                              <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-1">
-                                <span className="text-xs">🏢</span>
-                              </div>
-                              <span className="text-sm">
-                                {org.organizationName}
-                              </span>
+                  {/* Education Summary */}
+                  {userFullProfile?.data.education &&
+                    userFullProfile?.data.education?.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="font-medium text-sm text-gray-700">
+                          Education
+                        </h4>
+                        {userFullProfile.data.education
+                          .slice(0, 2)
+                          .map((edu) => (
+                            <div key={edu._id} className="mt-1">
+                              <p className="font-medium">{edu.institution}</p>
+                              <p className="text-sm text-gray-600">
+                                {edu.degree}
+                                {edu.fieldOfStudy && `, ${edu.fieldOfStudy}`}
+                              </p>
                             </div>
                           ))}
                       </div>
-                    </div>
-                  )}
+                    )}
+
+                  {/* Skills Cloud */}
+                  {userFullProfile?.data.skills &&
+                    userFullProfile?.data.skills?.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="font-medium text-sm text-gray-700">
+                          Skills
+                        </h4>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {userFullProfile?.data.skills.map((ski) => (
+                            <span
+                              key={ski._id}
+                              className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs"
+                            >
+                              {ski.skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Organizations */}
+                  {userFullProfile?.data.organization &&
+                    userFullProfile?.data.organization?.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="font-medium text-sm text-gray-700">
+                          Organizations
+                        </h4>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {userFullProfile.data.organization
+                            .slice(0, 3)
+                            .map((org) => (
+                              <div key={org._id} className="flex items-center">
+                                <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-1">
+                                  <span className="text-xs">🏢</span>
+                                </div>
+                                <span className="text-sm">
+                                  {org.organizationName}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                </div>
 
                 {/* <Button className="w-full mt-6 bg-[#05A9A9] hover:bg-[#048484]">
                   Edit Profile

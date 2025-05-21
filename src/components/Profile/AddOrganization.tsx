@@ -12,20 +12,29 @@ import { Input } from "../ui/input";
 import "react-day-picker/dist/style.css";
 import { Button } from "../ui/button";
 import { useMutation, useQueryClient } from "react-query";
-import { addUserOrganization } from "@/Api/profile.api";
+import { addUserOrganization, updateUserOrganization } from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import { useState } from "react";
-import { tos } from "@/lib/utils";
+import { formatImageUrl, tos } from "@/lib/utils";
+import { Organization } from "@/Types/profile.type";
 
-function AddOrganization({ onSuccess }: { onSuccess: () => void }) {
+function AddOrganization({
+  onSuccess,
+  initialData,
+}: {
+  onSuccess: () => void;
+  initialData: Organization | undefined;
+}) {
   const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
-      organizationLogo: "",
-      organizationName: "",
-      email: "",
-      organizationType: "",
+      organizationLogo: initialData?.path
+        ? formatImageUrl(initialData?.path)
+        : "",
+      organizationName: initialData?.organizationName ?? "",
+      email: initialData?.email ?? "",
+      organizationType: initialData?.organizationType ?? "",
     },
   });
 
@@ -54,6 +63,20 @@ function AddOrganization({ onSuccess }: { onSuccess: () => void }) {
     },
   });
 
+  const { mutate: update, isLoading: isUpdating } = useMutation({
+    mutationFn: updateUserOrganization,
+    onSuccess: () => {
+      tos.success("Organization added Successfully");
+
+      onSuccess();
+      queryClient.invalidateQueries("organization");
+    },
+    onError: (error: any) => {
+      const message = getAxiosErrorMessage(error);
+      tos.error(message);
+    },
+  });
+
   const onSubmit = (data: any) => {
     const formData = new FormData();
 
@@ -65,7 +88,11 @@ function AddOrganization({ onSuccess }: { onSuccess: () => void }) {
       formData.append("organizationLogo", logoFile);
     }
 
-    mutate(formData);
+    if (initialData) {
+      update({ id: initialData._id, payload: formData });
+    } else {
+      mutate(formData);
+    }
   };
 
   return (
@@ -181,7 +208,15 @@ function AddOrganization({ onSuccess }: { onSuccess: () => void }) {
           />
 
           <div className="my-4 flex items-center justify-end">
-            <Button>{isLoading ? <Spinner /> : "Add Organization"}</Button>
+            <Button>
+              {isLoading || isUpdating ? (
+                <Spinner />
+              ) : initialData ? (
+                "Edit Organization"
+              ) : (
+                "Add Organization"
+              )}
+            </Button>
           </div>
         </form>
       </FormProvider>

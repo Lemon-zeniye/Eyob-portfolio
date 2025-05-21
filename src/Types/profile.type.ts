@@ -42,7 +42,7 @@ type Skill = {
   status: string;
   createdAt: string;
   __v: number;
-  category: JobCategory;
+  category: SkillCategory;
 };
 
 export type FetchSkillsResponse = {
@@ -51,13 +51,30 @@ export type FetchSkillsResponse = {
   data: Skill[];
 };
 
+export type UserSkillsRes = {
+  success: boolean;
+  msg: string;
+  data: UserSkill[];
+};
+
+export interface UserSkill {
+  _id: string;
+  userid: string;
+  skill: string;
+  category: string;
+  company: string;
+  skillDescription: string;
+  createdAt: string;
+  __v: number;
+}
+
 export interface PostPayload {
   postContent: string;
   postTitle: string;
   postImages?: string[];
 }
 
-export interface JobCategory {
+export interface SkillCategory {
   _id: string;
   name: string;
   status: string;
@@ -65,10 +82,10 @@ export interface JobCategory {
   __v: number;
 }
 
-export interface JobCategoriesResponse {
+export interface SkillCategoriesResponse {
   success: boolean;
   msg: string;
-  data: JobCategory[];
+  data: SkillCategory[];
 }
 
 export interface FileResponse {
@@ -202,7 +219,7 @@ export interface UserData {
   name: string;
   education: UserEducation[];
   experience: UserExperience[];
-  skills: SkillNew[];
+  skills: UserSkill[];
   organization: Organization[];
   certification: any[];
   id: string;
