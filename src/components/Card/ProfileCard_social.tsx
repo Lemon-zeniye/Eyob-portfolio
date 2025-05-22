@@ -251,6 +251,12 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
                   </Dialog.Portal>
                 </Dialog.Root>
               </div>
+              <div
+                className="bg-primary py-1 rounded-full px-4 z-20 text-white absolute left-1/2 -bottom-24 -translate-x-1/2 -translate-y-1/2 
+               "
+              >
+                Open To work
+              </div>
             </div>
           </div>
 

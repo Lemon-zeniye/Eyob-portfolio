@@ -136,3 +136,22 @@ export interface StoryRes {
   success: boolean;
   msg: string;
 }
+
+interface Notification {
+  _id: string;
+  // userid: {
+  //   name: string;
+  //   profilePic?: string;
+  // };
+  userId: string;
+  notificationType: string;
+  content: string;
+  readStatus: boolean;
+  createdAt: string;
+}
+
+export interface NotificationRes {
+  data: Notification[];
+  success: boolean;
+  msg: string;
+}

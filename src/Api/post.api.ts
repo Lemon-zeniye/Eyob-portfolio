@@ -1,6 +1,7 @@
 import {
   ChildCommentsRes,
   CommentsRes,
+  NotificationRes,
   PostComRes,
   PostRes,
   StoryRes,
@@ -89,6 +90,34 @@ export const Commentlike = async (payload: any): Promise<any> => {
   const response = await axios.post<any>(
     `/userPost/commentLikeOrDeslike`,
     payload
+  );
+  return response.data;
+};
+
+// Notification Apis
+export const getNotifications = async (): Promise<NotificationRes> => {
+  const response = await axios.get<any>(`/notification/getNotifications`);
+  return response.data;
+};
+
+export const deleteNotification = async (
+  id: string
+): Promise<NotificationRes> => {
+  const response = await axios.delete<any>(
+    `/notification/deleteNotification/${id}`
+  );
+  return response.data;
+};
+
+export const updateNotification = async ({
+  id,
+  payload,
+}: {
+  id: string;
+  payload: any;
+}): Promise<NotificationRes> => {
+  const response = await axios.patch<any>(
+    `/notification/updateNotification/${id}`
   );
   return response.data;
 };

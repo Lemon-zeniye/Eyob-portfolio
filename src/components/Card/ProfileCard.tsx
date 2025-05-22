@@ -139,19 +139,25 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
       contentClassname="space-y-4"
     >
       <div className="flex flex-col gap-20">
-        <div className="relative">
+        <div className="">
           <div className="w-full">
             <CustomVideoPlayer otherUser={otherUser} />
           </div>
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>
-              <img
-                src={profileImage || userProfileImg}
-                alt="Profile"
-                // crossOrigin="anonymous"
-                className="z-10 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-10 sm:left-12 left-8 object-cover border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 transition"
-              />
+              <div className="relative">
+                <img
+                  src={profileImage || userProfileImg}
+                  alt="Profile"
+                  // crossOrigin="anonymous"
+                  className="z-10 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-10 sm:left-12 left-8 object-cover border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 transition"
+                />
+                <div className="bg-primary py-1 rounded-full px-4 z-20 text-white absolute -bottom-12 sm:left-12 left-10 ">
+                  Open To work
+                </div>
+              </div>
             </Dialog.Trigger>
+            {/* <div className="absolute -bottom-10">open to work</div> */}
 
             <Dialog.Portal>
               <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
