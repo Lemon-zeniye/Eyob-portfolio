@@ -40,6 +40,7 @@ import CustomVideoPlayer from "../Video/Video";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { FaUserPlus } from "react-icons/fa";
 import { Spinner } from "../ui/Spinner";
+import DocumentationCard from "./DocumentationCard";
 
 const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -355,6 +356,14 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
                   >
                     Organization
                   </TabsTrigger>
+                  {otherUser && (
+                    <TabsTrigger
+                      value="documentation"
+                      className="whitespace-nowrap rounded-full px-4 py-2 text-sm data-[state=active]:bg-white data-[state=active]:text-primary flex-shrink-0 md:flex-shrink"
+                    >
+                      Documentation
+                    </TabsTrigger>
+                  )}
                 </TabsList>
               </div>
 
@@ -378,6 +387,13 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
                     otherUserOrganization={otherUser?.organization}
                   />
                 </TabsContent>
+                {otherUser && (
+                  <TabsContent value="documentation">
+                    <DocumentationCard
+                      otherUserCertification={otherUser?.certification}
+                    />
+                  </TabsContent>
+                )}
               </div>
             </Tabs>
           </div>

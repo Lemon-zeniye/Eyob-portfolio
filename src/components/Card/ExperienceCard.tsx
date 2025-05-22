@@ -14,6 +14,7 @@ import { useRole } from "@/Context/RoleContext";
 import ExpAndEduCardSocial from "./ExpAndEduCardSocial";
 import { UserExperience } from "../Types";
 import { FiEye, FiFile, FiPlus, FiUpload, FiX } from "react-icons/fi";
+import DocumentViewer from "../Profile/DocumentViewer";
 
 const ExperienceCard = ({
   otherUserExperience,
@@ -73,7 +74,10 @@ const ExperienceCard = ({
     enabled: !otherUserExperience,
   });
 
-  const fileUrl = `/${userCV?.data?.path.replace("public/", "")}`;
+  const fileUrl = `https://awema.co/${userCV?.data?.path.replace(
+    "public/",
+    ""
+  )}`;
 
   const handleUpload = () => {
     if (!file) return;
@@ -97,17 +101,17 @@ const ExperienceCard = ({
           <div className="flex flex-row gap-2 justify-end items-end px-2">
             <Button
               variant="outline"
-              className="border-primary p-3"
+              className="border-primary flex items-center gap-2 p-3"
               onClick={() => setOpenUploadCV(true)}
             >
-              <FiUpload size={20} />
+              <FiUpload size={20} /> <span>Resume</span>
             </Button>
             <Button
               variant="outline"
-              className="border-primary p-3"
+              className="border-primary flex items-center gap-2 p-3"
               onClick={() => setViewCV(true)}
             >
-              <FiEye size={20} />
+              <FiEye size={20} /> <span>Resume</span>
             </Button>
             <button
               onClick={() => setOpen(!open)}
@@ -295,13 +299,17 @@ const ExperienceCard = ({
             </div>
 
             <div className="h-full border rounded-md overflow-hidden">
-              <iframe
-                src={`https://docs.google.com/gview?url=${encodeURIComponent(
-                  `https://awema.co/${fileUrl}`
-                )}&embedded=true`}
-                className="w-full h-[80vh]"
-                frameBorder="0"
-              />
+              {fileUrl && (
+                <div
+                  style={{
+                    marginTop: "20px",
+                    border: "1px solid #ccc",
+                    padding: "10px",
+                  }}
+                >
+                  <DocumentViewer fileUrl={fileUrl} />
+                </div>
+              )}
             </div>
           </Dialog.Content>
         </Dialog.Portal>

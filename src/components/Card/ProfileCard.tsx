@@ -27,6 +27,7 @@ import ShareProfile from "../Profile/ShareProfile";
 import Cookies from "js-cookie";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { IoPersonAdd } from "react-icons/io5";
+import DocumentationCard from "./DocumentationCard";
 
 const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -291,11 +292,22 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
             <OrganizationCard otherUserOrganization={undefined} />
           </Tabs>
         ) : (
-          <Tabs tabs={["Experience", "Education", "Skills", "Organization"]}>
+          <Tabs
+            tabs={[
+              "Experience",
+              "Education",
+              "Skills",
+              "Organization",
+              "Documentation",
+            ]}
+          >
             <ExperienceCard otherUserExperience={otherUser?.experience} />
             <EducationCard otherUserEducation={otherUser?.education} />
             <SkillCard otherUserSkill={otherUser?.skills} />
             <OrganizationCard otherUserOrganization={otherUser?.organization} />
+            <DocumentationCard
+              otherUserCertification={otherUser?.certification}
+            />
           </Tabs>
         )}
       </div>

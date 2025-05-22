@@ -3,6 +3,7 @@ import axios from "./axios";
 import {
   ActiveCompaniesRes,
   ActiveUserResponse,
+  CertificateRes,
   CompanyAboutResponse,
   CompanyProfileRes,
   EducationResponse,
@@ -335,5 +336,10 @@ export const fetchSkillCategories =
 
 export const follow = async (payload: any): Promise<any> => {
   const response = await axios.post<any>(`/follow/followEntity`, payload);
+  return response.data;
+};
+
+export const getCertification = async (): Promise<CertificateRes> => {
+  const response = await axios.get(`/organization/user/certificates`);
   return response.data;
 };

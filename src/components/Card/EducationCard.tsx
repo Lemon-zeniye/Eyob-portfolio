@@ -3,13 +3,16 @@ import ExpAndEduCard from "./ExpAndEduCard";
 import AddEducation from "../Profile/AddEducation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "react-query";
-import { getEducations } from "@/Api/profile.api";
+import { getCertification, getEducations } from "@/Api/profile.api";
 import { Button } from "../ui/button";
 import AddCertification from "../Profile/AddCertification";
 import { useRole } from "@/Context/RoleContext";
 import ExpAndEduCardSocial from "./ExpAndEduCardSocial";
 import { UserEducation } from "../Types";
-import { FiAward, FiPlus, FiX } from "react-icons/fi";
+import { FiEye, FiPlus, FiUpload, FiX } from "react-icons/fi";
+import * as Dialog from "@radix-ui/react-dialog";
+import { X } from "lucide-react";
+import CertificateCard from "./CertificateCard";
 
 const EducationCard = ({
   otherUserEducation,
@@ -22,12 +25,21 @@ const EducationCard = ({
   const [initialData, setInitialData] = useState<UserEducation | undefined>(
     undefined
   );
+  const [viewCertification, setViewCertification] = useState(false);
+  const [addCertificate, setAddCertificate] = useState(true);
 
   const { data: educations } = useQuery({
     queryKey: ["educations"],
     queryFn: getEducations,
     enabled: !otherUserEducation,
   });
+
+  const { data: certifications } = useQuery({
+    queryKey: ["certification"],
+    queryFn: getCertification,
+    enabled: !otherUserEducation,
+  });
+
   const displayData = otherUserEducation || educations?.data;
 
   return (
@@ -48,12 +60,23 @@ const EducationCard = ({
               <>
                 <Button
                   variant="outline"
-                  className="border-primary p-3"
+                  className="border-primary flex items-center gap-2 p-3"
                   onClick={() => {
                     setCertification(true);
+                    setAddCertificate(true);
                   }}
                 >
-                  <FiAward size={20} />
+                  <FiUpload size={20} /> <span>Certification</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-primary flex items-center gap-2 p-3"
+                  onClick={() => {
+                    setCertification(true);
+                    setAddCertificate(false);
+                  }}
+                >
+                  <FiEye size={20} /> <span>Certification</span>
                 </Button>
                 <Button
                   className={
@@ -152,12 +175,66 @@ const EducationCard = ({
                 />
               )}
               {certification && (
-                <AddCertification onSuccess={() => setOpen(false)} />
+                <div>
+                  <motion.div
+                    key="add-certificate"
+                    initial={{ x: "100%" }}
+                    animate={{ x: 0 }}
+                    exit={{ x: "100%" }}
+                    transition={{ type: "tween", ease: "easeInOut" }}
+                  >
+                    {addCertificate ? (
+                      <AddCertification onSuccess={() => setOpen(false)} />
+                    ) : (
+                      certifications?.data && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {certifications?.data.map((cert) => (
+                            <CertificateCard
+                              key={cert._id}
+                              certificate={cert}
+                            />
+                          ))}
+                        </div>
+                      )
+                    )}
+                  </motion.div>
+                </div>
               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+      <Dialog.Root open={viewCertification} onOpenChange={setViewCertification}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[94%] max-w-4xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-4 shadow-xl focus:outline-none">
+            <div className="flex items-center justify-between mb-2">
+              <Dialog.Title className="text-lg font-semibold">
+                CV Preview
+              </Dialog.Title>
+              <Dialog.Close asChild>
+                <button className="text-gray-500 hover:text-gray-800">
+                  <X className="w-5 h-5" />
+                </button>
+              </Dialog.Close>
+            </div>
+
+            <div className="h-full border rounded-md overflow-hidden">
+              {/* {fileUrl && (
+                <div
+                  style={{
+                    marginTop: "20px",
+                    border: "1px solid #ccc",
+                    padding: "10px",
+                  }}
+                >
+                  <DocumentViewer fileUrl={fileUrl} />
+                </div>
+              )} */}
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 };

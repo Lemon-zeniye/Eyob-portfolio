@@ -67,6 +67,9 @@ function AddCertification({ onSuccess }: { onSuccess: () => void }) {
 
     if (logoFile instanceof File) {
       formData.append("certificateDoc", logoFile);
+    } else {
+      tos.error("Certificate Doc Required");
+      return;
     }
 
     mutate(formData);

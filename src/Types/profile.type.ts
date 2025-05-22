@@ -221,7 +221,7 @@ export interface UserData {
   experience: UserExperience[];
   skills: UserSkill[];
   organization: Organization[];
-  certification: any[];
+  certification: Certificate[];
   id: string;
   location: string;
   position: string;
@@ -253,4 +253,22 @@ export interface ActiveCompanies {
   picturePath: string;
   role: Role;
   _id: string;
+}
+
+export interface Certificate {
+  certificateName: string;
+  certificateNumber: string;
+  certifiedBy: string;
+  createdAt: Date;
+  expireDate: Date;
+  path: string;
+  userid: string;
+  __v: number;
+  _id: string;
+}
+
+export interface CertificateRes {
+  success: boolean;
+  msg: string;
+  data: Certificate[];
 }
