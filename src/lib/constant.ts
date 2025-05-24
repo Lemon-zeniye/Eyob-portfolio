@@ -278,6 +278,12 @@ export const routeMeta = [
     isChildRoute: true,
   },
   {
+    path: "/jobs/edit/:id",
+    headerName: "Edit a Job",
+    backRoute: "/jobs",
+    isChildRoute: true,
+  },
+  {
     path: "/chat",
     headerName: "Chat",
     backRoute: "/",

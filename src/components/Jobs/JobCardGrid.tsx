@@ -1,21 +1,23 @@
 import { Job } from "@/Types/job.type";
 import { FC } from "react";
 import googleLogo from "../../assets/icons8-google-48.png";
+import { useRole } from "@/Context/RoleContext";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   job: Job;
-  onClick: () => void;
 }
 
-const JobCardTwo: FC<Props> = ({ job, onClick }) => {
+const JobCardTwo: FC<Props> = ({ job }) => {
   // Dummy data
   const applied = 5;
   const capacity = 10;
-
+  const { mode } = useRole();
+  const navigate = useNavigate();
   return (
     <div
       className="border p-4 w-100 shadow-sm  bg-white cursor-pointer"
-      onClick={onClick}
+      onClick={() => navigate(`/jobs/${job._id}`)}
     >
       {/* Top Row */}
       <div className="flex justify-between items-start">
@@ -24,7 +26,13 @@ const JobCardTwo: FC<Props> = ({ job, onClick }) => {
           alt="Company"
           className="w-10 h-10 object-cover"
         />
-        <span className=" border-white bg-[#EFFAF7]  text-[#56CDAD] text-sm px-3 py-1 font-medium rounded-full">
+        <span
+          className={` border-white text-sm px-3 py-1 font-medium rounded-full ${
+            mode === "formal"
+              ? "bg-primary/10  text-primary/60 "
+              : "bg-primary2/10  text-primary2/70 "
+          } `}
+        >
           {job.jobType || "Full-Time"}
         </span>
       </div>
@@ -51,7 +59,9 @@ const JobCardTwo: FC<Props> = ({ job, onClick }) => {
       <div className="mt-4 space-y-1">
         <div className="w-full bg-gray-200  h-1.5">
           <div
-            className="bg-teal-500 h-1.5 "
+            className={`h-1.5 ${
+              mode === "formal" ? "bg-primary/40 " : "bg-primary2/40"
+            }`}
             style={{ width: `${(applied / capacity) * 100}%` }}
           />
         </div>

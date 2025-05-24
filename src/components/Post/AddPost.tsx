@@ -12,6 +12,7 @@ import {
 import { FiSend } from "react-icons/fi";
 import { useMutation, useQueryClient } from "react-query";
 import { Spinner } from "../ui/Spinner";
+import { useRole } from "@/Context/RoleContext";
 // import { FiUploadCloud } from "react-icons/fi";
 
 export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
@@ -36,6 +37,7 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
       setImagePreviews([...imagePreviews, ...newPreviews]);
     }
   };
+  const { mode } = useRole();
 
   const removeImage = (index: number) => {
     const newImages = [...images];
@@ -67,7 +69,8 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
     if (title) formData.append("postTitle", title);
     if (description) formData.append("postContent", description);
     // formal
-    formData.append("postType", "social");
+    const postType = mode === "formal" ? "formal" : "social";
+    formData.append("postType", postType);
 
     // Append images one by one
     images.forEach((file) => {
@@ -155,10 +158,16 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
       <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <button
-            className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
+            className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600  hover:bg-gray-100 transition-colors ${
+              mode === "formal" ? "hover:text-primary" : "hover:text-[#FFA500]"
+            }`}
             onClick={() => fileInputRef.current?.click()}
           >
-            <FaImage className="text-lg text-primary" />
+            <FaImage
+              className={`text-lg ${
+                mode === "formal" ? "text-primary" : "text-[#FFA500]"
+              }`}
+            />
             <span className="text-sm font-medium">Photo</span>
           </button>
           <input
@@ -171,11 +180,20 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
           />
         </div>
         <button
-          className={`px-5 py-2.5 rounded-lg text-white font-medium flex items-center space-x-2 bg-primary hover:bg-primary/90 transition-colors shadow-sm ${
+          className={`px-5 py-2.5 rounded-lg text-white font-medium flex items-center space-x-2 transition-colors shadow-sm ${
             !description && !title && imagePreviews.length === 0
               ? "opacity-50 cursor-not-allowed"
               : ""
-          }`}
+          }
+
+          ${
+            mode === "formal"
+              ? " bg-primary hover:bg-primary/90"
+              : " bg-[#FFA500] hover:bg-[#FFA500]/90"
+          }
+          
+          
+          `}
           onClick={handleSubmit}
           disabled={!description && !title && imagePreviews.length === 0}
         >

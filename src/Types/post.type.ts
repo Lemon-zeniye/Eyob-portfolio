@@ -58,6 +58,7 @@ export type PostCom = {
   userPicturePath: string;
   isLikedByUser: boolean;
   likesCount: number;
+  commentCount: number;
   dislikesCount: number;
   postOwner: PostOwner;
 };
@@ -87,6 +88,9 @@ export interface CommentNew {
   commentedTo: User;
   createdAt: string;
   __v: number;
+  totalReplies: number;
+  likes: number;
+  deslikes: number;
 }
 
 export interface ChildCommentsRes {

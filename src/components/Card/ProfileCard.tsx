@@ -18,7 +18,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Upload, X } from "lucide-react";
 import CustomVideoPlayer from "../Video/Video";
 import { UserData, UserInfo } from "@/Types/profile.type";
-import { getUserFromToken, tos } from "@/lib/utils";
+import { formatImageUrl, getUserFromToken, tos } from "@/lib/utils";
 import OrganizationCard from "./OrganizationCard";
 import { Button } from "../ui/button";
 import { IoMdShare } from "react-icons/io";
@@ -28,6 +28,7 @@ import Cookies from "js-cookie";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { IoPersonAdd } from "react-icons/io5";
 import DocumentationCard from "./DocumentationCard";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -35,10 +36,12 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [editProfile, setEditProfile] = useState(false);
   const [shareProfile, setShareProfile] = useState(false);
+  const getOtherUserPic =
+    otherUser?.pictures[0]?.path && formatImageUrl(otherUser?.pictures[0].path);
   const [profileImage, setprofileImage] = useState<string | undefined>(
-    Cookies.get("profilePic")
+    getOtherUserPic
   );
-  const userProfileImg = Cookies.get("profilePic");
+  const userProfileImg = getOtherUserPic;
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
@@ -143,22 +146,28 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
           <div className="w-full">
             <CustomVideoPlayer otherUser={otherUser} />
           </div>
-          <Dialog.Root open={open} onOpenChange={setOpen}>
-            <Dialog.Trigger asChild>
-              <div className="relative">
-                <img
+          <div className="relative">
+            <div className="absolute   top-1/2 left-5  md:left-10 -translate-y-1/2">
+              <Avatar
+                className="w-24 h-24 md:w-32 md:h-32 border-4 border-white shadow-xl cursor-pointer hover:opacity-90 transition"
+                onClick={() => !otherUser && setOpen(true)}
+              >
+                <AvatarImage
                   src={profileImage || userProfileImg}
                   alt="Profile"
-                  // crossOrigin="anonymous"
-                  className="z-10 w-20 h-20 sm:w-36 sm:h-36 rounded-full absolute -bottom-10 sm:left-12 left-8 object-cover border-4 border-primary shadow-lg cursor-pointer hover:brightness-90 transition"
                 />
-                <div className="bg-primary py-1 rounded-full px-4 z-20 text-white absolute -bottom-12 sm:left-12 left-10 ">
+                <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-xl md:text-2xl">
+                  {userInfo?.name?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute z-20 -bottom-0 left-1/2 transform -translate-x-1/2">
+                <div className="bg-primary py-1 rounded-full px-4 text-white whitespace-nowrap text-xs sm:text-sm md:text-base">
                   Open To work
                 </div>
               </div>
-            </Dialog.Trigger>
-            {/* <div className="absolute -bottom-10">open to work</div> */}
-
+            </div>
+          </div>
+          <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Portal>
               <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
               <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">

@@ -42,7 +42,9 @@ const OrganizationCard = ({
               p-3 rounded-full transition-all duration-300
               ${
                 !open
-                  ? "bg-primary hover:bg-primary/90 text-white"
+                  ? mode === "formal"
+                    ? "bg-primary hover:bg-primary/90 text-white"
+                    : "bg-primary2 hover:bg-primary2/90 text-white"
                   : "bg-red-500 hover:bg-red-600 text-white"
               }
               shadow-md hover:shadow-lg

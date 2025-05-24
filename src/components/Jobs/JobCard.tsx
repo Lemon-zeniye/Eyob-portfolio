@@ -7,21 +7,23 @@ import { applyJob } from "@/Api/job.api";
 import { tos } from "@/lib/utils";
 import { Spinner } from "../ui/Spinner";
 import { getAxiosErrorMessage } from "@/Api/axios";
-const JobCard = ({ job, onClick }: { job: Job; onClick: () => void }) => {
+import { useRole } from "@/Context/RoleContext";
+const JobCard = ({ job }: { job: Job }) => {
   const navigate = useNavigate();
   // Fill in dummy data for missing fields
   const jobData = {
-    jobTitle: job.jobTitle || "Social Media Assistant",
-    company: job.company || "Amazon",
-    jobLocation: job.jobLocation || "Paris, France",
-    jobType: job.jobType || "Full-Time",
-    jobDescription: job.jobDescription || "Marketing",
-    skills: job.skills?.length ? job.skills.join(", ") : "Social Media",
-    appliedCount: 5, // Assuming these are additional metrics
+    jobTitle: job.jobTitle,
+    company: job.company,
+    jobLocation: job.jobLocation,
+    jobType: job.jobType,
+    jobDescription: job.jobDescription,
+    skills: job.skills?.length ? job.skills.join(", ") : "",
+    appliedCount: 5,
     capacity: 10,
-    jobLocationType: job.locationType || "Remote",
-    degree: job.degree || "Degree",
+    jobLocationType: job.locationType,
+    degree: job.degree,
   };
+  const { mode } = useRole();
 
   const { mutate, isLoading } = useMutation({
     mutationFn: applyJob,
@@ -35,10 +37,7 @@ const JobCard = ({ job, onClick }: { job: Job; onClick: () => void }) => {
   });
 
   return (
-    <div
-      className="border bg-white border-gray-300  p-4 cursor-pointer"
-      onClick={onClick}
-    >
+    <div className="border bg-white border-gray-300  p-4 cursor-pointer">
       <div className="flex gap-4">
         <div
           onClick={() => navigate(`/jobs/${job._id}`)}
@@ -69,7 +68,7 @@ const JobCard = ({ job, onClick }: { job: Job; onClick: () => void }) => {
             <span className="rounded-full px-3 py-1.5 border-2 border-[#FFB836] bg-white text-[#FFB836]  font-medium">
               {jobData.jobLocationType}
             </span>
-            <span className="rounded-full px-3 py-1.5 border-2 border-[#05A9A9] bg-white text-[#05A9A9]  font-medium">
+            <span className="rounded-full px-3 py-1.5 border-2 border-primary bg-white text-primary  font-medium">
               {jobData.degree}
             </span>
           </div>
@@ -77,7 +76,11 @@ const JobCard = ({ job, onClick }: { job: Job; onClick: () => void }) => {
 
         <div className="flex-none flex flex-col space-y-2">
           <Button
-            className="bg-[#05A9A9] px-11 rounded-none py-4  text-white focus:outline-none focus:ring-2 focus:ring-[#05A9A9]"
+            className={`px-11 rounded-none py-4 text-white focus:outline-none focus:ring-2 ${
+              mode === "formal"
+                ? "bg-primary hover:bg-primary"
+                : "bg-primary2/90 hover:bg-primary2/60"
+            }`}
             onClick={() =>
               mutate({
                 jobId: job._id,
@@ -91,7 +94,9 @@ const JobCard = ({ job, onClick }: { job: Job; onClick: () => void }) => {
           <div className="w-full ">
             <div className="w-full bg-gray-200 h-1.5">
               <div
-                className="h-1.5 bg-[#56CDAD]"
+                className={`h-1.5 ${
+                  mode === "formal" ? "bg-primary/40 " : "bg-primary2/40"
+                }`}
                 style={{
                   width: `${(jobData.appliedCount / jobData.capacity) * 100}%`,
                 }}

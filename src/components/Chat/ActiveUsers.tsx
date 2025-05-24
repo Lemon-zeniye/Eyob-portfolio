@@ -1,3 +1,4 @@
+import { useRole } from "@/Context/RoleContext";
 import { ActiveUsers } from "@/Types/chat.type";
 import React from "react";
 
@@ -29,12 +30,15 @@ const UserCard: React.FC<Props> = ({
   onlineUser,
   isSelected,
 }) => {
+  const { mode } = useRole();
   return (
     <div
       className={`flex cursor-pointer items-center space-x-4 px-3 py-2 rounded-lg border transition 
   ${
     isSelected
-      ? "border-primary bg-primary text-white hover:border-primary"
+      ? mode === "formal"
+        ? "border-primary bg-primary text-white hover:border-primary"
+        : "border-primary2 bg-primary2 text-white hover:border-primary2/90"
       : "border-white bg-white hover:border-gray-100"
   }`}
       onClick={() => onClick(user)}

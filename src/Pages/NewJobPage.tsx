@@ -19,6 +19,8 @@ import { IoBusinessOutline } from "react-icons/io5";
 import { CiCircleRemove } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "@/components/ui/Spinner";
+import { useRole } from "@/Context/RoleContext";
+import clsx from "clsx";
 
 function NewJobPage() {
   const filterValues: FilterCategory[] = [
@@ -63,11 +65,10 @@ function NewJobPage() {
   });
   const [selectedFilter, setSelectedFilter] = useState({});
   const [mobileFilter, setMobileFilter] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<{
-    [key: string]: string[];
-  }>({});
+  const { mode } = useRole();
 
   const applyFilters = () => {
+    console.log("333333333", selectedValues);
     const filters = Object.entries(selectedValues).reduce(
       (acc: { [key: string]: string }, [key, value]) => {
         if (value !== "" && value !== null) {
@@ -79,6 +80,7 @@ function NewJobPage() {
     );
 
     setSelectedFilter(filters);
+    setMobileFilter(false);
   };
 
   const cancelRadioFilters = () => {
@@ -107,28 +109,11 @@ function NewJobPage() {
     setSelectedFilter(filtered);
   };
 
-  const handleChangeFilter = (category: string, value: string) => {
-    setSelectedFilters((prev) => {
-      const current = new Set(prev[category] || []);
-      current.has(value) ? current.delete(value) : current.add(value);
-      return { ...prev, [category]: Array.from(current) };
-    });
-  };
-
   const handleCheckboxChange = (category: string, value: string) => {
     setSelectedValues((prev) => ({
       ...prev,
       [category]: prev[category] === value ? null : value,
     }));
-  };
-
-  const handleApplyFilters = () => {
-    console.log("Applying filters:", selectedFilters);
-    setMobileFilter(false);
-  };
-
-  const handleClearFilters = () => {
-    setSelectedFilters({});
   };
 
   const {
@@ -253,7 +238,11 @@ function NewJobPage() {
 
         <Button
           onClick={() => applyFilters()}
-          className="bg-[#05A9A9] px-8 rounded-none py-2  text-white focus:outline-none focus:ring-2 focus:ring-[#05A9A9]"
+          className={`px-8 rounded-none py-2 text-white focus:outline-none focus:ring-2 ${
+            mode === "formal"
+              ? "bg-primary-other focus:ring-primary-other"
+              : "bg-[#FFA500] focus:ring-[#FFA500]"
+          }`}
         >
           Search
         </Button>
@@ -314,7 +303,14 @@ function NewJobPage() {
             >
               Clear
             </Button>
-            <Button onClick={() => applyFilters()} className="rounded-none ">
+            <Button
+              onClick={() => applyFilters()}
+              className={`rounded-none py-2 text-white focus:outline-none focus:ring-2 ${
+                mode === "formal"
+                  ? "bg-primary hover:bg-primary/70"
+                  : "bg-primary2 hover:bg-primary2/70"
+              }`}
+            >
               Apply Filter
             </Button>
           </div>
@@ -324,7 +320,7 @@ function NewJobPage() {
             <div className="flex flex-col md:flex-row justify-between flex-1 w-full items-start md:items-center py-2 pr-0 md:pr-4 border-b border-gray-200">
               <div>
                 <h2 className="font-bold text-2xl mr-2">All Jobs</h2>
-                <span className="text-gray-600">Showing 73 results</span>
+                {/* <span className="text-gray-600">Showing 73 results</span> */}
               </div>
 
               <div className="flex items-center justify-between gap-4">
@@ -336,7 +332,12 @@ function NewJobPage() {
                 <div className="hidden md:flex items-center mt-2 md:mt-0">
                   <button
                     type="button"
-                    className="text-primary hover:text-primary/70 font-medium transition-colors duration-200"
+                    className={clsx(
+                      "font-medium transition-colors duration-200",
+                      mode === "formal"
+                        ? "text-primary hover:text-primary/70"
+                        : "text-primary2 hover:text-primary2/70"
+                    )}
                     onClick={() => navigate("/jobs/applied-jobs")}
                   >
                     Applied Jobs
@@ -358,14 +359,25 @@ function NewJobPage() {
                 <TbLayoutGridFilled
                   size={24}
                   onClick={() => setGridOne(false)}
-                  className={`${!gridOne ? "text-primary" : ""} cursor-pointer`}
+                  className={`cursor-pointer ${
+                    !gridOne
+                      ? mode === "formal"
+                        ? "text-primary"
+                        : "text-primary2"
+                      : "text-gray-400"
+                  }`}
                 />
+
                 <PiColumnsFill
                   size={24}
                   onClick={() => setGridOne(true)}
-                  className={`${
-                    gridOne ? "text-primary" : ""
-                  } rotate-90 cursor-pointer hidden md:block`}
+                  className={`rotate-90 cursor-pointer hidden md:block ${
+                    gridOne
+                      ? mode === "formal"
+                        ? "text-primary"
+                        : "text-primary2"
+                      : "text-gray-400"
+                  }`}
                 />
               </div>
             </div>
@@ -401,18 +413,11 @@ function NewJobPage() {
                     </div>
                   ) : data?.pages && data?.pages?.[0]?.data?.length > 0 ? (
                     // Success state with jobs
-                    <div>
+                    <div className="space-y-4">
                       {data.pages.map((page, i) => (
                         <div key={i} className="space-y-4">
                           {page.data.map((job) => (
-                            <JobCard
-                              key={job._id}
-                              job={job}
-                              onClick={() => {
-                                // setOpenJobDetail(true);
-                                // setSelectedJob(job);
-                              }}
-                            />
+                            <JobCard key={job._id} job={job} />
                           ))}
                         </div>
                       ))}
@@ -461,14 +466,7 @@ function NewJobPage() {
                     <div className="w-full grid gap-y-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                       {data.pages.map((page) =>
                         page.data.map((job) => (
-                          <JobCardTwo
-                            key={job._id}
-                            job={job}
-                            onClick={() => {
-                              // setOpenJobDetail(true);
-                              // setSelectedJob(job);
-                            }}
-                          />
+                          <JobCardTwo key={job._id} job={job} />
                         ))
                       )}
                       {isFetchingNextPage && (
@@ -491,32 +489,15 @@ function NewJobPage() {
             </AnimatePresence>
           </div>
         </div>
-        {/* <div className="w-full">
-          {selectedJob && (
-            <JobsDetail
-              id={selectedJob._id}
-              open={openJobDetail}
-              onChange={(o) => setOpenJobDetail(o)}
-              selectedJob={selectedJob}
-              FollowClicked={function (): void {
-                throw new Error("Function not implemented.");
-              }}
-              ReportClicked={function (): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
-          )}
-        </div> */}
-
         <div className="w-full">
           <MobileFilter
             open={mobileFilter}
             onOpenChange={setMobileFilter}
             filters={filterValues}
-            selectedFilters={selectedFilters}
-            onChangeFilter={handleChangeFilter}
-            onApply={handleApplyFilters}
-            onClear={handleClearFilters}
+            selectedFilters={selectedValues}
+            onChangeFilter={handleCheckboxChange}
+            onApply={applyFilters}
+            onClear={cancelRadioFilters}
           />
         </div>
       </div>
@@ -525,99 +506,3 @@ function NewJobPage() {
 }
 
 export default NewJobPage;
-
-// <div className="mt-4   h-[64vh]">
-//   <ScrollArea.Root className="w-full h-full overflow-hidden rounded">
-//     <ScrollArea.Viewport className="w-full h-full">
-//       <AnimatePresence mode="wait">
-//         {gridOne ? (
-//           <motion.div
-//             key="list"
-//             initial={{ opacity: 0 }}
-//             animate={{ opacity: 1 }}
-//             exit={{ opacity: 0 }}
-//             transition={{ duration: 0.3 }}
-//             className="w-full space-y-4"
-//           >
-//             {isLoading ? (
-//               Array.from({ length: 4 }).map((_, idx) => (
-//                 <JobCardSkeleton key={idx} />
-//               ))
-//             ) : jobsData?.data && jobsData?.data?.length > 0 ? (
-//               jobsData.data?.reverse().map((job) => (
-//                 <JobCard
-//                   key={job._id}
-//                   job={job}
-//                   onClick={() => {
-//                     // setOpenJobDetail(true);
-//                     // setSelectedJob(job);
-//                   }}
-//                 />
-//               ))
-//             ) : (
-//               <div className="w-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
-//                 <h2 className="text-xl font-semibold">
-//                   No jobs found
-//                 </h2>
-//                 <p className="text-sm text-gray-400 mt-1">
-//                   Try adjusting your filters or check back later.
-//                 </p>
-//               </div>
-//             )}
-//           </motion.div>
-//         ) : (
-//           <motion.div
-//             key="grid"
-//             initial={{ opacity: 0 }}
-//             animate={{ opacity: 1 }}
-//             exit={{ opacity: 0 }}
-//             transition={{ duration: 0.3 }}
-//             className="w-full grid gap-y-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-//           >
-//             {isLoading ? (
-//               Array.from({ length: 6 }).map((_, i) => (
-//                 <JobCardTwoSkeleton key={i} />
-//               ))
-//             ) : jobsData?.data && jobsData?.data?.length > 0 ? (
-//               jobsData.data?.reverse().map((job) => (
-//                 <JobCardTwo
-//                   key={job._id}
-//                   job={job}
-//                   onClick={() => {
-//                     // setOpenJobDetail(true);
-//                     // setSelectedJob(job);
-//                     navigate(`/jobs/${job._id}`);
-//                   }}
-//                 />
-//               ))
-//             ) : (
-//               <div className="col-span-full flex flex-col items-center justify-center py-12 text-center text-gray-500">
-//                 <h2 className="text-xl font-semibold">
-//                   No jobs found
-//                 </h2>
-//                 <p className="text-sm text-gray-400 mt-1">
-//                   Try adjusting your filters or check back later.
-//                 </p>
-//               </div>
-//             )}
-//           </motion.div>
-//         )}
-//       </AnimatePresence>
-//     </ScrollArea.Viewport>
-//     <ScrollArea.Scrollbar
-//       orientation="vertical"
-//       className="w-1 bg-gray-200"
-//     >
-//       <ScrollArea.Thumb className="bg-primary" />
-//     </ScrollArea.Scrollbar>
-//   </ScrollArea.Root>
-// </div>
-// <div className="sticky bottom-0 bg-gray-100 py-2">
-//   <Pagination
-//     currentPage={currentPage}
-//     totalPages={20}
-//     itemsPerPage={itemsPerPage}
-//     onPageChange={setCurrentPage}
-//     onItemsPerPageChange={setItemsPerPage}
-//     className="mt-2"
-//   />

@@ -117,7 +117,8 @@ export const updateNotification = async ({
   payload: any;
 }): Promise<NotificationRes> => {
   const response = await axios.patch<any>(
-    `/notification/updateNotification/${id}`
+    `/notification/updateNotification/${id}`,
+    payload
   );
   return response.data;
 };

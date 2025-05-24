@@ -9,6 +9,7 @@ import { Job } from "@/Types/job.type";
 import { tos } from "@/lib/utils";
 import { Spinner } from "../ui/Spinner";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import { useRole } from "@/Context/RoleContext";
 
 const RelatedJobSkeleton = () => {
   return (
@@ -31,6 +32,7 @@ const RelatedJobSkeleton = () => {
 };
 
 const RelatedJob = ({ job }: { job: Job }) => {
+  const { mode } = useRole();
   return (
     <div className="p-4 border w-full  md:w-80">
       <div className="flex items-center justify-between">
@@ -40,7 +42,13 @@ const RelatedJob = ({ job }: { job: Job }) => {
             className="w-full h-full object-cover"
           />
         </div>
-        <span className="px-3 py-1 text-sm font-medium rounded-full border-2 border-[#56CDAD] bg-green-50 text-[#56CDAD]">
+        <span
+          className={`px-3 py-1 text-sm font-medium rounded-full border-2  ${
+            mode === "formal"
+              ? "border-primary bg-primary/10 text-primary"
+              : "border-primary2 bg-primary2/10 text-primary2"
+          } `}
+        >
           {job.jobType}
         </span>
       </div>
@@ -73,6 +81,8 @@ function JobDetailNew() {
     },
     enabled: !!id,
   });
+
+  const { mode } = useRole();
 
   const company = jobDetail?.data?.company;
 
@@ -143,7 +153,9 @@ function JobDetailNew() {
                 jobId: id,
               })
             }
-            className="py-2 px-6 bg-primary rounded-none w-full sm:w-auto"
+            className={`py-2 px-6 bg-primary rounded-none w-full sm:w-auto ${
+              mode === "formal" ? "bg-primary " : "bg-primary2"
+            }`}
           >
             {jobApplyIsLoading ? <Spinner /> : "Apply"}
           </Button>
@@ -175,76 +187,6 @@ function JobDetailNew() {
             </p>
           </div>
 
-          {/* Role */}
-          <div>
-            <h2 className="font-semibold text-gray-800 mb-2">The Role:</h2>
-            <ul className="list-disc text-sm md:text-base list-inside text-gray-600 space-y-1 font-light">
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-            </ul>
-          </div>
-
-          {/* Responsibilities */}
-          <div>
-            <h2 className="font-semibold text-gray-800 mb-2">
-              Responsibilities:
-            </h2>
-            <ul className="list-disc text-sm md:text-base list-inside text-gray-600 space-y-1 font-light">
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-            </ul>
-          </div>
-
-          {/* You Have */}
-          <div>
-            <h2 className=" font-semibold text-gray-800 mb-2">You have:</h2>
-            <ul className="list-disc text-sm md:text-base list-inside text-gray-600 space-y-1 font-light">
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-              <li>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. In
-                delectus facilis facere distinctio dolorum quia odio.
-              </li>
-            </ul>
-          </div>
           <div className="flex gap-2 ">
             <Button
               onClick={() =>
@@ -252,7 +194,9 @@ function JobDetailNew() {
                   jobId: id,
                 })
               }
-              className="py-2 px-10 bg-primary rounded-none"
+              className={`py-2 px-10 rounded-none ${
+                mode === "formal" ? "bg-primary " : "bg-primary2"
+              }`}
             >
               {jobApplyIsLoading ? <Spinner /> : "Apply"}
             </Button>
@@ -277,7 +221,9 @@ function JobDetailNew() {
 
               {!isLoading && jobsData?.data && jobsData?.data.length > 3 && (
                 <Button
-                  className="px-4 py-2 rounded-none bg-primary w-[94%] mx-6"
+                  className={`px-4 py-2 rounded-none w-[94%] mx-6 ${
+                    mode === "formal" ? "bg-primary " : "bg-primary2"
+                  }`}
                   onClick={() => setShowAll((prev) => !prev)}
                 >
                   {showAll ? "Show Less" : "Explore More"}

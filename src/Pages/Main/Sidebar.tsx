@@ -9,6 +9,7 @@ import logo from "../../assets/Bevy.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar/Navbar";
 import SidebarSm from "@/components/Sidebar/SidebarSm";
+import { useRole } from "@/Context/RoleContext";
 
 export interface Route {
   id: number;
@@ -27,6 +28,7 @@ const routes: Route[] = [
 const Sidebar = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { mode } = useRole();
 
   const handleSelected = (path: string) => {
     navigate(path);
@@ -51,7 +53,9 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
                   onClick={() => handleSelected(route.path)}
                   className={`${
                     isActive
-                      ? "bg-primary text-white"
+                      ? mode === "formal"
+                        ? "bg-primary text-white"
+                        : "bg-[#FFA500] text-white"
                       : "text-[#00000099] hover:bg-slate-100"
                   } p-3 rounded-md`}
                 >

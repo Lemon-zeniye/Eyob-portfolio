@@ -6,6 +6,7 @@ import ActivityCard from "../Card/ActivityCard";
 import AddPost from "./AddPost";
 import { Post } from "@/Types/profile.type";
 import { FiPlus, FiX } from "react-icons/fi";
+import { useRole } from "@/Context/RoleContext";
 
 function ActivityNew() {
   const [open, setOpen] = useState(false);
@@ -15,9 +16,10 @@ function ActivityNew() {
     queryKey: ["singleUserPost"],
     queryFn: getSingleUserPost,
   });
+  const { mode } = useRole();
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 mb-12">
       <div className="flex flex-row gap-2 justify-between items-end px-2">
         {open ? (
           <h1 className="text-lg py-2 items-center font-semibold">Add Post</h1>
@@ -30,7 +32,9 @@ function ActivityNew() {
               p-3 rounded-full transition-all duration-300
               ${
                 !open
-                  ? "bg-primary hover:bg-primary/90 text-white"
+                  ? mode === "formal"
+                    ? "bg-primary hover:bg-primary/90 text-white"
+                    : "bg-primary2 hover:bg-primary2/90 text-white"
                   : "bg-red-500 hover:bg-red-600 text-white"
               }
               shadow-md hover:shadow-lg

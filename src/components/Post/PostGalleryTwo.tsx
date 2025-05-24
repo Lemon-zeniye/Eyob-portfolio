@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   formatDateSmart,
+  formatImageUrl,
   formatImageUrls,
   formatMessageTime,
   tos,
@@ -39,8 +40,10 @@ import { deletePost } from "@/Api/profile.api";
 import { Textarea } from "../ui/textarea";
 import { Send } from "lucide-react";
 import Cookies from "js-cookie";
-import { IoIosArrowDown } from "react-icons/io";
+import { IoIosArrowDown, IoMdHeart } from "react-icons/io";
 import { Spinner } from "../ui/Spinner";
+import { formatDistanceToNow } from "date-fns";
+import { MdCancel } from "react-icons/md";
 
 interface PostCardProps {
   post: PostCom;
@@ -74,6 +77,9 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   const [commentPages, setCommentPages] = useState<Record<string, number>>({});
   const [replierName, setReplierName] = useState<string | undefined>(undefined);
   const [childComId, setChildComId] = useState<string | undefined>(undefined);
+
+  const profilePic = Cookies.get("profilePic");
+  const userName = Cookies.get("userName");
 
   useEffect(() => {
     const postImages = formatImageUrls(post?.postPictures);
@@ -111,7 +117,9 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   const { mutate: likeComment, isLoading: isLoadingCommentLike } = useMutation({
     mutationFn: Commentlike,
     onSuccess: () => {
-      queryClient.invalidateQueries("getAllPostsWithComments");
+      const currentPage = commentPages[post._id] || 1;
+      queryClient.invalidateQueries(["postComments", post._id, currentPage]);
+      queryClient.invalidateQueries(["childComment", selectedCommnet]);
     },
     onError: () => {},
   });
@@ -122,6 +130,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   };
 
   const handleCommentLike = (parentComment: string, childComment?: string) => {
+    console.log("333333333", childComId);
     const payload = "like";
     likeComment({
       parentComment,
@@ -325,7 +334,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                   {["photography", "design", "creative"].map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-1 bg-[#05A9A9]/10 text-[#05A9A9] rounded-full text-xs font-medium"
+                      className="px-2 py-1 bg-primary2/10 text-primary2 rounded-full text-xs font-medium"
                     >
                       #{tag}
                     </span>
@@ -380,7 +389,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
             <div className="flex items-center">
               <div className="relative w-12 h-12 md:w-[4.5rem] md:h-[4.5rem]">
                 <div
-                  className="w-full h-full rounded-full bg-gradient-to-tr from-[#FFA500] to-[#05A9A9] 
+                  className="w-full h-full rounded-full bg-gradient-to-tr from-primary2 to-primary2 
           [mask:radial-gradient(circle,transparent_60%,black_64%,black_80%,transparent_82%)]"
                 ></div>
 
@@ -388,10 +397,14 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                   <div className="w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden">
                     <Avatar className="w-full h-full">
                       <AvatarImage
-                        src="https://i.pravatar.cc/100?img=2"
+                        src={
+                          post?.userPicturePath &&
+                          formatImageUrl(post.userPicturePath)
+                        }
                         alt="User"
+                        className="object-cover"
                       />
-                      <AvatarFallback className="bg-[#05A9A9]/10 text-[#05A9A9]">
+                      <AvatarFallback className="bg-primary2/10 text-primary2">
                         U
                       </AvatarFallback>
                     </Avatar>
@@ -410,7 +423,10 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                   </span>
                   <span>•</span>
                   <span className="text-xs opacity-80">
-                    {formatDateSmart(post.createdAt)}
+                    {/* {formatDateSmart(post.createdAt)} */}
+                    {formatDistanceToNow(new Date(post.createdAt), {
+                      addSuffix: true,
+                    })}
                   </span>
                 </div>
               </div>
@@ -486,7 +502,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
             >
               <FaRegComment className="text-xl md:text-3xl text-white" />
               <span className="text-sm md:text-lg font-medium">
-                {post?.comments?.length || 0}
+                {post.commentCount || 0}
               </span>
             </button>
 
@@ -564,7 +580,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                 {["photography", "design", "creative"].map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-1 bg-[#05A9A9]/10 text-[#05A9A9] rounded-full text-xs font-medium"
+                    className="px-2 py-1 bg-primary2/10 text-primary2 rounded-full text-xs font-medium"
                   >
                     #{tag}
                   </span>
@@ -586,22 +602,23 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
             >
               <Avatar className="w-9 h-9 transition-transform duration-300 hover:scale-105">
                 <AvatarImage
-                  src="/placeholder.svg?height=36&width=36"
+                  src={profilePic}
                   alt="Your avatar"
+                  className="object-cover"
                 />
-                <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#05A9A9]/70 text-white">
-                  YA
+                <AvatarFallback className="bg-gradient-to-br from-primary2 to-primary2/70 text-white">
+                  {userName?.slice(0, 1)?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
 
               <div className="flex-1 relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#05A9A9]/20 to-[#05A9A9]/10 rounded-xl blur-sm opacity-75 transition-opacity duration-300"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary2/20 to-primary2/10 rounded-xl blur-sm opacity-75 transition-opacity duration-300"></div>
 
                 <div className="relative flex gap-2">
                   <Textarea
                     ref={commentRef}
                     placeholder="Add a comment..."
-                    className="min-h-[44px] resize-none flex-1 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-sm focus:shadow-md focus:border-[#05A9A9]/30 transition-all duration-300 placeholder:text-gray-500/80 text-gray-700"
+                    className="min-h-[44px] resize-none flex-1 bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-sm focus:shadow-md focus:border-primary2/30 transition-all duration-300 placeholder:text-gray-500/80 text-gray-700"
                     value={commentInputs[post._id] || ""}
                     onChange={(e) =>
                       handleCommentChange(post._id, e.target.value)
@@ -621,7 +638,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 
                   <Button
                     size="icon"
-                    className="h-[44px] w-[44px] bg-gradient-to-br from-[#05A9A9] to-[#05A9A9]/80 hover:from-[#048484] hover:to-[#048484]/90 text-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                    className="h-[44px] w-[44px] bg-gradient-to-br from-primary2 to-primary2/80 hover:from-[#048484] hover:to-[#048484]/90 text-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
                     onClick={() =>
                       submitComment({ postId: post._id, userId: post.userid })
                     }
@@ -634,6 +651,15 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                       <Send className="h-4 w-4" />
                     </motion.div>
                   </Button>
+                  {selectedCommnet && (
+                    <div className="absolute top-[0.1rem] right-14">
+                      <MdCancel
+                        size={20}
+                        className="text-primary2 cursor-pointer"
+                        onClick={() => CancelReplyToComment()}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -679,7 +705,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                               comment.commentedBy.name?.slice(0, 1) || "U"
                             }`}
                           />
-                          <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#05A9A9]/70 text-white">
+                          <AvatarFallback className="bg-gradient-to-br from-primary2 to-primary2/70 text-white">
                             {(
                               comment.commentedBy.name?.slice(0, 1) || "U"
                             )?.toUpperCase()}
@@ -688,11 +714,11 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 
                         <div className="flex-1">
                           <div className="relative">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-[#05A9A9]/20 to-[#05A9A9]/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-primary2/20 to-primary2/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
                             <div
                               className={`relative bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300 ${
                                 selectedCommnet === comment._id
-                                  ? "border border-primary"
+                                  ? "border border-primary2"
                                   : " border border-white/20 "
                               }`}
                             >
@@ -711,7 +737,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                               </p>
                               <div className="flex items-center justify-between">
                                 <div className="flex gap-3 mt-2 duration-300">
-                                  {selectedCommnet === comment._id &&
+                                  {/* {selectedCommnet === comment._id &&
                                   !childComId ? (
                                     <button
                                       className="text-xs text-red-500 hover:text-red-400 transition-colors"
@@ -719,24 +745,31 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                                     >
                                       Cancel
                                     </button>
-                                  ) : (
-                                    <button
-                                      className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
-                                      onClick={() =>
-                                        replyToComment(comment._id)
-                                      }
-                                    >
-                                      Reply
-                                    </button>
-                                  )}
+                                  ) : ( */}
+                                  {comment?.likes ? (
+                                    <div className="flex items-center text-sm text-gray-500">
+                                      <IoMdHeart className="text-base text-red-500 " />
+
+                                      <span className="pl-2">
+                                        {comment.likes}
+                                      </span>
+                                    </div>
+                                  ) : null}
                                   <button
-                                    className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                    className="text-xs text-gray-500 hover:text-primary2 transition-colors"
+                                    onClick={() => replyToComment(comment._id)}
+                                  >
+                                    Reply
+                                  </button>
+                                  {/* )} */}
+                                  <button
+                                    className="text-xs text-gray-500 hover:text-primary2 transition-colors"
                                     onClick={() =>
                                       handleCommentLike(comment._id)
                                     }
                                   >
                                     {isLoadingCommentLike ? (
-                                      <Spinner className="text-primary" />
+                                      <Spinner className="text-primary2" />
                                     ) : (
                                       "Like"
                                     )}
@@ -744,19 +777,21 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                                 </div>
                                 <div>
                                   <button
-                                    className="text-xs flex items-center gap-2 text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                    className="text-xs flex items-center gap-2 text-gray-500 hover:text-primary2 transition-colors"
                                     onClick={() => {
-                                      setSelectedCommnetReplay(
-                                        (prev) =>
-                                          prev.includes(comment._id)
-                                            ? prev.filter(
-                                                (id) => id !== comment._id
-                                              ) // Toggle off
-                                            : [...prev, comment._id] // Toggle on
-                                      );
+                                      comment.totalReplies !== 0 &&
+                                        setSelectedCommnetReplay(
+                                          (prev) =>
+                                            prev.includes(comment._id)
+                                              ? prev.filter(
+                                                  (id) => id !== comment._id
+                                                ) // Toggle off
+                                              : [...prev, comment._id] // Toggle on
+                                        );
                                     }}
                                   >
-                                    replies <IoIosArrowDown />
+                                    {comment.totalReplies} <span>replies</span>
+                                    <IoIosArrowDown />
                                   </button>
                                 </div>
                               </div>
@@ -766,10 +801,8 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                             <ChildReplies
                               commentId={comment._id}
                               replyToComment={replyToChildComment}
-                              childComId={childComId}
-                              CancelReplyToComment={CancelReplyToComment}
+                              // childComId={childComId}
                               handleCommentLike={handleCommentLike}
-                              isLoadingCommentLike={isLoadingCommentLike}
                             />
                           )}
                         </div>
@@ -801,16 +834,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
           </div>
         )}
       </div>
-      <div className="flex gap-3 items-center">
-        {post._id && hasMoreComment[post._id] && (
-          <button
-            onClick={loadMoreComments}
-            disabled={isFetching}
-            className="text-primary mt-2"
-          >
-            {isFetching ? <Spinner /> : "Load More"}
-          </button>
-        )}
+      <div className="flex justify-between items-center">
         {isCommentsExpanded && (
           <span
             className="text-gray-700 text-sm mt-1 cursor-pointer hover:text-gray-600"
@@ -819,6 +843,17 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
             Hide Comments
           </span>
         )}
+        <div className="flex flex-1 items-center justify-center">
+          {post._id && hasMoreComment[post._id] && (
+            <button
+              onClick={loadMoreComments}
+              disabled={isFetching}
+              className="text-primary2 mt-2"
+            >
+              {isFetching ? <Spinner /> : "Load More"}
+            </button>
+          )}
+        </div>
       </div>
       <hr className="my-1 border border-gray-400" />
     </motion.div>
@@ -830,17 +865,11 @@ export default PostGalleryTwo;
 export const ChildReplies = ({
   commentId,
   replyToComment,
-  childComId,
-  CancelReplyToComment,
   handleCommentLike,
-  isLoadingCommentLike,
 }: {
   commentId: string;
   replyToComment: (id: string, replierName: string, childComId: string) => void;
-  childComId: string | undefined;
-  CancelReplyToComment: () => void;
   handleCommentLike: (parentComment: string, childComment?: string) => void;
-  isLoadingCommentLike: boolean;
 }) => {
   const { data: childComments, isLoading } = useQuery({
     queryKey: ["childComment", commentId],
@@ -850,7 +879,7 @@ export const ChildReplies = ({
   if (isLoading)
     return (
       <div className="flex items-center justify-center my-2">
-        <Spinner className="text-primary" />
+        <Spinner className="text-primary2" />
       </div>
     );
 
@@ -868,14 +897,14 @@ export const ChildReplies = ({
             <AvatarImage
               src={`/placeholder.svg?height=36&width=36&text=${"U"}`}
             />
-            <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#05A9A9]/70 text-white">
+            <AvatarFallback className="bg-gradient-to-br from-primary2 to-primary2/70 text-white">
               {"U"?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
           <div className="flex-1">
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#05A9A9]/20 to-[#05A9A9]/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary2/20 to-primary2/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
               <div
                 className={`relative bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300`}
               >
@@ -894,28 +923,35 @@ export const ChildReplies = ({
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex gap-3 mt-2 duration-300">
-                    {childComId === comment._id ? (
+                    {/* {childComId === comment._id ? (
                       <button
                         className="text-xs text-red-500 hover:text-red-400 transition-colors"
                         onClick={() => CancelReplyToComment()}
                       >
                         Cancel
                       </button>
-                    ) : (
-                      <button
-                        className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
-                        onClick={() =>
-                          replyToComment(commentId, "userName", comment._id)
-                        }
-                      >
-                        Reply
-                      </button>
-                    )}
+                    ) : ( */}
+                    {comment?.likes ? (
+                      <div className="flex items-center text-sm text-gray-500">
+                        <IoMdHeart className="text-base text-red-500 " />
+
+                        <span className="pl-2">{comment.likes}</span>
+                      </div>
+                    ) : null}
                     <button
-                      className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
-                      onClick={() => handleCommentLike(commentId, childComId)}
+                      className="text-xs text-gray-500 hover:text-primary2 transition-colors"
+                      onClick={() =>
+                        replyToComment(commentId, "userName", comment._id)
+                      }
                     >
-                      {isLoadingCommentLike ? <Spinner /> : "Like"}
+                      Reply
+                    </button>
+                    {/* )} */}
+                    <button
+                      className="text-xs text-gray-500 hover:text-primary2 transition-colors"
+                      onClick={() => handleCommentLike(commentId, comment._id)}
+                    >
+                      Like
                     </button>
                   </div>
                   <div></div>

@@ -1,4 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
+import { useRole } from "@/Context/RoleContext";
+import { cn } from "@/lib/utils";
 
 interface CheckboxWithLabelProps {
   id: string;
@@ -15,6 +17,7 @@ export function CheckboxWithLabel({
   onChange,
   disabled,
 }: CheckboxWithLabelProps) {
+  const { mode } = useRole();
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center space-x-2">
@@ -23,6 +26,11 @@ export function CheckboxWithLabel({
           checked={checked}
           onCheckedChange={onChange}
           disabled={disabled}
+          className={cn(
+            mode === "formal"
+              ? "data-[state=checked]:bg-primary data-[state=checked]:border-primary/40"
+              : "data-[state=checked]:bg-primary2 data-[state=checked]:border-primary2/40"
+          )}
         />
         <label
           htmlFor={id}

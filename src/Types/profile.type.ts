@@ -217,6 +217,9 @@ export interface UserProfile {
 export interface UserData {
   _id: string;
   name: string;
+  email: string;
+  pictures: UserFile[];
+  videos: UserFile[];
   education: UserEducation[];
   experience: UserExperience[];
   skills: UserSkill[];

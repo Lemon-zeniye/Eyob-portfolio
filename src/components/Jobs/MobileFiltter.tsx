@@ -17,21 +17,18 @@ type FilterCategory = {
   options: FilterOption[];
 };
 
-type SelectedFilters = {
-  [key: string]: string[];
-};
-
 type MobileFilterProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   filters: FilterCategory[];
-  selectedFilters: SelectedFilters;
+  selectedFilters: SelectedValues;
   onChangeFilter: (category: string, value: string) => void;
   onClear: () => void;
   onApply: () => void;
 };
 
 import { Checkbox } from "@/components/ui/checkbox"; // or use your Checkbox component
+import { SelectedValues } from "@/Types/job.type";
 
 function MobileFilter({
   open,

@@ -1,29 +1,40 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "../ui/button";
 import { useQuery } from "react-query";
 import { getCompanyAbout } from "@/Api/profile.api";
 import AddAbout from "./AddAbout";
+import { FiPlus, FiX } from "react-icons/fi";
+import { useRole } from "@/Context/RoleContext";
 function AboutCard() {
   const [open, setOpen] = useState(false);
   const { data: aboutCompany } = useQuery({
     queryKey: ["companyAbout"],
     queryFn: getCompanyAbout,
   });
+  const { mode } = useRole();
 
   return (
-    <div>
+    <div className="mb-12">
       <div className="flex flex-row gap-2 justify-end items-end my-2">
-        <Button
-          className={`${
-            !open
-              ? "bg-primary hover:bg-primary/80"
-              : "bg-red-500 hover:bg-red-500/80"
-          }`}
+        <button
           onClick={() => setOpen(!open)}
+          className={`
+              p-3 rounded-full transition-all duration-300
+              ${
+                !open
+                  ? mode === "formal"
+                    ? "bg-primary hover:bg-primary/90 text-white"
+                    : "bg-primary2 hover:bg-primary2/90 text-white"
+                  : "bg-red-500 hover:bg-red-600 text-white"
+              }
+              shadow-md hover:shadow-lg
+              transform hover:scale-105
+              focus:outline-none focus:ring-2 focus:ring-opacity-50
+              ${!open ? "focus:ring-primary" : "focus:ring-red-500"}
+            `}
         >
-          {open ? "Cancel" : aboutCompany?.data ? "Edit" : "Add"}
-        </Button>
+          {open ? <FiX size={20} /> : <FiPlus size={20} />}
+        </button>
       </div>
       <div className="">
         <AnimatePresence mode="wait">

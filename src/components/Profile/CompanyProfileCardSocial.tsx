@@ -30,6 +30,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Cookies from "js-cookie";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import { useRole } from "@/Context/RoleContext";
 
 const CompanyProfileCard = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -40,6 +41,7 @@ const CompanyProfileCard = () => {
   const [, setActiveTab] = useState("about");
   const [profileImage, setprofileImage] = useState<string>("");
   const userProfileImg = Cookies.get("profilePic");
+  const { mode } = useRole();
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -255,14 +257,22 @@ const CompanyProfileCard = () => {
             <div className="flex justify-center gap-4 mt-6">
               <Button
                 variant="outline"
-                className="rounded-full px-6 gap-2 border-purple-200 text-primary hover:bg-primary hover:text-white"
+                className={`rounded-full px-6 gap-2 border-purple-200  hover:text-white ${
+                  mode === "formal"
+                    ? "text-primary hover:bg-primary"
+                    : "text-primary2 hover:bg-primary2"
+                }`}
                 onClick={() => setEditProfile(true)}
               >
                 <Edit size={16} /> Edit Profile
               </Button>
               <Button
                 variant="outline"
-                className="rounded-full px-6 gap-2 border-primary text-primary hover:bg-purple-50 hover:text-primary"
+                className={`rounded-full px-6 gap-2 hover:bg-purple-50 ${
+                  mode === "formal"
+                    ? "text-primary hover:bg-primary"
+                    : "text-primary2 hover:bg-primary2"
+                }`}
                 onClick={() => setShareProfile(true)}
               >
                 <Share2 size={16} /> Share
@@ -314,9 +324,9 @@ const CompanyProfileCard = () => {
           <Dialog.Root open={editProfile} onOpenChange={setEditProfile}>
             <Dialog.Portal>
               <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-              <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[60%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
-                <Dialog.Title className="text-lg font-semibold text-gray-900">
-                  Edit Profile
+              <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[96%] md:w-[60%] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
+                <Dialog.Title className="text-lg font-semibold text-gray-900 flex items-center justify-between">
+                  Edit Profile <X onClick={() => setEditProfile(false)} />
                 </Dialog.Title>
                 <EditCompanyProfile
                   initialValue={companyProfile?.data}
@@ -329,9 +339,9 @@ const CompanyProfileCard = () => {
           <Dialog.Root open={shareProfile} onOpenChange={setShareProfile}>
             <Dialog.Portal>
               <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-              <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[60%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
-                <Dialog.Title className="text-lg font-semibold text-gray-900">
-                  Share Profile
+              <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[96%] md:w-[60%]   -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
+                <Dialog.Title className="text-lg font-semibold text-gray-900 flex items-center justify-between">
+                  Share Profile <X onClick={() => setShareProfile(false)} />
                 </Dialog.Title>
                 <ShareProfile onSuccess={() => setEditProfile(false)} />
               </Dialog.Content>

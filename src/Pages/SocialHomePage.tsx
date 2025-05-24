@@ -297,7 +297,7 @@ function SocialHomePage() {
           {/* story */}
           <div className="bg-white rounded-2xl shadow-lg p-2 md:p-6 overflow-hidden border border-[#e6f7f7]">
             <h2 className="font-medium text-lg mb-5 text-gray-800 flex items-center gap-2">
-              <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+              <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
               Stories
             </h2>
             <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
@@ -312,13 +312,13 @@ function SocialHomePage() {
                   <div
                     className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center bg-gray-50 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105"
                     style={{
-                      background: "linear-gradient(135deg, #f5f9f9, #ffffff)",
+                      background: "linear-gradient(135deg, #FFA500, #ffffff)",
                     }}
                   >
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-md"
                       style={{
-                        background: "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                        background: "#FFA500",
                       }}
                     >
                       <PlusIcon className="w-5 h-5" />
@@ -344,7 +344,7 @@ function SocialHomePage() {
                       className="w-16 h-16 md:w-20 md:h-20 rounded-full p-0.5 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105"
                       style={{
                         background:
-                          "linear-gradient(135deg, #05A9A9, #4ecdc4, #a6e4e0)",
+                          "linear-gradient(135deg, #FFA500, #fac970, #f2cf8f)",
                         padding: "2px",
                       }}
                     >
@@ -368,14 +368,14 @@ function SocialHomePage() {
           {/* post header */}
           <div className="flex justify-between items-center px-1 md:px-10">
             <h2 className="font-medium text-lg text-gray-800 flex items-center gap-2">
-              <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+              <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
               Your Feed
             </h2>
             <Button
               onClick={() => setOpen(true)}
               className="text-white flex items-center gap-2 rounded-full px-5 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
               style={{
-                background: "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                background: "linear-gradient(135deg, #FFA500, #f2cf8f)",
               }}
             >
               <ImageIcon className="w-4 h-4" />
@@ -408,7 +408,7 @@ function SocialHomePage() {
                 })}
 
               {(isLoading || isFetching) && (
-                <div className="w-full flex items-center justify-center h-16 rounded-lg border bg-primary/20 border-primary/40">
+                <div className="w-full flex items-center justify-center h-16 rounded-lg border bg-primary2/20 border-primary2/40">
                   <Spinner />
                 </div>
               )}
@@ -427,7 +427,7 @@ function SocialHomePage() {
                 <div className="flex flex-col items-center justify-center py-6">
                   <div className="w-full max-w-md px-4">
                     <div className="flex items-center justify-center space-x-2">
-                      <div className="h-px flex-1 bg-primary-300"></div>
+                      <div className="h-px flex-1 bg-primary2"></div>
                       <span className="text-sm font-medium text-primary-600 px-2">
                         You're all caught up
                       </span>
@@ -444,8 +444,8 @@ function SocialHomePage() {
 
               {!hasMore && allPosts.length === 0 && (
                 <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
-                  <div className="w-16 h-16 bg-[#05A9A9]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Layers className="w-8 h-8 text-[#05A9A9]" />
+                  <div className="w-16 h-16 bg-primary2/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Layers className="w-8 h-8 text-primary2" />
                   </div>
                   <h3 className="text-lg font-medium mb-2">
                     Your feed is empty
@@ -455,7 +455,7 @@ function SocialHomePage() {
                   </p>
                   <Button
                     onClick={() => setOpen(true)}
-                    className="bg-[#05A9A9] hover:bg-[#048484]"
+                    className="bg-primary2 hover:bg-primary2/50"
                   >
                     Create Your First Post
                   </Button>
@@ -473,7 +473,7 @@ function SocialHomePage() {
                 className="h-28 rounded-t-md"
                 style={{
                   background:
-                    "linear-gradient(135deg, #05A9A9, #4ecdc4, #a6e4e0)",
+                    "linear-gradient(135deg, #FFA500, #fac970, #f2cf8f)",
                 }}
               ></div>
               <div className="px-5 pb-5 pt-0 -mt-14">
@@ -499,7 +499,7 @@ function SocialHomePage() {
                   {userFullProfile?.data.position || "No position specified"}
                 </p>
 
-                <div className="h-[60vh] overflow-y-auto">
+                <div className="h-[60vh] pb-10 overflow-y-auto">
                   <div className="flex justify-between mt-5 text-center border-y border-[#e6f7f7] py-4">
                     <div>
                       <p className="font-medium text-gray-800">248</p>
@@ -522,9 +522,9 @@ function SocialHomePage() {
                   {userFullProfile?.data.experience?.find(
                     (exp) => exp.workingAt
                   ) && (
-                    <div className="mt-5 p-4 bg-[#f8fdfd] rounded-xl">
+                    <div className="mt-5 p-4 bg-primary2/5 rounded-xl">
                       <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2">
-                        <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                        <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
                         Currently
                       </h4>
                       <p className="font-medium text-gray-800 mt-1">
@@ -548,7 +548,7 @@ function SocialHomePage() {
                     userFullProfile?.data.education?.length > 0 && (
                       <div className="mt-5">
                         <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2 mb-2">
-                          <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                          <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
                           Education
                         </h4>
                         {userFullProfile.data.education
@@ -556,7 +556,7 @@ function SocialHomePage() {
                           .map((edu) => (
                             <div
                               key={edu._id}
-                              className="mt-2 p-3 bg-[#f8fdfd] rounded-lg"
+                              className="mt-2 p-3 bg-primary2/5 rounded-lg"
                             >
                               <p className="font-medium text-gray-800">
                                 {edu.institution}
@@ -574,14 +574,14 @@ function SocialHomePage() {
                     userFullProfile?.data.skills?.length > 0 && (
                       <div className="mt-5">
                         <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2 mb-2">
-                          <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                          <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
                           Skills
                         </h4>
                         <div className="flex flex-wrap gap-2 mt-2">
                           {userFullProfile.data.skills.map((ski) => (
                             <span
                               key={ski._id}
-                              className="px-3 py-1 bg-[#e6f7f7] text-[#05A9A9] rounded-full text-xs font-medium"
+                              className="px-3 py-1 bg-primary2/10 text-primary2 rounded-full text-xs font-medium"
                             >
                               {ski.skill}
                             </span>
@@ -594,7 +594,7 @@ function SocialHomePage() {
                     userFullProfile?.data.organization?.length > 0 && (
                       <div className="mt-5">
                         <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2 mb-2">
-                          <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                          <span className="inline-block w-1 h-4 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
                           Organizations
                         </h4>
                         <div className="flex flex-wrap gap-2 mt-2">
@@ -603,9 +603,9 @@ function SocialHomePage() {
                             .map((org) => (
                               <div
                                 key={org._id}
-                                className="flex items-center bg-[#f8fdfd] px-3 py-2 rounded-lg"
+                                className="flex items-center bg-primary2/5 px-3 py-2 rounded-lg"
                               >
-                                <div className="w-6 h-6 rounded-full bg-[#e6f7f7] flex items-center justify-center mr-2 text-[#05A9A9]">
+                                <div className="w-6 h-6 rounded-full bg-primary2 flex items-center justify-center mr-2 text-primary2">
                                   <span className="text-xs">🏢</span>
                                 </div>
                                 <span className="text-sm text-gray-700">
@@ -629,11 +629,11 @@ function SocialHomePage() {
           <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[94%] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl focus:outline-none">
             <div className="flex items-center justify-between mb-4">
               <Dialog.Title className="text-xl font-medium text-gray-800 flex items-center gap-2">
-                <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
                 Create New Post
               </Dialog.Title>
               <Dialog.Close asChild>
-                <button className="text-gray-400 hover:text-[#05A9A9] rounded-full p-2 hover:bg-[#f8fdfd] transition-colors duration-200">
+                <button className="text-gray-400 hover:text-primary2 rounded-full p-2 hover:bg-[#f8fdfd] transition-colors duration-200">
                   <X className="w-5 h-5" />
                 </button>
               </Dialog.Close>
@@ -817,7 +817,7 @@ function SocialHomePage() {
                       placeholder="Reply to story..."
                       className="bg-transparent border-none text-white placeholder-white/70 focus:outline-none w-full"
                     />
-                    <button className="ml-2 text-white bg-[#05A9A9] p-2 rounded-full hover:bg-[#4ecdc4] transition-colors duration-200">
+                    <button className="ml-2 text-white bg-primary2 p-2 rounded-full hover:bg-primary2/50 transition-colors duration-200">
                       <Send className="w-5 h-5" />
                     </button>
                   </div>
@@ -834,11 +834,11 @@ function SocialHomePage() {
           <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[94%] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl focus:outline-none">
             <div className="flex items-center justify-between mb-4">
               <Dialog.Title className="text-xl font-medium text-gray-800 flex items-center gap-2">
-                <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-[#05A9A9] to-[#4ecdc4]"></span>
+                <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
                 Create New Story
               </Dialog.Title>
               <Dialog.Close asChild>
-                <button className="text-gray-400 hover:text-[#05A9A9] rounded-full p-2 hover:bg-[#f8fdfd] transition-colors duration-200">
+                <button className="text-gray-400 hover:text-primary2 rounded-full p-2 hover:bg-[#f8fdfd] transition-colors duration-200">
                   <X className="w-5 h-5" />
                 </button>
               </Dialog.Close>
@@ -849,8 +849,8 @@ function SocialHomePage() {
                 <div
                   className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${
                     isDragging
-                      ? "border-[#05A9A9] bg-[#f8fdfd]"
-                      : "border-[#e6f7f7] hover:border-[#05A9A9] hover:bg-[#f8fdfd]"
+                      ? "border-primary2 bg-[#f8fdfd]"
+                      : "border-[#e6f7f7] hover:border-primary2 hover:bg-[#f8fdfd]"
                   }`}
                   onClick={() => fileInputRef.current?.click()}
                   onDrop={handleDrop}
@@ -864,7 +864,7 @@ function SocialHomePage() {
                         background: "linear-gradient(135deg, #e6f7f7, #f5fcfc)",
                       }}
                     >
-                      <Upload className="w-7 h-7 text-[#05A9A9]" />
+                      <Upload className="w-7 h-7 text-primary2" />
                     </div>
                     <div>
                       <p className="font-medium text-gray-800 text-lg">
@@ -909,7 +909,7 @@ function SocialHomePage() {
                   <div className="p-4 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="p-2 rounded-full bg-[#e6f7f7]">
-                        <FileText className="w-4 h-4 text-[#05A9A9]" />
+                        <FileText className="w-4 h-4 text-primary2" />
                       </div>
                       <div>
                         <span className="text-sm font-medium truncate max-w-[180px] text-gray-700 block">

@@ -84,7 +84,7 @@ const Chat = () => {
   const [openProfile, setOpenProfile] = useState(false);
   const { role } = useRole();
   const navigate = useNavigate();
-
+  const { mode } = useRole();
   // socket
   const userId = Cookies.get("userId");
   const {
@@ -329,7 +329,9 @@ const Chat = () => {
               <div className="flex justify-center p-2">
                 <Button
                   onClick={() => setOpenGroup(true)}
-                  className="w-full border-primary"
+                  className={`w-full  ${
+                    mode === "formal" ? "border-primary" : "border-primary2"
+                  }`}
                   variant="outline"
                 >
                   New Group
@@ -449,7 +451,9 @@ const Chat = () => {
                               <div
                                 className={`p-3 my-2 max-w-xs md:max-w-md rounded-lg ${
                                   message.sender._id === userId
-                                    ? "bg-primary text-white"
+                                    ? mode === "formal"
+                                      ? "bg-primary text-white"
+                                      : "bg-primary2 text-white"
                                     : "bg-gray-200 text-black"
                                 }`}
                               >
@@ -499,7 +503,9 @@ const Chat = () => {
                               <div
                                 className={`p-3 my-1 max-w-xs md:max-w-md rounded-lg ${
                                   message.memberId._id === userId
-                                    ? "bg-primary text-white"
+                                    ? mode === "formal"
+                                      ? "bg-primary text-white"
+                                      : "bg-primary2 text-white"
                                     : "bg-gray-200 text-black"
                                 }`}
                               >

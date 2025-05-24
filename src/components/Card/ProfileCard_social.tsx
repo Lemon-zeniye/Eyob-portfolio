@@ -26,7 +26,7 @@ import {
   updateUserProfilePic,
   uploadUserPicture,
 } from "@/Api/profile.api";
-import { getUserFromToken, tos } from "@/lib/utils";
+import { formatImageUrl, getUserFromToken, tos } from "@/lib/utils";
 import type { UserData, UserInfo } from "@/Types/profile.type";
 
 import ActivityNew from "../Profile/ActivityNew";
@@ -41,18 +41,24 @@ import { getAxiosErrorMessage } from "@/Api/axios";
 import { FaUserPlus } from "react-icons/fa";
 import { Spinner } from "../ui/Spinner";
 import DocumentationCard from "./DocumentationCard";
+import { useRole } from "@/Context/RoleContext";
 
 const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [editProfile, setEditProfile] = useState(false);
   const [shareProfile, setShareProfile] = useState(false);
+  const getOtherUserPic = otherUser
+    ? otherUser?.pictures[0]?.path &&
+      formatImageUrl(otherUser?.pictures[0].path)
+    : Cookies.get("profilePic");
   const [profileImage, setprofileImage] = useState<string | undefined>(
-    Cookies.get("profilePic")
+    getOtherUserPic
   );
+  const { mode } = useRole();
 
-  const userProfileImg = Cookies.get("profilePic");
+  const userProfileImg = getOtherUserPic;
 
   const [activeTab, setActiveTab] = useState(
     !otherUser ? "activity" : "experience"
@@ -61,6 +67,7 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const { data: userData } = useQuery({
     queryKey: ["userProfile"],
     queryFn: getUserProfile,
+    enabled: !otherUser,
   });
 
   useEffect(() => {
@@ -160,19 +167,22 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
               <CustomVideoPlayer otherUser={otherUser} />
 
               {/* Avatar positioned at bottom center */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
-                <Dialog.Root>
-                  <Dialog.Trigger asChild>
-                    <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-white shadow-xl cursor-pointer hover:opacity-90 transition">
-                      <AvatarImage
-                        src={profileImage || userProfileImg}
-                        alt="Profile"
-                      />
-                      <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-xl md:text-2xl">
-                        {userInfo?.name?.charAt(0) || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Dialog.Trigger>
+              <div className="absolute  bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
+                {/* <Dialog.Trigger asChild> */}
+                <Avatar
+                  className="w-24 h-24 md:w-32 md:h-32 border-4 border-white shadow-xl cursor-pointer hover:opacity-90 transition"
+                  onClick={() => !otherUser && setOpen(true)}
+                >
+                  <AvatarImage
+                    src={profileImage || userProfileImg}
+                    alt="Profile"
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-xl md:text-2xl">
+                    {userInfo?.name?.charAt(0) || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <Dialog.Root open={open} onOpenChange={setOpen}>
+                  {/* </Dialog.Trigger> */}
                   <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
                     <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-lg flex flex-col gap-6">
@@ -250,12 +260,14 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
                     </Dialog.Content>
                   </Dialog.Portal>
                 </Dialog.Root>
-              </div>
-              <div
-                className="bg-primary py-1 rounded-full px-4 z-20 text-white absolute left-1/2 -bottom-24 -translate-x-1/2 -translate-y-1/2 
-               "
-              >
-                Open To work
+                <div
+                  className={`py-1 w-[9rem] text-center rounded-full px-4 z-20 text-white absolute left-1/2 -bottom-1/3  md:-bottom-1/4  -translate-x-1/2 -translate-y-1/2  ${
+                    mode === "formal" ? "bg-primary" : "bg-primary2"
+                  }
+               `}
+                >
+                  Open To work
+                </div>
               </div>
             </div>
           </div>
@@ -291,7 +303,11 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
               {!otherUser ? (
                 <Button
                   variant="outline"
-                  className="rounded-full px-6 gap-2 border-purple-200 text-primary hover:bg-primary hover:text-white"
+                  className={`rounded-full px-6 gap-2 border-purple-200  hover:text-white ${
+                    mode === "formal"
+                      ? "text-primary hover:bg-primary"
+                      : "text-primary2 hover:bg-primary2"
+                  }`}
                   onClick={() => setEditProfile(true)}
                 >
                   <Edit size={16} /> Edit Profile
@@ -299,7 +315,11 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
               ) : (
                 <Button
                   variant="outline"
-                  className="rounded-full px-6 gap-2 border-purple-200 text-primary hover:bg-primary hover:text-white"
+                  className={`rounded-full px-6 gap-2 border-purple-200  hover:text-white ${
+                    mode === "formal"
+                      ? "text-primary hover:bg-primary"
+                      : "text-primary2 hover:bg-primary2"
+                  }`}
                   onClick={() =>
                     followUser({
                       followedId: otherUser._id,
@@ -312,7 +332,11 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
               )}
               <Button
                 variant="outline"
-                className="rounded-full px-6 gap-2 border-primary text-primary hover:bg-purple-50 hover:text-primary"
+                className={`rounded-full px-6 gap-2 border-purple-200  hover:text-white ${
+                  mode === "formal"
+                    ? "text-primary hover:bg-primary"
+                    : "text-primary2 hover:bg-primary2"
+                }`}
                 onClick={() => setShareProfile(true)}
               >
                 <Share2 size={16} /> Share
@@ -431,7 +455,7 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
       <Dialog.Root open={shareProfile} onOpenChange={setShareProfile}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-lg flex flex-col gap-6">
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[96%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-lg flex flex-col gap-6">
             <div className="flex justify-between items-center">
               <Dialog.Title className="text-lg font-semibold text-gray-900">
                 Share Profile

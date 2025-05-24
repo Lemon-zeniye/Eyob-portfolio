@@ -79,9 +79,11 @@ const EducationCard = ({
                   <FiEye size={20} /> <span>Certification</span>
                 </Button>
                 <Button
-                  className={
-                    "bg-primary hover:bg-primary/80  p-3 rounded-full transition-all duration-300"
-                  }
+                  className={` p-3 rounded-full transition-all duration-300 ${
+                    mode === "formal"
+                      ? "bg-primary hover:bg-primary/80 "
+                      : "bg-primary2 hover:bg-primary2/80 "
+                  }`}
                   onClick={() => {
                     setOpen(true);
                   }}

@@ -15,9 +15,10 @@ import {
 } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
 import { Button } from "../ui/button";
-import { tos } from "@/lib/utils";
+import { formatImageUrl, tos } from "@/lib/utils";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { UserData } from "@/Types/profile.type";
+import { useRole } from "@/Context/RoleContext";
 
 const CustomVideoPlayer = ({
   otherUser,
@@ -27,21 +28,25 @@ const CustomVideoPlayer = ({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [videoURL, setVideoURL] = useState<string | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showControls, setShowControls] = useState(true);
   const [thumbnailURL, setThumbnailURL] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
+  const { mode } = useRole();
+
+  const otherUserVideo =
+    otherUser?.videos[0]?.path && formatImageUrl(otherUser?.videos[0]?.path);
+
+  const [videoURL, setVideoURL] = useState<string | undefined>(otherUserVideo);
 
   // Fetch video from server
   const {} = useQuery({
     queryKey: ["userVedio"],
     queryFn: getUserVideo,
     onSuccess: (response) => {
-      if (response && !selectedFile) {
-        // Only update server video if user hasn't selected a new one
+      if (response && !selectedFile && !otherUser) {
         const videoURL = `https://awema.co/${response.data.path.replace(
           "public/",
           ""
@@ -50,6 +55,7 @@ const CustomVideoPlayer = ({
         setIsUpdate(true);
       }
     },
+    enabled: !otherUser,
   });
 
   const togglePlayPause = () => {
@@ -174,7 +180,11 @@ const CustomVideoPlayer = ({
         {showControls && (
           <button
             onClick={togglePlayPause}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white bg-[#05A9A9]/70 p-5 rounded-full hover:bg-[#05A9A9]/90 transition-all duration-300 transform hover:scale-110 shadow-lg"
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white  p-5 rounded-full transition-all duration-300 transform hover:scale-110 shadow-lg ${
+              mode === "formal"
+                ? "bg-primary/70 hover:bg-primary/90"
+                : "bg-primary2/70 hover:bg-primary2/90"
+            }`}
           >
             {isPlaying ? (
               <FaPause size={24} />
@@ -184,23 +194,26 @@ const CustomVideoPlayer = ({
           </button>
         )}
 
-        {otherUser && (
-          <div className="absolute top-4 right-4 flex space-x-2">
-            <button
-              onClick={toggleMute}
-              className="text-[#767676] bg-white p-2 rounded-full hover:bg-primary hover:text-white transition-all shadow-sm"
-            >
-              {isMuted ? <FaVolumeMute size={18} /> : <FaVolumeUp size={18} />}
-            </button>
-
+        <div className="absolute top-4 right-4 flex space-x-2">
+          <button
+            onClick={toggleMute}
+            className={`text-[#767676] bg-white p-2 rounded-full hover:text-white transition-all shadow-sm ${
+              mode === "formal" ? "hover:bg-primary" : "hover:bg-primary2"
+            }`}
+          >
+            {isMuted ? <FaVolumeMute size={18} /> : <FaVolumeUp size={18} />}
+          </button>
+          {!otherUser && (
             <button
               onClick={() => setOpen(true)}
-              className="text-[#767676] bg-white p-2 rounded-full hover:bg-primary hover:text-white transition-all shadow-sm"
+              className={`text-[#767676] bg-white p-2 rounded-full hover:text-white transition-all shadow-sm ${
+                mode === "formal" ? "hover:bg-primary" : "hover:bg-primary2"
+              }`}
             >
               <MdOutlineUpload size={18} />
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <div>

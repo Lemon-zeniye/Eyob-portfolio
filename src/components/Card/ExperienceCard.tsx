@@ -117,11 +117,13 @@ const ExperienceCard = ({
               onClick={() => setOpen(!open)}
               className={`
                         p-3 rounded-full transition-all duration-300
-                        ${
-                          !open
-                            ? "bg-primary hover:bg-primary/90 text-white"
-                            : "bg-red-500 hover:bg-red-600 text-white"
-                        }
+                         ${
+                           !open
+                             ? mode === "formal"
+                               ? "bg-primary hover:bg-primary/90 text-white"
+                               : "bg-primary2 hover:bg-primary2/90 text-white"
+                             : "bg-red-500 hover:bg-red-600 text-white"
+                         }
                         shadow-md hover:shadow-lg
                         transform hover:scale-105
                         focus:outline-none focus:ring-2 focus:ring-opacity-50

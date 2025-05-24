@@ -14,6 +14,7 @@ import {
 } from "@/Api/post.api";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
+import { useRole } from "@/Context/RoleContext";
 
 const NotificationDropdown = () => {
   const queryClient = useQueryClient();
@@ -21,6 +22,9 @@ const NotificationDropdown = () => {
     queryKey: ["notifications"],
     queryFn: getNotifications,
   });
+
+  const { mode } = useRole();
+  const primaryColor = mode === "formal" ? "primary" : "primary2";
 
   const updateMutation = useMutation({
     mutationFn: updateNotification,
@@ -87,7 +91,7 @@ const NotificationDropdown = () => {
                   (n) => !n.readStatus && handleMarkAsRead(n._id)
                 )
               }
-              className="text-sm text-primary hover:text-primary/50"
+              className={`text-sm text-${primaryColor} hover:text-${primaryColor}/50`}
             >
               Mark all as read
             </button>
@@ -150,7 +154,9 @@ const NotificationDropdown = () => {
                     </div>
 
                     {!notification.readStatus && (
-                      <div className="h-2 w-2 bg-primary rounded-full mt-2" />
+                      <div
+                        className={`h-2 w-2 bg-${primaryColor} rounded-full mt-2`}
+                      />
                     )}
                   </div>
                 </div>
@@ -169,7 +175,7 @@ const NotificationDropdown = () => {
                         e.stopPropagation();
                         handleMarkAsRead(notification._id);
                       }}
-                      className="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center hover:bg-green-200 transition-colors"
+                      className={`h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center hover:bg-green-200 transition-colors`}
                       aria-label="Mark as read"
                     >
                       <Check size={16} />
@@ -193,7 +199,9 @@ const NotificationDropdown = () => {
 
         {notifications.length > 0 && (
           <div className="px-4 py-3 border-t border-gray-100 text-center">
-            <button className="text-sm font-medium text-primary hover:text-primary/50 flex items-center justify-center gap-1 w-full">
+            <button
+              className={`text-sm font-medium text-${primaryColor} hover:text-${primaryColor}/50 flex items-center justify-center gap-1 w-full`}
+            >
               View all notifications
               <ChevronRight size={16} />
             </button>

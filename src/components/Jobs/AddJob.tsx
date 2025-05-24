@@ -27,6 +27,7 @@ import { FaPlus } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams } from "react-router-dom";
+import { useRole } from "@/Context/RoleContext";
 
 function AddJob() {
   const [skills, setSkills] = useState<string[]>([]);
@@ -35,7 +36,7 @@ function AddJob() {
   const [degree, setDegree] = useState("");
   const [degrees, setDegrees] = useState<string[]>([]);
   const [showEducationError, setShowEducationError] = useState(false);
-
+  const { mode } = useRole();
   const { id } = useParams();
   const { data: jobDetail } = useQuery({
     queryKey: ["jobDetail", id],
@@ -171,7 +172,11 @@ function AddJob() {
             className="flex items-center gap-2 cursor-pointer flex-1 min-w-[140px]"
             onClick={() => setStep(true)}
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-primary">
+            <div
+              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full ${
+                mode === "formal" ? "bg-primary" : "bg-primary2"
+              }`}
+            >
               <BsExclamationCircleFill className="rotate-180 text-white text-base sm:text-lg" />
             </div>
             <div>
@@ -192,7 +197,11 @@ function AddJob() {
           >
             <div
               className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full ${
-                !step ? "bg-primary" : "bg-[#E9EBFD]"
+                !step
+                  ? mode === "formal"
+                    ? "bg-primary"
+                    : "bg-primary2"
+                  : "bg-[#E9EBFD]"
               }`}
             >
               <PiListChecksFill
@@ -313,7 +322,14 @@ function AddJob() {
                                       onChange={() => field.onChange(option)}
                                       className="peer hidden"
                                     />
-                                    <div className="w-4 h-4 p-1 rounded-sm border border-gray-400 peer-checked:bg-primary peer-checked:border-primary/40" />
+                                    <div
+                                      className={`w-4 h-4 p-1 rounded-sm border border-gray-400 ${
+                                        mode === "formal"
+                                          ? "peer-checked:bg-primary peer-checked:border-primary/40"
+                                          : "peer-checked:bg-primary2 peer-checked:border-primary2/40"
+                                      }`}
+                                    />
+
                                     <span>{option}</span>
                                   </label>
                                 </label>
@@ -537,7 +553,11 @@ function AddJob() {
                   <div className="col-span-3">
                     <div className="flex items-center gap-2">
                       <Button
-                        className="py-2 px-4 rounded-none bg-primary flex items-center justify-center gap-2"
+                        className={`py-2 px-4 rounded-none flex items-center justify-center gap-2 ${
+                          mode === "formal"
+                            ? "bg-primary"
+                            : "bg-primary2  hover:bg-primary2/70"
+                        }`}
                         onClick={() => addSkill()}
                         type="button"
                       >
@@ -577,7 +597,11 @@ function AddJob() {
                   <Button
                     onClick={() => nextStep()}
                     type="button"
-                    className="px-4 py-2 rounded-none bg-primary"
+                    className={`px-4 py-2 rounded-none ${
+                      mode === "formal"
+                        ? "bg-primary"
+                        : "bg-primary2  hover:bg-primary2/70"
+                    }`}
                   >
                     Next Step
                   </Button>
@@ -783,7 +807,11 @@ function AddJob() {
                   <div className="col-span-3">
                     <div className="flex flex-col-reverse items-start md:flex-row md:items-center gap-2">
                       <Button
-                        className="py-2 px-4 rounded-none bg-primary flex items-center justify-center gap-2"
+                        className={`py-2 px-4 rounded-none  flex items-center justify-center gap-2 ${
+                          mode === "formal"
+                            ? "bg-primary"
+                            : "bg-primary2  hover:bg-primary2/70"
+                        }`}
                         onClick={addEducationalBack}
                         type="button"
                       >
@@ -825,7 +853,13 @@ function AddJob() {
                 <hr className=" hidden sm:block my-4 border  border-gray-200" />
 
                 <div className="my-4 flex items-center justify-end">
-                  <Button className="px-4 py-2 rounded-none">
+                  <Button
+                    className={`px-4 py-2 rounded-none ${
+                      mode === "formal"
+                        ? "bg-primary"
+                        : "bg-primary2 hover:bg-primary2/70"
+                    }`}
+                  >
                     {isLoading || jobEditLoading ? <Spinner /> : "Save"}
                   </Button>
                 </div>

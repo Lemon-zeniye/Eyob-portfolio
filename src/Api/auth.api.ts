@@ -11,12 +11,14 @@ export const signup = async (payload: any): Promise<any> => {
 };
 
 export const getAxiosErrorMessage = (error: any): string => {
-  return (
-    error?.response?.data?.msg ||
-    error?.response?.data?.message ||
-    error?.message ||
-    "Something went wrong!"
-  );
+  const errMes = error?.response?.data?.msg;
+
+  return errMes || "Something went wrong!";
+};
+
+export const signupWithOtp = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>("/user/addUserWithOTP", payload);
+  return response.data;
 };
 
 // export interface GetTokenInterface {

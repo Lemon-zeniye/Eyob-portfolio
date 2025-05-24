@@ -9,13 +9,19 @@ import {
 // import * as Select from "@radix-ui/react-select";
 // import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Button } from "../ui/button";
-import { useMutation, useQueryClient } from "react-query";
-import { addUserSkill } from "@/Api/profile.api";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  addUserSkill,
+  fetchSkillCategories,
+  getSkills,
+} from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import { Textarea } from "../ui/textarea";
 import { tos } from "@/lib/utils";
 import { Input } from "../ui/input";
+import * as Select from "@radix-ui/react-select";
+import { ChevronDownIcon } from "lucide-react";
 
 function AddSkill({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient();
@@ -27,11 +33,6 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
       skillDescription: "",
     },
   });
-
-  // const { data: categories } = useQuery({
-  //   queryKey: ["fetchSkillCategories"],
-  //   queryFn: fetchSkillCategories,
-  // });
 
   const { mutate, isLoading } = useMutation({
     mutationFn: addUserSkill,
@@ -46,6 +47,16 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
     },
   });
 
+  const {} = useQuery({
+    queryKey: ["skills"],
+    queryFn: getSkills,
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ["skillsCategory"],
+    queryFn: fetchSkillCategories,
+  });
+
   const onSubmit = (data: any) => {
     mutate(data);
   };
@@ -55,7 +66,7 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
         <form className="" onSubmit={form.handleSubmit(onSubmit)}>
           {/* <FormField
             control={form.control}
-            name="name"
+            name="skill"
             rules={{
               required: "Required",
             }}
@@ -79,15 +90,16 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
                     <Select.Portal>
                       <Select.Content className="z-50 mt-1 w-[--radix-select-trigger-width] rounded-md border border-gray-200 bg-white shadow-md">
                         <Select.Viewport className="p-1">
-                          {["Python", "Java", "JavaScript"].map((g) => (
-                            <Select.Item
-                              key={g}
-                              value={g}
-                              className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded"
-                            >
-                              <Select.ItemText>{g}</Select.ItemText>
-                            </Select.Item>
-                          ))}
+                          {skills &&
+                            skills?.data.map((g) => (
+                              <Select.Item
+                                key={g._id}
+                                value={g._id}
+                                className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded"
+                              >
+                                <Select.ItemText>{g.name}</Select.ItemText>
+                              </Select.Item>
+                            ))}
                         </Select.Viewport>
                       </Select.Content>
                     </Select.Portal>
@@ -123,7 +135,7 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
             )}
           />
 
-          {/* <FormField
+          <FormField
             control={form.control}
             name="category"
             rules={{
@@ -167,69 +179,7 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
                 <FormMessage />
               </FormItem>
             )}
-          /> */}
-
-          <FormField
-            control={form.control}
-            rules={{
-              required: "Category is required",
-            }}
-            name="category"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Category</FormLabel>
-                <FormControl>
-                  <Input placeholder="Category" {...field} type="text" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
           />
-
-          {/* <FormField
-            control={form.control}
-            name="company"
-            rules={{
-              required: "Required",
-            }}
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Company</FormLabel>
-                <FormControl>
-                  <Select.Root
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    value={field.value}
-                  >
-                    <Select.Trigger className="flex items-center justify-between w-full h-10 px-3 border rounded-md bg-white text-gray-500 text-sm focus:outline-none">
-                      <Select.Value placeholder="Location Type" />
-                      <Select.Icon>
-                        <ChevronDownIcon className="w-4 h-4 text-gray-600" />
-                      </Select.Icon>
-                    </Select.Trigger>
-
-                    <Select.Portal>
-                      <Select.Content className="z-50 mt-1 w-[--radix-select-trigger-width] rounded-md border border-gray-200 bg-white shadow-md">
-                        <Select.Viewport className="p-1">
-                          {["Company A", "Comapny B"].map((g) => (
-                            <Select.Item
-                              key={g}
-                              value={g}
-                              className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded"
-                            >
-                              <Select.ItemText>{g}</Select.ItemText>
-                            </Select.Item>
-                          ))}
-                        </Select.Viewport>
-                      </Select.Content>
-                    </Select.Portal>
-                  </Select.Root>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
 
           <FormField
             control={form.control}

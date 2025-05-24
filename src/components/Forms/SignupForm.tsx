@@ -15,7 +15,7 @@ import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { useMutation } from "react-query";
 import { getAxiosErrorMessage, signup } from "@/Api/auth.api";
 import { Spinner } from "../ui/Spinner";
-import { toast } from "@/hooks/use-toast";
+import { tos } from "@/lib/utils";
 
 const SignupForm = () => {
   const methods = useForm({
@@ -35,10 +35,7 @@ const SignupForm = () => {
     },
     onError: (error: any) => {
       const message = getAxiosErrorMessage(error);
-      toast({
-        title: "❌ Error",
-        description: message,
-      });
+      tos.error(message);
     },
   });
 
@@ -61,7 +58,7 @@ const SignupForm = () => {
           <div className="flex flex-col gap-2">
             <p className="text-h2 font-bold">Sign Up</p>
             <p className="text-md text-neutral-500 dark:text-neutral-400">
-              Welcome to fit habesha!
+              Welcome to awema!
             </p>
             <Separator />
           </div>

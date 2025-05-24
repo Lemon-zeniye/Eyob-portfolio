@@ -255,7 +255,7 @@ function NormalHomePage() {
     onError: () => {},
   });
 
-  const { mutate: likeComment, isLoading: isLoadingCommentLike } = useMutation({
+  const { mutate: likeComment } = useMutation({
     mutationFn: Commentlike,
     onSuccess: () => {
       queryClient.invalidateQueries("getAllPostsWithComments");
@@ -1019,15 +1019,8 @@ function NormalHomePage() {
                                               replyToComment={
                                                 replyToChildComment
                                               }
-                                              childComId={childComId}
-                                              CancelReplyToComment={
-                                                CancelReplyToComment
-                                              }
                                               handleCommentLike={
                                                 handleCommentLike
-                                              }
-                                              isLoadingCommentLike={
-                                                isLoadingCommentLike
                                               }
                                             />
                                           )}
