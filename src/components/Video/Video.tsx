@@ -42,9 +42,18 @@ const CustomVideoPlayer = ({
   const [videoURL, setVideoURL] = useState<string | undefined>(otherUserVideo);
 
   // Fetch video from server
-  const {} = useQuery({
+  const isEnabled = !otherUser;
+
+  useQuery({
     queryKey: ["userVedio"],
-    queryFn: getUserVideo,
+    queryFn: () => {
+      // This is safe, but technically unnecessary
+      if (isEnabled) {
+        return getUserVideo();
+      }
+      return Promise.resolve(null); // Prevent query from hanging
+    },
+    enabled: isEnabled,
     onSuccess: (response) => {
       if (response && !selectedFile && !otherUser) {
         const videoURL = `https://awema.co/${response.data.path.replace(
@@ -55,7 +64,6 @@ const CustomVideoPlayer = ({
         setIsUpdate(true);
       }
     },
-    enabled: !otherUser,
   });
 
   const togglePlayPause = () => {
