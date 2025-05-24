@@ -29,6 +29,7 @@ type MobileFilterProps = {
 
 import { Checkbox } from "@/components/ui/checkbox"; // or use your Checkbox component
 import { SelectedValues } from "@/Types/job.type";
+import { useRole } from "@/Context/RoleContext";
 
 function MobileFilter({
   open,
@@ -39,6 +40,7 @@ function MobileFilter({
   onApply,
   onClear,
 }: MobileFilterProps) {
+  const { mode } = useRole();
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -81,10 +83,21 @@ function MobileFilter({
           ))}
 
           <div className="mt-auto pt-4 border-t flex flex-col gap-3">
-            <Button onClick={onApply} className="w-full">
+            <Button
+              onClick={onApply}
+              className={`w-full ${
+                mode === "formal"
+                  ? "bg-primary hover:bg-primary/70"
+                  : "bg-primary2 hover:bg-primary2/70"
+              } `}
+            >
               Apply
             </Button>
-            <Button onClick={onClear} variant="destructive" className="w-full">
+            <Button
+              onClick={onClear}
+              variant="destructive"
+              className="w-full bg-red-500"
+            >
               Clear
             </Button>
           </div>
