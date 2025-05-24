@@ -241,7 +241,7 @@ function NewJobPage() {
           className={`px-8 rounded-none py-2 text-white focus:outline-none focus:ring-2 ${
             mode === "formal"
               ? "bg-primary-other focus:ring-primary-other"
-              : "bg-[#FFA500] focus:ring-[#FFA500]"
+              : "bg-[#FFA500] hover:bg-[#FFA500]/70"
           }`}
         >
           Search

@@ -154,7 +154,9 @@ function JobDetailNew() {
               })
             }
             className={`py-2 px-6 bg-primary rounded-none w-full sm:w-auto ${
-              mode === "formal" ? "bg-primary " : "bg-primary2"
+              mode === "formal"
+                ? "bg-primary "
+                : "bg-primary2 hover:bg-primary2/70"
             }`}
           >
             {jobApplyIsLoading ? <Spinner /> : "Apply"}
@@ -195,7 +197,9 @@ function JobDetailNew() {
                 })
               }
               className={`py-2 px-10 rounded-none ${
-                mode === "formal" ? "bg-primary " : "bg-primary2"
+                mode === "formal"
+                  ? "bg-primary "
+                  : "bg-primary2 hover:bg-primary2/70"
               }`}
             >
               {jobApplyIsLoading ? <Spinner /> : "Apply"}
@@ -222,7 +226,9 @@ function JobDetailNew() {
               {!isLoading && jobsData?.data && jobsData?.data.length > 3 && (
                 <Button
                   className={`px-4 py-2 rounded-none w-[94%] mx-6 ${
-                    mode === "formal" ? "bg-primary " : "bg-primary2"
+                    mode === "formal"
+                      ? "bg-primary "
+                      : "bg-primary2 hover:bg-primary2/70"
                   }`}
                   onClick={() => setShowAll((prev) => !prev)}
                 >
