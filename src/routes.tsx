@@ -16,6 +16,7 @@ import JobDetailContainer from "./components/Jobs/JobDetailContainer";
 import HomePage from "./Pages/HomePage";
 import Notifications from "./Pages/Notifications";
 import UserProfilePage from "./Pages/UserProfilePage";
+import Explore from "./Pages/Explore";
 
 export const router = createBrowserRouter([
   {
@@ -53,6 +54,10 @@ export const router = createBrowserRouter([
           {
             path: "jobs",
             element: <JobPage />,
+          },
+          {
+            path: "explore",
+            element: <Explore />,
           },
           {
             path: "jobs/:id",

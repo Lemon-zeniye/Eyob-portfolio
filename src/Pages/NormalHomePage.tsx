@@ -1144,7 +1144,7 @@ function NormalHomePage() {
                 </p>
                 <div className="h-[60vh] overflow-y-auto pb-10">
                   {/* Stats */}
-                  <div className="flex justify-between mt-4 text-center border-y py-3">
+                  {/* <div className="flex justify-between mt-4 text-center border-y py-3">
                     <div>
                       <p className="font-bold">248</p>
                       <p className="text-xs text-gray-500">Posts</p>
@@ -1157,7 +1157,7 @@ function NormalHomePage() {
                       <p className="font-bold">526</p>
                       <p className="text-xs text-gray-500">Following</p>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Bio */}
                   <p className="text-gray-600 text-sm mt-3">

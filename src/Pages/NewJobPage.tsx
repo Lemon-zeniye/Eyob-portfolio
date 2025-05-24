@@ -219,7 +219,7 @@ function NewJobPage() {
             type="text"
             value={selectedValues["company"] ?? ""}
             onChange={(e) => handleCheckboxChange("company", e.target.value)}
-            placeholder="Amazon"
+            placeholder="Search company here"
             className="w-full border-b py-2 outline-none bg-transparent text-sm text-gray-700 placeholder-gray-400"
           />
           {selectedValues["company"] ? (
@@ -240,7 +240,7 @@ function NewJobPage() {
           onClick={() => applyFilters()}
           className={`px-8 rounded-none py-2 text-white focus:outline-none focus:ring-2 ${
             mode === "formal"
-              ? "bg-primary-other focus:ring-primary-other"
+              ? "bg-primary focus:ring-primary"
               : "bg-[#FFA500] hover:bg-[#FFA500]/70"
           }`}
         >

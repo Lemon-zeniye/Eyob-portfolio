@@ -28,8 +28,10 @@ function AddAbout({
   const form = useForm({
     defaultValues: {
       history: initialData?.history ?? "",
-      website: initialData?.website ?? [],
-      socialMedia: initialData?.socialMedia ?? [],
+      website: initialData?.website?.length ? initialData.website : [""],
+      socialMedia: initialData?.socialMedia?.length
+        ? initialData?.socialMedia
+        : [""],
     },
   });
   const { mutate, isLoading } = useMutation({

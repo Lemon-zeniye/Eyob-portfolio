@@ -3,6 +3,7 @@ import {
   Home,
   LucideIcon,
   MessageCircle,
+  Search,
   Settings,
 } from "lucide-react";
 import logo from "../../assets/Bevy.png";
@@ -22,7 +23,8 @@ const routes: Route[] = [
   { id: 1, icon: Home, name: "Feed", path: "/" },
   { id: 2, icon: MessageCircle, name: "Chat", path: "/chat" },
   { id: 3, icon: Briefcase, name: "Jobs", path: "/jobs" },
-  { id: 4, icon: Settings, name: "Settings", path: "/settings" },
+  { id: 4, icon: Search, name: "Explore", path: "/explore" },
+  { id: 5, icon: Settings, name: "Settings", path: "/settings" },
 ];
 
 const Sidebar = ({ children }: { children: React.ReactNode }) => {
@@ -40,7 +42,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
         <div className="flex flex-col gap-10">
           <img src={logo} className="h-auto" alt="Logo" />
           <div className="flex flex-col items-center justify-between h-[30vh]">
-            {routes.slice(0, 3).map((route) => {
+            {routes.slice(0, 4).map((route) => {
               const isHome = route.path === "/";
               const isActive = isHome
                 ? location.pathname === "/"

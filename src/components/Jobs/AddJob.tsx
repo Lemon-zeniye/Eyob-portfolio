@@ -77,6 +77,7 @@ function AddJob() {
       experience: jobDetail?.data.experience ?? "",
       locationType: jobDetail?.data.locationType ?? "",
       jobDescription: jobDetail?.data.jobDescription ?? "",
+      // numberOfOpenings: jobDetail?.data?.numberOfOpenings ?? "",
     },
   });
 
@@ -455,6 +456,16 @@ function AddJob() {
                       <FormField
                         control={form.control}
                         name="range.maximum"
+                        rules={{
+                          required: "Required",
+                          validate: (value) => {
+                            const min = form.watch("range.minimum") ?? 0;
+                            return (
+                              value >= min ||
+                              "Maximum must be greater than or equal to minimum"
+                            );
+                          },
+                        }}
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
@@ -792,6 +803,41 @@ function AddJob() {
                 </div>
 
                 <hr className=" hidden sm:block my-4 border  border-gray-200" />
+
+                {/* number of opning */}
+                {/* <div className="grid grid-cols-1 md:grid-cols-4 my-2 gap-6">
+                  <div className="col-span-1">
+                    <h1 className="font-semibold space-y-1 text-[#25324B]">
+                      Number of Openings
+                    </h1>
+                    <p className="hidden sm:block font-light w-full lg:w-[50%]">
+                      Specify how many positions are available for this role.
+                    </p>
+                  </div>
+
+                  <div className="col-span-3">
+                    <FormField
+                      control={form.control}
+                      name="numberOfOpenings"
+                      rules={{
+                        required: "Required",
+                      }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g. 5"
+                              {...field}
+                              type="number"
+                              className="rounded-none bg-transparent border-gray-300 shadow-sm w-full md:w-[70%] lg:w-[50%] "
+                            />
+                          </FormControl>
+                          <FormMessage className="mt-1 text-sm text-red-600" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div> */}
 
                 {/* Education Background */}
                 <div className="grid grid-cols-1 md:grid-cols-4 my-2 gap-6">

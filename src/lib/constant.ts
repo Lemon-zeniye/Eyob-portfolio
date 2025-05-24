@@ -258,6 +258,12 @@ export const routeMeta = [
     backRoute: "/",
     isChildRoute: false,
   },
+  {
+    path: "/explore",
+    headerName: "Explore",
+    backRoute: "/",
+    isChildRoute: false,
+  },
   // Put more specific (static) routes before dynamic ones
   {
     path: "/jobs/add-job",
@@ -293,6 +299,6 @@ export const routeMeta = [
     path: "/user/:name",
     headerName: "User Profile",
     backRoute: "/chat",
-    isChildRoute: false,
+    isChildRoute: true,
   },
 ];

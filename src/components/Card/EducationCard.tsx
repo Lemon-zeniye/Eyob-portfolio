@@ -186,7 +186,12 @@ const EducationCard = ({
                     transition={{ type: "tween", ease: "easeInOut" }}
                   >
                     {addCertificate ? (
-                      <AddCertification onSuccess={() => setOpen(false)} />
+                      <AddCertification
+                        onSuccess={() => {
+                          setOpen(false);
+                          setAddCertificate(false);
+                        }}
+                      />
                     ) : (
                       certifications?.data && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

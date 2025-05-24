@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ExpAndEduCard from "./ExpAndEduCard";
 import AddExprience from "../Profile/AddExprience";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getUserCV, getUserExperience, uploadCV } from "@/Api/profile.api";
 import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,7 +28,7 @@ const ExperienceCard = ({
   const [initialData, setInitialData] = useState<UserExperience | undefined>(
     undefined
   );
-
+  const queryClient = useQueryClient();
   const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (e: any) => {
@@ -54,6 +54,7 @@ const ExperienceCard = ({
       setOpenUploadCV(false);
       setFile(null);
       tos.success("CV uploaded successfully");
+      queryClient.invalidateQueries(["userCV"]);
     },
     onError: (error) => {
       const mes = getAxiosSuccessMessage(error);

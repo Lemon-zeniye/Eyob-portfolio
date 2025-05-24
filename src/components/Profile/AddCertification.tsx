@@ -9,7 +9,7 @@ import {
 import { Input } from "../ui/input";
 import "react-day-picker/dist/style.css";
 import { Button } from "../ui/button";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { addCertificate } from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
@@ -31,6 +31,7 @@ function AddCertification({ onSuccess }: { onSuccess: () => void }) {
       expireDate: new Date(),
     },
   });
+  const queryClient = useQueryClient();
 
   const certificate = form.watch("certificate");
   const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
@@ -49,7 +50,7 @@ function AddCertification({ onSuccess }: { onSuccess: () => void }) {
     onSuccess: () => {
       tos.success("Success");
       onSuccess();
-      //   queryClient.invalidateQueries("organization");
+      queryClient.invalidateQueries(["certification"]);
     },
     onError: (error: any) => {
       const message = getAxiosErrorMessage(error);

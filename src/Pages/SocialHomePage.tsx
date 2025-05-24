@@ -500,7 +500,7 @@ function SocialHomePage() {
                 </p>
 
                 <div className="h-[60vh] pb-10 overflow-y-auto">
-                  <div className="flex justify-between mt-5 text-center border-y border-[#e6f7f7] py-4">
+                  {/* <div className="flex justify-between mt-5 text-center border-y border-[#e6f7f7] py-4">
                     <div>
                       <p className="font-medium text-gray-800">248</p>
                       <p className="text-xs text-gray-500">Posts</p>
@@ -513,7 +513,7 @@ function SocialHomePage() {
                       <p className="font-medium text-gray-800">526</p>
                       <p className="text-xs text-gray-500">Following</p>
                     </div>
-                  </div>
+                  </div> */}
 
                   <p className="text-gray-600 text-sm mt-4">
                     {userFullProfile?.data.bio || "No bio available"}

@@ -18,6 +18,7 @@ export interface Job {
   jobPostDate: string;
   salaryType: string;
   salary: number;
+  numberOfOpenings: number;
   __v: number;
 }
 

@@ -49,12 +49,12 @@ function AboutCard() {
             >
               <div>
                 <h1 className="text-lg font-semibold">History</h1>
-                <p>{aboutCompany?.data.history}</p>
+                <p>{aboutCompany?.data?.history}</p>
               </div>
               <div>
                 <h1 className="text-lg font-semibold">Website</h1>
                 <div>
-                  {aboutCompany?.data.website?.map((d, index) => (
+                  {aboutCompany?.data?.website?.map((d, index) => (
                     <p key={d + index}>{d}</p>
                   ))}
                 </div>
@@ -62,7 +62,7 @@ function AboutCard() {
               <div>
                 <h1 className="text-lg font-semibold">Social Media</h1>
                 <div>
-                  {aboutCompany?.data.website?.map((d, index) => (
+                  {aboutCompany?.data?.website?.map((d, index) => (
                     <p key={d + index}>{d}</p>
                   ))}
                 </div>

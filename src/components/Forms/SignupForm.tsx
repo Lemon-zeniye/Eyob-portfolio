@@ -1,12 +1,6 @@
 import { FormProvider, useForm } from "react-hook-form";
 import { Separator } from "../ui/separator";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "../ui/form";
+import { FormField, FormItem, FormControl, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +10,8 @@ import { useMutation } from "react-query";
 import { getAxiosErrorMessage, signup } from "@/Api/auth.api";
 import { Spinner } from "../ui/Spinner";
 import { tos } from "@/lib/utils";
+import * as Select from "@radix-ui/react-select";
+import { ChevronDownIcon } from "lucide-react";
 
 const SignupForm = () => {
   const methods = useForm({
@@ -24,6 +20,7 @@ const SignupForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      role: "",
     },
     mode: "onChange", // Validate on change
   });
@@ -46,7 +43,7 @@ const SignupForm = () => {
       name: data.fullName,
       email: data.email,
       password: data.password,
-      role: "user",
+      role: data.role,
     };
     mutate(payload);
   };
@@ -67,15 +64,15 @@ const SignupForm = () => {
               className="flex flex-col gap-2"
               onSubmit={methods.handleSubmit(onSubmit)}
             >
-              <div className="flex lg:flex-col sm-phone:flex-col gap-2r w-full">
+              <div className="flex lg:flex-col sm-phone:flex-col gap-2r space-y-3 mb-3 w-full">
                 <FormField
                   control={methods.control}
                   rules={{
                     required: "Full Name is required",
-                    pattern: {
-                      value: /^[A-Za-z\s]+$/,
-                      message: "Full Name can only contain letters and spaces",
-                    },
+                    // pattern: {
+                    //   value: /^[A-Za-z\s]+$/,
+                    //   message: "Full Name can only contain letters and spaces",
+                    // },
                     minLength: {
                       value: 3,
                       message: "Full Name must be at least 3 characters",
@@ -84,7 +81,7 @@ const SignupForm = () => {
                   name="fullName"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Full Name</FormLabel>
+                      {/* <FormLabel>Full Name</FormLabel> */}
                       <FormControl>
                         <Input
                           placeholder="Enter your Full Name"
@@ -108,7 +105,7 @@ const SignupForm = () => {
                   }}
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Email</FormLabel>
+                      {/* <FormLabel>Email</FormLabel> */}
                       <FormControl>
                         <Input
                           type="email"
@@ -120,8 +117,6 @@ const SignupForm = () => {
                     </FormItem>
                   )}
                 />
-              </div>
-              <div className="flex lg:flex-col sm-phone:flex-col gap-2r w-full">
                 <FormField
                   control={methods.control}
                   name="password"
@@ -134,7 +129,7 @@ const SignupForm = () => {
                   }}
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Password</FormLabel>
+                      {/* <FormLabel>Password</FormLabel> */}
                       <FormControl>
                         <Input
                           type="password"
@@ -157,13 +152,67 @@ const SignupForm = () => {
                   }}
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Confirm Password</FormLabel>
+                      {/* <FormLabel>Confirm Password</FormLabel> */}
                       <FormControl>
                         <Input
                           type="password"
                           placeholder="Enter your password again"
                           {...field}
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={methods.control}
+                  name="role"
+                  rules={{
+                    required: "Role is Required",
+                  }}
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      {/* <FormLabel>Role</FormLabel> */}
+                      <FormControl>
+                        <Select.Root
+                          // onValueChange={(value) => {
+                          //   field.onChange(value);
+                          // }}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <Select.Trigger
+                            className={`flex items-center justify-between w-full h-10 px-3 border rounded-md bg-white ${
+                              field.value ? "text-black" : "text-gray-500 "
+                            } text-sm focus:outline-none`}
+                          >
+                            <Select.Value placeholder="Select Role (User or Company)" />
+                            <Select.Icon>
+                              <ChevronDownIcon className="w-4 h-4 text-gray-600" />
+                            </Select.Icon>
+                          </Select.Trigger>
+
+                          <Select.Portal>
+                            <Select.Content className="z-50 mt-1 w-[--radix-select-trigger-width] rounded-md border border-gray-200 bg-white shadow-md">
+                              <Select.Viewport className="p-1">
+                                {[
+                                  { label: "User", value: "user" },
+                                  { label: "Company", value: "company" },
+                                ].map((g) => (
+                                  <Select.Item
+                                    key={g.value}
+                                    value={g.value}
+                                    className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded"
+                                  >
+                                    <Select.ItemText>{g.label}</Select.ItemText>
+                                  </Select.Item>
+                                ))}
+                              </Select.Viewport>
+                            </Select.Content>
+                          </Select.Portal>
+                        </Select.Root>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

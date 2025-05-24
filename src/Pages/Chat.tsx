@@ -27,7 +27,6 @@ import GroupDetail from "@/components/Chat/GroupDetail";
 import { useIsMobile } from "@/hooks/use-isMobile";
 import UserProfile from "@/components/Jobs/UserFullProfile";
 import { useRole } from "@/Context/RoleContext";
-import { useNavigate } from "react-router-dom";
 
 export function NoChatSelected({ onClick }: { onClick: () => void }) {
   return (
@@ -83,7 +82,6 @@ const Chat = () => {
   const isMobile = useIsMobile();
   const [openProfile, setOpenProfile] = useState(false);
   const { role } = useRole();
-  const navigate = useNavigate();
   const { mode } = useRole();
   // socket
   const userId = Cookies.get("userId");
@@ -253,11 +251,11 @@ const Chat = () => {
     }
   };
 
-  const handleClick = (userId: string, userName: string) => {
-    // Replace spaces with underscores
-    const formattedUserName = userName.replace(/\s+/g, "_");
-    navigate(`/user/${formattedUserName}`, { state: { id: userId } });
-  };
+  // const handleClick = (userId: string, userName: string) => {
+  //   // Replace spaces with underscores
+  //   const formattedUserName = userName.replace(/\s+/g, "_");
+  //   navigate(`/user/${formattedUserName}`, { state: { id: userId } });
+  // };
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 h-[calc(100vh-4.3rem)] max-h-screen overflow-hidden">
       {/* Sidebar - Contacts/Groups with toggle button */}
@@ -284,11 +282,11 @@ const Chat = () => {
                           key={user._id}
                           user={user}
                           onlineUser={onlineUser}
-                          // onClick={() => {
-                          //   startChat(user);
-                          //   setSidebarOpen(false);
-                          // }}
-                          onClick={() => handleClick(user._id, user.name)}
+                          onClick={() => {
+                            startChat(user);
+                            setSidebarOpen(false);
+                          }}
+                          // onClick={() => handleClick(user._id, user.name)}
                           isSelected={user._id === selectedUser?._id}
                         />
                       ))}

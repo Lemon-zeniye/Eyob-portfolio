@@ -51,11 +51,12 @@ const CompanyProfileCard = () => {
     }
   };
 
-  const { data: companyProfile } = useQuery({
+  const { data: companyProfile, isError } = useQuery({
     queryKey: ["companyProfile"],
     queryFn: getCompanyProfile,
   });
 
+  console.log("3333", companyProfile);
   const { mutate, isLoading: uploading } = useMutation({
     mutationFn: uploadUserPicture,
     onSuccess: (res) => {
@@ -116,6 +117,14 @@ const CompanyProfileCard = () => {
     }
   };
 
+  if (isError) {
+    return (
+      <span className="text-red-500">
+        Something went wrong. Couldn't load this page.
+      </span>
+    );
+  }
+
   return (
     <EmptyCard
       cardClassname="lg:w-3/4 pb-10 sm-phone:bg-transparent sm-phone:border-none sm:border sm:bg-white sm-phone:w-full overflow-y-scroll "
@@ -135,7 +144,7 @@ const CompanyProfileCard = () => {
                   className="object-cover"
                 />
                 <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-2xl">
-                  {companyProfile?.data.name?.charAt(0) || "U"}
+                  {companyProfile?.data?.name?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
             </Dialog.Trigger>
@@ -209,12 +218,12 @@ const CompanyProfileCard = () => {
         <div className="w-full sm-phone:px-0 sm:px-12 flex flex-col">
           <div className="w-full px-2 flex flex-row justify-between items-center">
             <div className="flex flex-col gap-2">
-              <p className="text-2xl font-bold">{companyProfile?.data.name}</p>
+              <p className="text-2xl font-bold">{companyProfile?.data?.name}</p>
               <p className="font-extralight">
-                {companyProfile?.data.industry ?? "No industry specified"}
+                {companyProfile?.data?.industry ?? "No industry specified"}
               </p>
               <p className="md:text-base font-extralight">
-                {companyProfile?.data.companyBio ?? "No Bio"}
+                {companyProfile?.data?.companyBio ?? "No Bio"}
               </p>
             </div>
           </div>

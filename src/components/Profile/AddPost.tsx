@@ -16,6 +16,7 @@ import { createPost, updatePost } from "@/Api/profile.api";
 import { Spinner } from "../ui/Spinner";
 import { formatImageUrls, tos } from "@/lib/utils";
 import { Post } from "@/Types/profile.type";
+import { useRole } from "@/Context/RoleContext";
 
 type PostFormProps = {
   initialData: Post | undefined;
@@ -37,6 +38,7 @@ function AddPost({ initialData, onSuccess }: PostFormProps) {
 
   const [imagePreviews, setImagePreviews] = useState<string[]>(editImages);
   const queryClient = useQueryClient();
+  const { mode } = useRole();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -80,7 +82,8 @@ function AddPost({ initialData, onSuccess }: PostFormProps) {
     const formData = new FormData();
     if (values.postTitle) formData.append("postTitle", values.postTitle);
     if (values.postContent) formData.append("postContent", values.postContent);
-    formData.append("postType", "formal");
+    const postType = mode === "formal" ? "formal" : "social";
+    formData.append("postType", postType);
 
     // Append images one by one
     values.postPictures.forEach((file) => {

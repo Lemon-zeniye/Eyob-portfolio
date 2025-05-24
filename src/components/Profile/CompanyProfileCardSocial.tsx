@@ -143,7 +143,7 @@ const CompanyProfileCard = () => {
                       className="object-cover"
                     />
                     <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-2xl">
-                      {companyProfile?.data.name?.charAt(0) || "U"}
+                      {companyProfile?.data?.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
                 </div>
@@ -229,16 +229,14 @@ const CompanyProfileCard = () => {
           </div>
 
           <div className="mt-20 px-6 text-center">
-            <h2 className="text-2xl font-bold">
-              {companyProfile?.data?.name || "User Name"}
-            </h2>
+            <h2 className="text-2xl font-bold">{companyProfile?.data?.name}</h2>
 
             <div className="flex flex-col items-center gap-1 mt-1 text-gray-600">
               <div className="flex items-center gap-1">
                 <Briefcase size={14} />
                 <span>
                   {" "}
-                  {companyProfile?.data.industry ?? "No industry specified"}
+                  {companyProfile?.data?.industry ?? "No industry specified"}
                 </span>
               </div>
 
@@ -251,7 +249,7 @@ const CompanyProfileCard = () => {
             </div>
 
             <p className="mt-3 text-gray-600 max-w-lg mx-auto">
-              {companyProfile?.data.companyBio ?? "No Bio"}
+              {companyProfile?.data?.companyBio ?? "No Bio"}
             </p>
 
             <div className="flex justify-center gap-4 mt-6">
