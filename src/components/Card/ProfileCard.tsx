@@ -329,7 +329,7 @@ const ProfileCard = ({
               "Education",
               "Skills",
               "Organization",
-              "Documentation",
+              "Documents",
             ]}
           >
             <ExperienceCard otherUserExperience={otherUser?.experience} />
