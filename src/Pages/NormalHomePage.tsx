@@ -43,6 +43,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import {
   formatDateSmart,
+  formatImageUrl,
   formatMessageTime,
   tos,
   transformStories,
@@ -55,6 +56,8 @@ import { Spinner } from "@/components/ui/Spinner";
 import { CommentNew, PostCom } from "@/Types/post.type";
 import { IoIosArrowDown } from "react-icons/io";
 import { ChildReplies } from "@/components/Post/PostGalleryTwo";
+import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -96,6 +99,8 @@ function NormalHomePage() {
   );
 
   const [childComId, setChildComId] = useState<string | undefined>(undefined);
+
+  const navigate = useNavigate();
 
   const profileImage = Cookies.get("profilePic");
   const { data, isLoading, isError, isFetching } = useQuery(
@@ -523,6 +528,12 @@ function NormalHomePage() {
     setSelectedCommnet(commentId);
   };
 
+  const handleClick = (userId: string, userName: string) => {
+    // Replace spaces with underscores
+    const formattedUserName = userName.replace(/\s+/g, "_");
+    navigate(`/user/${formattedUserName}`, { state: { id: userId } });
+  };
+
   // Reset to page 1 if needed (e.g., on pull-to-refresh)
   //   const refreshPosts = () => {
   //     setPage(1);
@@ -676,11 +687,19 @@ function NormalHomePage() {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     className="rounded-2xl shadow-lg overflow-hidden bg-white border border-[#e6f7f7]"
                   >
-                    <div className="flex items-center justify-between p-4">
-                      <div className="flex items-center">
+                    <div className="flex items-center justify-between p-4 ">
+                      <div
+                        className="flex items-center cursor-pointer"
+                        onClick={() =>
+                          handleClick(post?.postOwner._id, post?.postOwner.name)
+                        }
+                      >
                         <Avatar className="w-10 h-10 border-2 border-[#e6f7f7]">
                           <AvatarImage
-                            src="/placeholder.svg?height=40&width=40"
+                            src={
+                              post?.userPicturePath &&
+                              formatImageUrl(post.userPicturePath)
+                            }
                             alt={post.postOwner?.name || "User"}
                           />
                           <AvatarFallback
@@ -700,7 +719,9 @@ function NormalHomePage() {
                           <div className="flex items-center text-xs text-gray-500">
                             <Clock className="w-3 h-3 mr-1" />
                             <span>
-                              {new Date(post.createdAt).toLocaleDateString()}
+                              {formatDistanceToNow(new Date(post.createdAt), {
+                                addSuffix: true,
+                              })}
                             </span>
                           </div>
                         </div>

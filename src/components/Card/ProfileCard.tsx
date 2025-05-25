@@ -52,6 +52,14 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (otherUser?.pictures[0]?.path) {
+      setprofileImage(formatImageUrl(otherUser.pictures[0].path));
+    } else {
+      setprofileImage(Cookies.get("profilePic"));
+    }
+  }, [otherUser]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -152,10 +160,7 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
                 className="w-24 h-24 md:w-32 md:h-32 border-4 border-white shadow-xl cursor-pointer hover:opacity-90 transition"
                 onClick={() => !otherUser && setOpen(true)}
               >
-                <AvatarImage
-                  src={profileImage || userProfileImg}
-                  alt="Profile"
-                />
+                <AvatarImage src={profileImage} alt="Profile" />
                 <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-xl md:text-2xl">
                   {userInfo?.name?.charAt(0) || "U"}
                 </AvatarFallback>

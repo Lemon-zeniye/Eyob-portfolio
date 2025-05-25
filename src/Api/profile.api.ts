@@ -14,6 +14,7 @@ import {
   GetOrganizationsResponse,
   PostPayload,
   SkillCategoriesResponse,
+  TranscriptResponse,
   UserFullProfileRes,
   UserPostResponse,
   UserProfileRes,
@@ -121,8 +122,21 @@ export const uploadCV = async (payload: any): Promise<any> => {
   return response.data;
 };
 
+export const uploadUserTranscript = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>(
+    "/experience/uploadUnOfficial",
+    payload
+  );
+  return response.data;
+};
+
 export const getUserCV = async (): Promise<FileResponse> => {
   const response = await axios.get<any>("experience/fetchUserCV");
+  return response.data;
+};
+
+export const getUserTranscript = async (): Promise<TranscriptResponse> => {
+  const response = await axios.get<any>("/experience/fetchUnOfficial");
   return response.data;
 };
 

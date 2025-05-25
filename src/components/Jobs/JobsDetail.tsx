@@ -4,7 +4,7 @@ import {
   SheetDescription,
   SheetHeader,
 } from "@/components/ui/sheet";
-import { Flag, HardHat } from "lucide-react";
+import { Flag } from "lucide-react";
 import CompanySmallCard from "../Card/CompanySmallCard";
 import { Button } from "../ui/button";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -16,6 +16,7 @@ import { AiOutlineDollar } from "react-icons/ai";
 import { IoBriefcaseOutline } from "react-icons/io5";
 import { Spinner } from "../ui/Spinner";
 import { tos } from "@/lib/utils";
+import { useRole } from "@/Context/RoleContext";
 
 interface JobsDetailProps {
   id: string | undefined;
@@ -44,7 +45,7 @@ const JobsDetail = ({
     },
     enabled: !!id,
   });
-
+  const { mode } = useRole();
   const { mutate, isLoading } = useMutation({
     mutationFn: applyJob,
     onSuccess: () => {
@@ -75,11 +76,18 @@ const JobsDetail = ({
               </SheetDescription>
               <div className="flex flex-row gap-4 flex-wrap">
                 {selectedJob.skills.map((item) => (
-                  <div className="flex flex-row gap-2 items-center">
-                    <div className="bg-primary flex items-center justify-center p-2 text-white rounded-md">
-                      <HardHat className="" />
-                    </div>
-                    <p className="text-xl font-medium">{item}</p>
+                  <div
+                    className={`flex flex-row rounded-full px-4 py-1 gap-2 items-center ${
+                      mode === "formal" ? "bg-primary/10 " : "bg-primary2/10 "
+                    } `}
+                  >
+                    <p
+                      className={`${
+                        mode === "formal" ? "text-primary" : "text-primary2 "
+                      } `}
+                    >
+                      {item}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -120,6 +128,11 @@ const JobsDetail = ({
                     jobId: id,
                   })
                 }
+                className={`${
+                  mode === "formal"
+                    ? "bg-primary hover:bg-primary/80 "
+                    : "bg-primary2 hover:bg-primary2/80 "
+                }`}
               >
                 {isLoading ? <Spinner /> : "Apply"}
               </Button>

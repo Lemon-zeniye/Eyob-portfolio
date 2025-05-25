@@ -13,8 +13,8 @@ import {
   deleteNotification,
 } from "@/Api/post.api";
 import { useState, useCallback } from "react";
-import { toast } from "sonner";
 import { useRole } from "@/Context/RoleContext";
+import { tos } from "@/lib/utils";
 
 const NotificationDropdown = () => {
   const queryClient = useQueryClient();
@@ -30,7 +30,7 @@ const NotificationDropdown = () => {
     mutationFn: updateNotification,
     onSuccess: () => {
       queryClient.invalidateQueries(["notifications"]);
-      toast.success("Notification marked as read");
+      tos.success("Notification marked as read");
     },
   });
 
@@ -38,7 +38,7 @@ const NotificationDropdown = () => {
     mutationFn: deleteNotification,
     onSuccess: () => {
       queryClient.invalidateQueries(["notifications"]);
-      toast.success("Notification deleted");
+      tos.success("Notification deleted");
     },
   });
 
@@ -64,7 +64,7 @@ const NotificationDropdown = () => {
   const handleCardClick = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
-
+  // groupRequest , share
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -103,7 +103,7 @@ const NotificationDropdown = () => {
             <div className="p-4 text-center text-gray-500">
               <div className="animate-pulse space-y-3">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="flex gap-3">
+                  <div key={i} className="flex gap-3 cursor-pointer">
                     <div className="h-10 w-10 rounded-full bg-gray-200"></div>
                     <div className="flex-1 space-y-2">
                       <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -122,7 +122,7 @@ const NotificationDropdown = () => {
             notifications.map((notification) => (
               <div
                 key={notification._id}
-                className={`relative overflow-hidden border-b border-gray-100 transition-all ${
+                className={`relative cursor-pointer overflow-hidden border-b border-gray-100 transition-all ${
                   !notification.readStatus ? "bg-blue-50" : ""
                 }`}
               >
@@ -140,9 +140,9 @@ const NotificationDropdown = () => {
                     </Avatar>
 
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
+                      {/* <p className="font-medium text-gray-900 truncate">
                         User Name
-                      </p>
+                      </p> */}
                       <p className="text-gray-600 text-sm">
                         {notification.content}
                       </p>

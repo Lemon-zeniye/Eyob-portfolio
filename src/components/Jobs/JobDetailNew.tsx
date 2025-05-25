@@ -2,7 +2,7 @@ import { Button } from "../ui/button";
 import { HiOutlineCurrencyDollar } from "react-icons/hi2";
 import { CiBookmark } from "react-icons/ci";
 import { useMutation, useQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { applyJob, getFetchSingleJob, getJobs } from "@/Api/job.api";
 import { useState } from "react";
 import { Job } from "@/Types/job.type";
@@ -33,8 +33,14 @@ const RelatedJobSkeleton = () => {
 
 const RelatedJob = ({ job }: { job: Job }) => {
   const { mode } = useRole();
+  const navigate = useNavigate();
   return (
-    <div className="p-4 border w-full  md:w-80">
+    <div
+      className={`p-4 border w-full  md:w-80 cursor-pointer ${
+        mode === "formal" ? " hover:bg-primary/5" : " hover:bg-primary2/5"
+      } `}
+      onClick={() => navigate(`/jobs/${job._id}`)}
+    >
       <div className="flex items-center justify-between">
         <div className="w-14 h-14">
           <img

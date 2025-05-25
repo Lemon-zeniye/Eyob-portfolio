@@ -44,6 +44,8 @@ import { IoIosArrowDown, IoMdHeart } from "react-icons/io";
 import { Spinner } from "../ui/Spinner";
 import { formatDistanceToNow } from "date-fns";
 import { MdCancel } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import { useRole } from "@/Context/RoleContext";
 
 interface PostCardProps {
   post: PostCom;
@@ -81,6 +83,8 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   const profilePic = Cookies.get("profilePic");
   const userName = Cookies.get("userName");
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const postImages = formatImageUrls(post?.postPictures);
     setPostImages(postImages);
@@ -99,6 +103,12 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     setCurrentImageIndex(
       (prev) => (prev - 1 + postImages.length) % postImages.length
     );
+  };
+
+  const handleClick = (userId: string, userName: string) => {
+    // Replace spaces with underscores
+    const formattedUserName = userName.replace(/\s+/g, "_");
+    navigate(`/user/${formattedUserName}`, { state: { id: userId } });
   };
 
   const currentImages = [postImages[currentImageIndex]].filter(Boolean);
@@ -385,8 +395,13 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 
         {/* Top Absolute for Profile */}
         <div className="absolute top-0 left-0 right-0 p-2 md:p-4">
-          <div className="flex items-center justify-between px-2 md:px-4">
-            <div className="flex items-center">
+          <div className="flex items-center justify-between px-2 md:px-4 ">
+            <div
+              className="flex items-center cursor-pointer"
+              onClick={() =>
+                handleClick(post?.postOwner._id, post?.postOwner.name)
+              }
+            >
               <div className="relative w-12 h-12 md:w-[4.5rem] md:h-[4.5rem]">
                 <div
                   className="w-full h-full rounded-full bg-gradient-to-tr from-primary2 to-primary2 
@@ -876,6 +891,8 @@ export const ChildReplies = ({
     queryFn: () => getChildComments(commentId),
   });
 
+  const { mode } = useRole();
+
   if (isLoading)
     return (
       <div className="flex items-center justify-center my-2">
@@ -897,14 +914,26 @@ export const ChildReplies = ({
             <AvatarImage
               src={`/placeholder.svg?height=36&width=36&text=${"U"}`}
             />
-            <AvatarFallback className="bg-gradient-to-br from-primary2 to-primary2/70 text-white">
+            <AvatarFallback
+              className={`bg-gradient-to-br text-white ${
+                mode === "formal"
+                  ? "from-primary to-primary/70 "
+                  : "from-primary2 to-primary2/70 "
+              }`}
+            >
               {"U"?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
           <div className="flex-1">
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary2/20 to-primary2/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
+              <div
+                className={`absolute -inset-1 bg-gradient-to-r  rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300 ${
+                  mode === "formal"
+                    ? "from-primary/20 to-primary/10"
+                    : "from-primary2/20 to-primary2/10"
+                }`}
+              ></div>
               <div
                 className={`relative bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300`}
               >

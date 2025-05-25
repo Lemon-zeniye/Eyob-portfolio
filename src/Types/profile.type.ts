@@ -94,6 +94,12 @@ export interface FileResponse {
   data: UserFile;
 }
 
+export interface TranscriptResponse {
+  success: boolean;
+  msg: string;
+  data: UserFile[];
+}
+
 export interface UserFile {
   _id: string;
   userid: string;
