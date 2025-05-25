@@ -30,7 +30,13 @@ import { IoPersonAdd } from "react-icons/io5";
 import DocumentationCard from "./DocumentationCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
+const ProfileCard = ({
+  otherUser,
+  isOtherUser,
+}: {
+  otherUser: UserData | undefined;
+  isOtherUser: boolean;
+}) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -39,7 +45,7 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const getOtherUserPic =
     otherUser?.pictures[0]?.path && formatImageUrl(otherUser?.pictures[0].path);
   const [profileImage, setprofileImage] = useState<string | undefined>(
-    getOtherUserPic
+    undefined
   );
   const userProfileImg = getOtherUserPic;
 
@@ -53,10 +59,12 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   }, []);
 
   useEffect(() => {
-    if (otherUser?.pictures[0]?.path) {
+    if (otherUser?.pictures[0]?.path && isOtherUser) {
       setprofileImage(formatImageUrl(otherUser.pictures[0].path));
-    } else {
+    } else if (!isOtherUser) {
       setprofileImage(Cookies.get("profilePic"));
+    } else {
+      setprofileImage(undefined);
     }
   }, [otherUser]);
 
@@ -152,7 +160,10 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
       <div className="flex flex-col gap-20">
         <div className="">
           <div className="w-full">
-            <CustomVideoPlayer otherUser={otherUser} />
+            <CustomVideoPlayer
+              otherUser={otherUser}
+              isOtherUser={isOtherUser}
+            />
           </div>
           <div className="relative">
             <div className="absolute   top-1/2 left-5  md:left-10 -translate-y-1/2">

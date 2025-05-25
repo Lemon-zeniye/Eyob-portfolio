@@ -26,9 +26,9 @@ const Profile = () => {
               <CompanyProfileCardNormal />
             )
           ) : mode === "social" ? (
-            <ProfileCardSocial otherUser={undefined} />
+            <ProfileCardSocial otherUser={undefined} isOtherUser={false} />
           ) : (
-            <ProfileCardNormal otherUser={undefined} />
+            <ProfileCardNormal otherUser={undefined} isOtherUser={false} />
           )}
         </motion.div>
       </AnimatePresence>

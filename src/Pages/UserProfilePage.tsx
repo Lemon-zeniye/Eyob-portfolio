@@ -33,9 +33,15 @@ function UserProfilePage() {
           className="w-full"
         >
           {mode === "social" ? (
-            <ProfileCardSocial otherUser={userFullProfile?.data} />
+            <ProfileCardSocial
+              otherUser={userFullProfile?.data}
+              isOtherUser={true}
+            />
           ) : (
-            <ProfileCardNormal otherUser={userFullProfile?.data} />
+            <ProfileCardNormal
+              otherUser={userFullProfile?.data}
+              isOtherUser={true}
+            />
           )}
         </motion.div>
       </AnimatePresence>

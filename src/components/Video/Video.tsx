@@ -22,8 +22,10 @@ import { useRole } from "@/Context/RoleContext";
 
 const CustomVideoPlayer = ({
   otherUser,
+  isOtherUser,
 }: {
   otherUser: UserData | undefined;
+  isOtherUser: boolean;
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -45,19 +47,14 @@ const CustomVideoPlayer = ({
   useQuery({
     queryKey: ["userVedio"],
     queryFn: async () => {
-      if (!otherUser) {
-        // Delay for 3 seconds before making the request
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        // Check again after delay in case otherUser arrived
-        if (!otherUser) {
-          return getUserVideo();
-        }
+      if (!isOtherUser) {
+        return getUserVideo();
       }
       return null;
     },
-    enabled: !otherUser,
+    enabled: !isOtherUser,
     onSuccess: (response) => {
-      if (response && !selectedFile && !otherUser) {
+      if (response && !selectedFile && !isOtherUser) {
         const videoURL = `https://awema.co/${response.data.path.replace(
           "public/",
           ""
@@ -67,12 +64,6 @@ const CustomVideoPlayer = ({
       }
     },
   });
-
-  useEffect(() => {
-    if (otherUser?.videos[0]?.path) {
-      setVideoURL(formatImageUrl(otherUser.videos[0].path));
-    }
-  }, [otherUser]);
 
   const togglePlayPause = () => {
     if (videoRef.current) {

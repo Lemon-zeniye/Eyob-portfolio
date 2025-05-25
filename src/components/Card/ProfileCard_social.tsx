@@ -43,7 +43,13 @@ import { Spinner } from "../ui/Spinner";
 import DocumentationCard from "./DocumentationCard";
 import { useRole } from "@/Context/RoleContext";
 
-const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
+const ProfileCard = ({
+  otherUser,
+  isOtherUser,
+}: {
+  otherUser: UserData | undefined;
+  isOtherUser: boolean;
+}) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -67,14 +73,16 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
   const { data: userData } = useQuery({
     queryKey: ["userProfile"],
     queryFn: getUserProfile,
-    enabled: !otherUser,
+    enabled: !isOtherUser,
   });
 
   useEffect(() => {
-    if (otherUser?.pictures[0]?.path) {
+    if (otherUser?.pictures[0]?.path && isOtherUser) {
       setprofileImage(formatImageUrl(otherUser.pictures[0].path));
-    } else {
+    } else if (!isOtherUser) {
       setprofileImage(Cookies.get("profilePic"));
+    } else {
+      setprofileImage(undefined);
     }
   }, [otherUser]);
 
@@ -172,14 +180,17 @@ const ProfileCard = ({ otherUser }: { otherUser: UserData | undefined }) => {
         <CardContent className="p-0">
           <div className="">
             <div className="w-full relative bg-gradient-to-r from-[#05A9A9] to-[#4ecdc4] rounded-b-[40px]">
-              <CustomVideoPlayer otherUser={otherUser} />
+              <CustomVideoPlayer
+                otherUser={otherUser}
+                isOtherUser={isOtherUser}
+              />
 
               {/* Avatar positioned at bottom center */}
               <div className="absolute  bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
                 {/* <Dialog.Trigger asChild> */}
                 <Avatar
                   className="w-24 h-24 md:w-32 md:h-32 border-4 border-white shadow-xl cursor-pointer hover:opacity-90 transition"
-                  onClick={() => !otherUser && setOpen(true)}
+                  onClick={() => !isOtherUser && setOpen(true)}
                 >
                   <AvatarImage src={profileImage} alt="Profile" />
                   <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-xl md:text-2xl">
