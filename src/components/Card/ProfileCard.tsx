@@ -80,11 +80,13 @@ const ProfileCard = ({
   const { data: userData } = useQuery({
     queryKey: ["userProfile"],
     queryFn: getUserProfile,
+    enabled: !isOtherUser,
   });
 
   const { data: personalInfo } = useQuery({
     queryKey: ["personalInfo"],
     queryFn: getPersonalInfo,
+    enabled: !isOtherUser,
   });
 
   const { mutate, isLoading: uploading } = useMutation({

@@ -4,8 +4,8 @@ import {
   addStory,
   Commentlike,
   getAllPostsWithComments,
+  getAllUserStories,
   getComments,
-  getUserStories,
   likeOrDeslike,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
@@ -340,7 +340,7 @@ function NormalHomePage() {
 
   const { data: userStories } = useQuery({
     queryKey: ["userStories"],
-    queryFn: getUserStories,
+    queryFn: getAllUserStories,
   });
 
   const stories = userStories ? transformStories(userStories.data) : [];
@@ -643,6 +643,7 @@ function NormalHomePage() {
                           <AvatarImage
                             src={story.avatar}
                             alt={story.username}
+                            className="object-cover"
                           />
                           <AvatarFallback className="bg-[#03a9a9]/20 text-[#03a9a9] font-medium">
                             {story.username[0].toUpperCase()}
@@ -725,6 +726,7 @@ function NormalHomePage() {
                               formatImageUrl(post.userPicturePath)
                             }
                             alt={post.postOwner?.name || "User"}
+                            className="object-cover"
                           />
                           <AvatarFallback
                             className="text-white"
@@ -875,8 +877,9 @@ function NormalHomePage() {
                           <div className="flex gap-3">
                             <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
                               <AvatarImage
-                                src="/placeholder.svg?height=32&width=32"
+                                src={formatImageUrl(post?.userPicturePath)}
                                 alt="Your avatar"
+                                className="object-cover"
                               />
                               <AvatarFallback
                                 className="text-white"
@@ -885,7 +888,7 @@ function NormalHomePage() {
                                     "linear-gradient(135deg, #05A9A9, #4ecdc4)",
                                 }}
                               >
-                                YA
+                                {post?.postOwner?.name?.slice(0, 1)}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 flex gap-2 relative">
@@ -1207,7 +1210,11 @@ function NormalHomePage() {
               <div className="px-5 pb-5 pt-0 -mt-10">
                 {/* Profile Header */}
                 <Avatar className="w-20 h-20 border-4 p-0.5 rounded-full bg-gradient-to-br from-[#03a9a9] to-[#03c9c9] shadow-md">
-                  <AvatarImage src={profileImage} alt="Your profile" />
+                  <AvatarImage
+                    src={profileImage}
+                    alt="Your profile"
+                    className="object-cover"
+                  />
                   <AvatarFallback className="bg-[#03a9a9]/10 text-white text-xl">
                     {userFullProfile?.data.name
                       .split(" ")
@@ -1404,6 +1411,7 @@ function NormalHomePage() {
                       <AvatarImage
                         src={viewingStory.avatar || "/placeholder.svg"}
                         alt={viewingStory.username}
+                        className="object-cover"
                       />
                       <AvatarFallback
                         className="text-white"

@@ -3,22 +3,28 @@ export interface Job {
   userid: {
     _id: string;
     name: string;
+    email?: string; // email is present in the example but not in original interface
   };
-  company: string;
+  company?: string; // missing in example, so optional
   jobTitle: string;
-  jobType: string;
   jobDescription: string;
-  deadLine: string;
-  degree: string;
+  deadLine: string; // ISO date string
+  jobQualification?: string; // added from example
   jobLocation: string;
   experience: string;
   locationType: string;
+  jobRequirement?: string; // added from example
+  jobIndustry?: string; // added from example
+  employmentMode?: string; // added from example
+  employmentType?: string; // added from example (was jobType before)
   skills: string[];
-  range: Range[];
+  range: Range[]; // assuming Range is defined elsewhere
+  viewCount?: number; // added from example
+  numberOfOpenings: number;
+  timeToHire?: number; // added from example
   jobPostDate: string;
   salaryType: string;
   salary: number;
-  numberOfOpenings: number;
   __v: number;
 }
 

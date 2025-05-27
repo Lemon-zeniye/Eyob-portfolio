@@ -9,7 +9,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { formatDateToMonthYear, tos } from "@/lib/utils";
 import { Spinner } from "../ui/Spinner";
-import { getAxiosSuccessMessage } from "@/Api/axios";
+import { getAxiosErrorMessage } from "@/Api/axios";
 import { useRole } from "@/Context/RoleContext";
 import ExpAndEduCardSocial from "./ExpAndEduCardSocial";
 import { UserExperience } from "../Types";
@@ -57,7 +57,7 @@ const ExperienceCard = ({
       queryClient.invalidateQueries(["userCV"]);
     },
     onError: (error) => {
-      const mes = getAxiosSuccessMessage(error);
+      const mes = getAxiosErrorMessage(error);
       tos.error(mes);
     },
   });

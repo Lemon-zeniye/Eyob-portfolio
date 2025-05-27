@@ -41,7 +41,7 @@ const RelatedJob = ({ job }: { job: Job }) => {
           />
         </div>
         <span className="px-3 py-1 text-sm font-medium rounded-full border-2 border-[#56CDAD] bg-green-50 text-[#56CDAD]">
-          {job.jobType}
+          {job.employmentType}
         </span>
       </div>
       <div className="">
@@ -140,7 +140,7 @@ function JobsDetailComapny() {
       {/* tabs */}
       <div className="mx-2 ">
         <Tabs
-          tabs={["Job Details", "Applicants", "Analytics"]}
+          tabs={["Job Details", "Applicants"]}
           tabClassName="border-2 border-b-2 font-semibold px-4 py-1 my-4"
         >
           {/* job Detials */}
@@ -208,7 +208,9 @@ function JobsDetailComapny() {
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="font-light">Job Type</p>
-                  <p className="font-semibold">{jobDetail?.data.jobType}</p>
+                  <p className="font-semibold">
+                    {jobDetail?.data.employmentType}
+                  </p>
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="font-light">Salary</p>
@@ -229,7 +231,7 @@ function JobsDetailComapny() {
               <hr className="my-8" />
 
               {/* Categories  */}
-              <div>
+              {/* <div>
                 <h1 className="text-xl font-semibold mb-4">Categories</h1>
                 <span
                   className="px-3 py-1 text-sm font-medium rounded-full border-2"
@@ -238,11 +240,11 @@ function JobsDetailComapny() {
                     color: skillColors[0],
                   }}
                 >
-                  {jobDetail?.data.degree}
+                  {jobDetail?.data.jobQualification}
                 </span>
               </div>
 
-              <hr className="my-8" />
+              <hr className="my-8" /> */}
 
               <div>
                 <h1 className="text-xl font-semibold mb-4">Required Skills</h1>
@@ -302,9 +304,6 @@ function JobsDetailComapny() {
             </div>
             <ApplicantsList />
           </div>
-
-          {/* analytics */}
-          <div>analytics</div>
         </Tabs>
       </div>
     </div>

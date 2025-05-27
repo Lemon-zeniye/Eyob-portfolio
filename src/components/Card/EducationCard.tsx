@@ -27,7 +27,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import CertificateCard from "./CertificateCard";
 import { tos } from "@/lib/utils";
-import { getAxiosSuccessMessage } from "@/Api/axios";
+import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import TranscriptCard from "./TranscriptCard";
 
@@ -77,7 +77,7 @@ const EducationCard = ({
       // queryClient.invalidateQueries(["userCV"]);
     },
     onError: (error) => {
-      const mes = getAxiosSuccessMessage(error);
+      const mes = getAxiosErrorMessage(error);
       tos.error(mes);
     },
   });

@@ -1,7 +1,7 @@
 import {
   addStory,
   getAllPostsWithComments,
-  getUserStories,
+  getAllUserStories,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -161,7 +161,7 @@ function SocialHomePage() {
 
   const { data: userStories } = useQuery({
     queryKey: ["userStories"],
-    queryFn: getUserStories,
+    queryFn: getAllUserStories,
   });
 
   const stories = userStories ? transformStories(userStories.data) : [];
@@ -478,7 +478,11 @@ function SocialHomePage() {
               ></div>
               <div className="px-5 pb-5 pt-0 -mt-14">
                 <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                  <AvatarImage src={profileImage} alt="Your profile" />
+                  <AvatarImage
+                    className="object-cover"
+                    src={profileImage}
+                    alt="Your profile"
+                  />
                   <AvatarFallback
                     className="text-white text-xl"
                     style={{
@@ -684,6 +688,7 @@ function SocialHomePage() {
                       <AvatarImage
                         src={viewingStory.avatar || "/placeholder.svg"}
                         alt={viewingStory.username}
+                        className="object-cover"
                       />
                       <AvatarFallback
                         className="text-white"

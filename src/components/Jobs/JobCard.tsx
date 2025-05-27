@@ -15,13 +15,12 @@ const JobCard = ({ job }: { job: Job }) => {
     jobTitle: job.jobTitle,
     company: job.company,
     jobLocation: job.jobLocation,
-    jobType: job.jobType,
+    employmentType: job.employmentType,
     jobDescription: job.jobDescription,
     skills: job.skills?.length ? job.skills.join(", ") : "",
     appliedCount: 5,
     capacity: 10,
     jobLocationType: job.locationType,
-    degree: job.degree,
   };
   const { mode } = useRole();
 
@@ -62,15 +61,15 @@ const JobCard = ({ job }: { job: Job }) => {
           </div>
           <div className="mb-4 flex flex-wrap gap-2 text-[0.8rem]">
             <span className="rounded-full px-3 py-1.5 border border-white bg-[#EFFAF7]  text-[#56CDAD]  font-medium">
-              {jobData.jobType}
+              {jobData.employmentType || "Marketing"}
             </span>
             <div className="h-8 border-l"></div>
             <span className="rounded-full px-3 py-1.5 border-2 border-[#FFB836] bg-white text-[#FFB836]  font-medium">
               {jobData.jobLocationType}
             </span>
-            <span className="rounded-full px-3 py-1.5 border-2 border-primary bg-white text-primary  font-medium">
+            {/* <span className="rounded-full px-3 py-1.5 border-2 border-primary bg-white text-primary  font-medium">
               {jobData.degree}
-            </span>
+            </span> */}
           </div>
         </div>
 

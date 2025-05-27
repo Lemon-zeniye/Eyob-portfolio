@@ -6,9 +6,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRole } from "@/Context/RoleContext";
 
 interface CompanySmallCardProps {
-  companyName: string;
+  companyName: string | undefined;
   FollowClicked: () => void;
-  companyDescription: string;
+  companyDescription: string | undefined;
 }
 
 const CompanySmallCard = ({

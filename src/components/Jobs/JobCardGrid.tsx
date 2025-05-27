@@ -33,7 +33,7 @@ const JobCardTwo: FC<Props> = ({ job }) => {
               : "bg-primary2/10  text-primary2/70 "
           } `}
         >
-          {job.jobType || "Full-Time"}
+          {job.employmentType || "Full-Time"}
         </span>
       </div>
 
@@ -48,7 +48,7 @@ const JobCardTwo: FC<Props> = ({ job }) => {
       {/* Tags */}
       <div className="flex gap-2 mt-3">
         <span className="text-sm font-medium border border-[#FFB836] bg-white text-[#FFB836]  sm px-3 py-1 rounded-full">
-          {job.locationType || "Marketing"}
+          {job.employmentType || "Marketing"}
         </span>
         <span className="text-teal-600 text-sm font-medium border border-teal-300 bg-teal-50 px-3 py-1 rounded-full">
           {job.skills[0] || "Social Media"}

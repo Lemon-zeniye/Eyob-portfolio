@@ -3,7 +3,7 @@ import { toMonthDayYear } from "@/lib/utils";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import UserProfile from "./UserFullProfile";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function TableSkeleton() {
   return (
@@ -50,12 +50,20 @@ function ApplicantsList() {
     enabled: !!id,
   });
 
+  const navigate = useNavigate();
+
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [open, setOpen] = useState(false);
 
   const handleFetchProfile = (id: string) => {
     setUserId(id);
     setOpen(true);
+  };
+
+  const handleClick = (userId: string, userName: string) => {
+    // Replace spaces with underscores
+    const formattedUserName = userName.replace(/\s+/g, "_");
+    navigate(`/user/${formattedUserName}`, { state: { id: userId } });
   };
 
   return (
@@ -73,12 +81,12 @@ function ApplicantsList() {
             >
               Full Name
             </th>
-            <th
+            {/* <th
               scope="col"
               className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
             >
               Score
-            </th>
+            </th> */}
             <th
               scope="col"
               className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
@@ -127,9 +135,9 @@ function ApplicantsList() {
                     {application.name}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                {/* <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                   {"0.0"}
-                </td>
+                </td> */}
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`px-4 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
@@ -145,7 +153,12 @@ function ApplicantsList() {
                   {toMonthDayYear(application.applicationDate)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-primary hover:text-primary/70">
-                  <button className="border border-primary px-4 py-2">
+                  <button
+                    className="border border-primary px-4 py-2"
+                    onClick={() =>
+                      handleClick(application.userid?._id, application.name)
+                    }
+                  >
                     See Application
                   </button>
                 </td>

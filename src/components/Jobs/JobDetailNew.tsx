@@ -55,7 +55,7 @@ const RelatedJob = ({ job }: { job: Job }) => {
               : "border-primary2 bg-primary2/10 text-primary2"
           } `}
         >
-          {job.jobType}
+          {job.employmentType}
         </span>
       </div>
       <div className="">

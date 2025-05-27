@@ -25,30 +25,36 @@ import clsx from "clsx";
 function NewJobPage() {
   const filterValues: FilterCategory[] = [
     {
-      category: { label: "Employment Type", value: "jobType" },
+      category: { label: "Employment Type", value: "employmentType" },
       options: [
-        { id: 1, name: "Full Time", value: "full-time" },
-        { id: 2, name: "Part Time", value: "part-time" },
-        { id: 3, name: "Internship", value: "internship" },
-        { id: 4, name: "Contract", value: "contract" },
+        { id: 1, name: "Graduate Job", value: "graduate-job" },
+        { id: 2, name: "Internship", value: "internship" },
+        { id: 3, name: "Co-op", value: "co-op" },
+        { id: 4, name: "On-Campus Internship", value: "on-campus-internship" },
+        { id: 5, name: "STEM Internship", value: "stem-internship" },
+        {
+          id: 6,
+          name: "Unpaid/Volunteer Work",
+          value: "unpaid-volunteer-work",
+        },
       ],
     },
     {
-      category: { label: "Job Location", value: "jobLocation" },
+      category: { label: "Employment Mode", value: "employmentMode" },
       options: [
         { id: 1, name: "Remote", value: "remote" },
         { id: 2, name: "On site", value: "on-site" },
         { id: 3, name: "Hybrid", value: "hybrid" },
       ],
     },
-    {
-      category: { label: "Salary Type", value: "payment" },
-      options: [
-        { id: 1, name: "Hourly", value: "hourly" },
-        { id: 2, name: "Monthly", value: "monthly" },
-        { id: 3, name: "Annual", value: "Annual" },
-      ],
-    },
+    // {
+    //   category: { label: "Salary Type", value: "payment" },
+    //   options: [
+    //     { id: 1, name: "Hourly", value: "hourly" },
+    //     { id: 2, name: "Monthly", value: "monthly" },
+    //     { id: 3, name: "Annual", value: "Annual" },
+    //   ],
+    // },
   ];
 
   const [openCategories, setOpenCategories] = useState<string[]>(
@@ -58,10 +64,9 @@ function NewJobPage() {
   const navigate = useNavigate();
   const [selectedValues, setSelectedValues] = useState<SelectedValues>({
     jobTitle: "",
-    jobType: null,
-    jobLocation: null,
-    payment: null,
-    company: "",
+    employmentType: null,
+    employmentMode: null,
+    jobIndustry: "",
   });
   const [selectedFilter, setSelectedFilter] = useState({});
   const [mobileFilter, setMobileFilter] = useState(false);
@@ -86,9 +91,8 @@ function NewJobPage() {
   const cancelRadioFilters = () => {
     setSelectedValues((prev) => ({
       ...prev,
-      jobType: null,
-      jobLocation: null,
-      payment: null,
+      employmentType: null,
+      employmentMode: null,
     }));
 
     const filtered = Object.entries(selectedValues).reduce(
@@ -96,7 +100,7 @@ function NewJobPage() {
         if (
           value !== "" &&
           value !== null &&
-          !["jobType", "jobLocation", "payment"].includes(key)
+          !["employmentType", "employmentMode"].includes(key)
         ) {
           if (value !== "" && value !== null) {
             acc[key] = value;
@@ -217,16 +221,18 @@ function NewJobPage() {
           <IoBusinessOutline className="text-gray-500 mr-2 text-lg" />
           <input
             type="text"
-            value={selectedValues["company"] ?? ""}
-            onChange={(e) => handleCheckboxChange("company", e.target.value)}
-            placeholder="Search company here"
+            value={selectedValues["jobIndustry"] ?? ""}
+            onChange={(e) =>
+              handleCheckboxChange("jobIndustry", e.target.value)
+            }
+            placeholder="Search Job Industry here"
             className="w-full border-b py-2 outline-none bg-transparent text-sm text-gray-700 placeholder-gray-400"
           />
-          {selectedValues["company"] ? (
+          {selectedValues["jobIndustry"] ? (
             <span
               className="ml-1 cursor-pointer text-gray-600"
               onClick={() => {
-                const updatedValues = { ...selectedValues, company: "" };
+                const updatedValues = { ...selectedValues, jobIndustry: "" };
                 setSelectedValues(updatedValues);
                 applyFilteredValues(updatedValues);
               }}

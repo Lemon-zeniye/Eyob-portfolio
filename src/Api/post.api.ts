@@ -47,6 +47,11 @@ export const getUserStories = async (): Promise<StoryRes> => {
   return response.data;
 };
 
+export const getAllUserStories = async (): Promise<StoryRes> => {
+  const response = await axios.get<any>(`/user/getAllUserStories`);
+  return response.data;
+};
+
 export const updateStory = async (id: string, payload: any): Promise<any> => {
   const response = await axios.patch<any>(
     `/user/updateUserStory/${id}`,

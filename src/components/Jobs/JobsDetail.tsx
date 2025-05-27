@@ -97,7 +97,7 @@ const JobsDetail = ({
             <div className="w-full flex opacity-75 flex-col  gap-5 ">
               <div className="flex flex-row gap-2 items-center">
                 <IoBriefcaseOutline size={22} />
-                <p className={``}>{selectedJob.jobType}</p>
+                <p className={``}>{selectedJob.employmentType}</p>
               </div>
               <div className="flex flex-row gap-2 items-center">
                 <MdOutlineLocationOn size={22} />

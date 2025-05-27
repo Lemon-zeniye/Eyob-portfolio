@@ -70,14 +70,10 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+export const getAxiosErrorMessage = (error: any): string => {
+  const errMes = error?.response?.data?.msg;
 
-export const getAxiosErrorMessage = (error: unknown): string => {
-  if (axios.isAxiosError(error)) {
-    return (
-      error.response?.data?.message || error.message || "Something went wrong"
-    );
-  }
-  return "An unexpected error occurred.";
+  return errMes || "Something went wrong!";
 };
 
 export const getAxiosSuccessMessage = <T>(response: T): string => {
