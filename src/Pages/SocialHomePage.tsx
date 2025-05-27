@@ -46,8 +46,8 @@ function SocialHomePage() {
   const [hasMore, setHasMore] = useState(true);
 
   const { data, isLoading, isError, isFetching } = useQuery(
-    ["getAllPostsWithComments", page, limit],
-    () => getAllPostsWithComments(page, limit),
+    ["getAllPostsWithComments", page, limit, "social"],
+    () => getAllPostsWithComments(page, limit, "social"),
     {
       keepPreviousData: true,
       staleTime: 5000,
@@ -68,7 +68,7 @@ function SocialHomePage() {
         });
       }
 
-      setHasMore(data.data.length === limit);
+      setHasMore(data.data.length >= limit);
     }
   }, [data, page, limit]);
 
@@ -87,7 +87,7 @@ function SocialHomePage() {
   const [viewingStory, setViewingStory] = useState<null | {
     id: number;
     username: string;
-    title: string;
+    // title: string;
     avatar: string;
     items: Array<{ id: string; image: string }>;
   }>(null);
@@ -328,7 +328,7 @@ function SocialHomePage() {
                 <span className="text-xs font-medium text-gray-600">Add</span>
               </div>
 
-              {stories.map((story) => (
+              {[...stories]?.reverse().map((story) => (
                 <div
                   key={story.id}
                   className="flex flex-col items-center cursor-pointer group"
@@ -350,7 +350,7 @@ function SocialHomePage() {
                     >
                       <div className="w-full h-full rounded-full border-2 border-white overflow-hidden">
                         <img
-                          src={story.avatar || "/placeholder.svg"}
+                          src={story.items[0]?.image}
                           alt={story.username}
                           className="w-full h-full rounded-full object-cover"
                         />
@@ -756,12 +756,12 @@ function SocialHomePage() {
                     src={
                       viewingStory.items[currentStoryItemIndex]?.image ||
                       `/placeholder.svg?height=1280&width=720&text=${
-                        encodeURIComponent(viewingStory.title) ||
+                        encodeURIComponent(viewingStory.username) ||
                         "/placeholder.svg" ||
                         "/placeholder.svg"
                       }`
                     }
-                    alt={viewingStory.title}
+                    alt={viewingStory.username}
                     className="w-full h-full object-contain"
                   />
                 </div>

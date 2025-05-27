@@ -84,13 +84,20 @@ export interface CommentNew {
   _id: string;
   postId: string;
   comment: string;
-  commentedBy: User;
+  commentedBy: CommentedBy;
   commentedTo: User;
   createdAt: string;
   __v: number;
   totalReplies: number;
   likes: number;
   deslikes: number;
+}
+
+export interface CommentedBy {
+  _id: string;
+  name: string;
+  email: string;
+  userPicturePath: string;
 }
 
 export interface ChildCommentsRes {
@@ -107,7 +114,12 @@ export interface ChildComments {
   likes: number;
   deslikes: number;
   createdAt: string;
-  __v: number;
+  userPicturePath: string;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface StoryItem {
@@ -118,7 +130,7 @@ export interface StoryItem {
 export interface Story {
   id: number;
   username: string;
-  title: string;
+  // title: string;
   avatar: string;
   items: StoryItem[]; // But API will only return 1 item
 }
@@ -133,6 +145,12 @@ export interface StoryApiResponse {
   views: number;
   createdAt: Date | string;
   __v?: number;
+  userPicturePath: string;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface StoryRes {

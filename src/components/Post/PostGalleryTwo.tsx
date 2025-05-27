@@ -1,31 +1,24 @@
 import { CommentNew, PostCom } from "@/Types/post.type";
 import { motion, Variants } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FaChevronLeft,
   FaChevronRight,
   FaEllipsisV,
   FaTrash,
 } from "react-icons/fa";
-// import image1 from "../../assets/image1.jpg";
-// import image2 from "../../assets/image2.webp";
-// import image3 from "../../assets/image3.webp";
-// import image4 from "../../assets/image4.jpg";
-// import image5 from "../../assets/image5.jpg";
-// import image6 from "../../assets/image6.jpg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  formatDateSmart,
-  formatImageUrl,
-  formatImageUrls,
-  formatMessageTime,
-  tos,
-} from "@/lib/utils";
+import { formatImageUrl, formatImageUrls, tos } from "@/lib/utils";
 import { FaRegComment } from "react-icons/fa";
 import { RiSendPlaneLine } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
 import { LuBookmarkMinus } from "react-icons/lu";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import {
   addChildComment,
   addComment,
@@ -73,12 +66,8 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   const [commentsByPost, setCommentsByPost] = useState<
     Record<string, CommentNew[]>
   >({});
-  const [hasMoreComment, setHasMoreComment] = useState<Record<string, boolean>>(
-    {}
-  );
-  const [commentPages, setCommentPages] = useState<Record<string, number>>({});
   const [replierName, setReplierName] = useState<string | undefined>(undefined);
-  const [childComId, setChildComId] = useState<string | undefined>(undefined);
+  const [, setChildComId] = useState<string | undefined>(undefined);
 
   const profilePic = Cookies.get("profilePic");
   const userName = Cookies.get("userName");
@@ -114,6 +103,28 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   const currentImages = [postImages[currentImageIndex]].filter(Boolean);
   const hasNoImage = currentImages.length === 0;
 
+  const {
+    data,
+    isLoading: isLoadingComment,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["postComments", post._id],
+    queryFn: async ({ pageParam = 1 }) => {
+      if (!post._id) return;
+      const res = await getComments(post._id, pageParam);
+      return res;
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage?.data && lastPage?.data?.length > 0
+        ? allPages.length + 1
+        : undefined;
+    },
+    enabled: false,
+  });
+
   // Mutation Function
   const { mutate, isLoading } = useMutation({
     mutationFn: likeOrDeslike,
@@ -123,13 +134,17 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     onError: () => {},
   });
 
+  const childComIdRef = useRef<string | null>(null);
   // Mutation Function
-  const { mutate: likeComment, isLoading: isLoadingCommentLike } = useMutation({
+  const { mutate: likeComment } = useMutation({
     mutationFn: Commentlike,
     onSuccess: () => {
-      const currentPage = commentPages[post._id] || 1;
-      queryClient.invalidateQueries(["postComments", post._id, currentPage]);
-      queryClient.invalidateQueries(["childComment", selectedCommnet]);
+      queryClient.invalidateQueries(["postComments", post._id]);
+      if (childComIdRef?.current) {
+        queryClient.invalidateQueries(["childComment", childComIdRef.current]);
+      }
+      refetch();
+      tos.success("Success");
     },
     onError: () => {},
   });
@@ -140,20 +155,24 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   };
 
   const handleCommentLike = (parentComment: string, childComment?: string) => {
-    console.log("333333333", childComId);
+    if (parentComment) {
+      childComIdRef.current = parentComment;
+    }
     const payload = "like";
     likeComment({
-      parentComment,
-      childComment,
+      parentComment: childComment ? "" : parentComment,
+      childComment: childComment || "",
       like: payload,
     });
   };
   const isCommentsExpanded = expandedComments.includes(post._id);
 
+  const { mode } = useRole();
+
   const { mutate: deleteP } = useMutation({
     mutationFn: deletePost,
     onSuccess: () => {
-      queryClient.invalidateQueries("getAllPostsWithComments");
+      queryClient.invalidateQueries(["getAllPostsWithComments", 1, 5, mode]);
       tos.success("Success");
     },
   });
@@ -161,9 +180,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   const { mutate: comment } = useMutation({
     mutationFn: addComment,
     onSuccess: () => {
-      const currentPage = commentPages[post._id] || 1;
-
-      queryClient.invalidateQueries(["postComments", post._id, currentPage]);
+      queryClient.invalidateQueries(["postComments", post._id]);
       setCommentInputs((prev) => ({
         ...prev,
         [post._id]: "",
@@ -176,10 +193,12 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
   const { mutate: childComment } = useMutation({
     mutationFn: addChildComment,
     onSuccess: () => {
+      queryClient.invalidateQueries(["postComments", post._id]);
       queryClient.invalidateQueries(["childComment", selectedCommnet]);
       setSelectedCommnet(undefined);
       setReplierName(undefined);
       setChildComId(undefined);
+      refetch();
       setCommentInputs((prev) => ({
         ...prev,
         [post._id]: "",
@@ -188,40 +207,33 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     onError: () => {},
   });
 
-  const {
-    isLoading: isLoadingComment,
-    isFetching,
-    refetch,
-  } = useQuery({
-    queryKey: ["postComments", post._id, commentPages[post._id || ""] || 1],
-    queryFn: async () => {
-      if (!post._id) return;
+  const scrollableDivRef = useRef<HTMLDivElement>(null);
+  const handleScroll = useCallback(() => {
+    if (!scrollableDivRef.current) return;
 
-      const page = commentPages[post._id] || 1;
-      const res = await getComments(post._id, page);
-      const newComments = res.data;
+    const { scrollTop, clientHeight, scrollHeight } = scrollableDivRef.current;
 
-      // Filter duplicates by comment ID
-      setCommentsByPost((prev) => {
-        const existing = prev[post._id] || [];
-        const existingIds = new Set(existing.map((c) => c._id));
-        const filteredNew = newComments.filter((c) => !existingIds.has(c._id));
-        return {
-          ...prev,
-          [post._id]: [...existing, ...filteredNew],
-        };
-      });
+    // Check if scrolled near the bottom of the div (with 100px buffer)
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
 
-      setHasMoreComment((prev) => ({
-        ...prev,
-        [post._id]: newComments.length === 5,
-      }));
+    // Early return if conditions aren't met
+    if (!isNearBottom || isLoadingComment || isFetching || !hasNextPage) {
+      return;
+    }
 
-      return res;
-    },
-    enabled: false,
-    keepPreviousData: true,
-  });
+    fetchNextPage();
+  }, [isLoadingComment, isFetching, hasNextPage, fetchNextPage]);
+
+  // Add scroll event listener
+  useEffect(() => {
+    const div = scrollableDivRef.current;
+    if (!div) return;
+
+    div.addEventListener("scroll", handleScroll);
+    return () => div.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  // Access all comments with data?.pages.flat()
 
   const submitComment = ({
     postId,
@@ -251,36 +263,26 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
       if (prev.includes(postId)) {
         // If already expanded, remove it
         setCommentsByPost((prev) => ({ ...prev, [postId]: [] }));
-        setCommentPages((prev) => ({ ...prev, [postId]: 1 }));
         return prev.filter((id) => id !== postId);
       } else {
         // If not expanded, add it
         if (!commentsByPost[postId]) {
           setCommentsByPost((prev) => ({ ...prev, [postId]: [] }));
-          setCommentPages((prev) => ({ ...prev, [postId]: 1 }));
         }
         return [...prev, postId];
       }
     });
   };
 
-  const loadMoreComments = () => {
-    if (!post._id) return;
-
-    const currentPage = commentPages[post._id] || 1;
-    const nextPage = currentPage + 1;
-
-    setCommentPages((prev) => ({
-      ...prev,
-      [post._id]: nextPage,
-    }));
-
-    refetch();
-  };
-
   const replyToComment = (commentId: string) => {
     commentRef.current?.focus();
     setSelectedCommnet(commentId);
+    setSelectedCommnetReplay(
+      (prev) =>
+        prev.includes(commentId)
+          ? prev // Keep as is if already exists
+          : [...prev, commentId] // Add if not present
+    );
   };
 
   const replyToChildComment = (
@@ -306,19 +308,6 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
       [postId]: value,
     }));
   };
-
-  // const prevPage = useRef<number | undefined>();
-
-  // useEffect(() => {
-  //   if (!post._id) return;
-
-  //   const currentPage = commentPages[post._id];
-  //   if (prevPage.current !== undefined && prevPage.current !== currentPage) {
-  //     refetch();
-  //   }
-
-  //   prevPage.current = currentPage;
-  // }, [commentPages[post._id]]);
 
   return (
     <motion.div
@@ -375,21 +364,13 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
           </div>
         )}
 
-        {!hasNoImage ? (
+        {!hasNoImage && (
           <>
             {/* Top Gradient Shadow (Small) */}
             <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
 
             {/* Bottom Gradient Shadow (Small) */}
             <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t rounded-b-xl md:rounded-b-3xl from-black/50 to-transparent pointer-events-none" />
-          </>
-        ) : (
-          <>
-            {/* Top Gradient Shadow */}
-            {/* <div className="absolute top-0 left-0 right-0 h-14 bg-gradient-to-b from-primary/50 to-transparent pointer-events-none" /> */}
-
-            {/* Bottom Gradient Shadow (Small) */}
-            {/* <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t rounded-b-xl md:rounded-b-3xl from-primary/50 to-transparent pointer-events-none" /> */}
           </>
         )}
 
@@ -703,126 +684,145 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                   ))}
                 </>
               ) : (
-                <div className="min-h-[5vh] max-h-[44vh] overflow-y-auto overflow-x-hidden">
-                  {commentsByPost[post._id] &&
-                  commentsByPost[post._id]?.length > 0 ? (
-                    commentsByPost[post._id].map((comment: CommentNew, i) => (
-                      <motion.div
-                        key={i}
-                        className="flex gap-3 my-2 group"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: i * 0.05 }}
-                      >
-                        <Avatar className="w-9 h-9 transition-all duration-300 group-hover:scale-105">
-                          <AvatarImage
-                            src={`/placeholder.svg?height=36&width=36&text=${
-                              comment.commentedBy.name?.slice(0, 1) || "U"
-                            }`}
-                          />
-                          <AvatarFallback className="bg-gradient-to-br from-primary2 to-primary2/70 text-white">
-                            {(
-                              comment.commentedBy.name?.slice(0, 1) || "U"
-                            )?.toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-
-                        <div className="flex-1">
-                          <div className="relative">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-primary2/20 to-primary2/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
-                            <div
-                              className={`relative bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300 ${
-                                selectedCommnet === comment._id
-                                  ? "border border-primary2"
-                                  : " border border-white/20 "
-                              }`}
+                <div
+                  className="min-h-[5vh] max-h-[44vh] overflow-y-auto overflow-x-hidden"
+                  ref={scrollableDivRef}
+                >
+                  {data?.pages &&
+                  data?.pages?.[0]?.data?.length &&
+                  data?.pages?.[0]?.data?.length > 0 ? (
+                    <div>
+                      {data.pages.map((page, i) => (
+                        <div key={i}>
+                          {page?.data.map((comment, i) => (
+                            <motion.div
+                              key={comment._id}
+                              className="flex gap-3 my-2 group"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3, delay: i * 0.05 }}
                             >
-                              <div className="flex justify-between items-start">
-                                <p className="font-medium text-sm text-gray-800">
-                                  {comment?.commentedBy.name || "Anonymous"}
-                                </p>
-                                <span className="text-xs text-gray-500/80">
-                                  {formatDateSmart(comment.createdAt, true) +
-                                    " • " +
-                                    formatMessageTime(comment.createdAt)}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-700 mt-1.5 leading-relaxed">
-                                {comment.comment}
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex gap-3 mt-2 duration-300">
-                                  {/* {selectedCommnet === comment._id &&
-                                  !childComId ? (
-                                    <button
-                                      className="text-xs text-red-500 hover:text-red-400 transition-colors"
-                                      onClick={() => CancelReplyToComment()}
-                                    >
-                                      Cancel
-                                    </button>
-                                  ) : ( */}
-                                  {comment?.likes ? (
-                                    <div className="flex items-center text-sm text-gray-500">
-                                      <IoMdHeart className="text-base text-red-500 " />
+                              <Avatar className="w-9 h-9 transition-all duration-300 group-hover:scale-105">
+                                <AvatarImage
+                                  src={formatImageUrl(
+                                    comment?.commentedBy?.userPicturePath
+                                  )}
+                                  className="object-cover"
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-primary2 to-primary2/70 text-white">
+                                  {(
+                                    comment.commentedBy.name?.slice(0, 1) || "U"
+                                  )?.toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
 
-                                      <span className="pl-2">
-                                        {comment.likes}
+                              <div className="flex-1">
+                                <div className="relative">
+                                  <div className="absolute -inset-1 bg-gradient-to-r from-primary2/20 to-primary2/10 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-all duration-300"></div>
+                                  <div
+                                    className={`relative bg-white/80 backdrop-blur-sm p-3 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300 ${
+                                      selectedCommnet === comment._id
+                                        ? "border border-primary2"
+                                        : " border border-white/20 "
+                                    }`}
+                                  >
+                                    <div className="flex justify-between items-start">
+                                      <p className="font-medium text-sm text-gray-800">
+                                        {comment?.commentedBy.name ||
+                                          "Anonymous"}
+                                      </p>
+                                      <span className="text-xs text-gray-500/80">
+                                        {/* {formatDateSmart(
+                                          comment.createdAt,
+                                          true
+                                        ) +
+                                          " • " +
+                                          formatMessageTime(comment.createdAt)} */}
+                                        {formatDistanceToNow(
+                                          new Date(comment.createdAt),
+                                          {
+                                            addSuffix: true,
+                                          }
+                                        )}
                                       </span>
                                     </div>
-                                  ) : null}
-                                  <button
-                                    className="text-xs text-gray-500 hover:text-primary2 transition-colors"
-                                    onClick={() => replyToComment(comment._id)}
-                                  >
-                                    Reply
-                                  </button>
-                                  {/* )} */}
-                                  <button
-                                    className="text-xs text-gray-500 hover:text-primary2 transition-colors"
-                                    onClick={() =>
-                                      handleCommentLike(comment._id)
-                                    }
-                                  >
-                                    {isLoadingCommentLike ? (
-                                      <Spinner className="text-primary2" />
-                                    ) : (
-                                      "Like"
-                                    )}
-                                  </button>
+                                    <p className="text-sm text-gray-700 mt-1.5 leading-relaxed">
+                                      {comment.comment}
+                                    </p>
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex gap-3 mt-2 duration-300">
+                                        {comment?.likes ? (
+                                          <div className="flex items-center text-sm text-gray-500">
+                                            <IoMdHeart className="text-base text-red-500 " />
+
+                                            <span className="pl-2">
+                                              {comment.likes}
+                                            </span>
+                                          </div>
+                                        ) : null}
+                                        <button
+                                          className="text-xs text-gray-500 hover:text-primary2 transition-colors"
+                                          onClick={() =>
+                                            replyToComment(comment._id)
+                                          }
+                                        >
+                                          Reply
+                                        </button>
+                                        {/* )} */}
+                                        <button
+                                          className="text-xs text-gray-500 hover:text-primary2 transition-colors"
+                                          onClick={() =>
+                                            handleCommentLike(comment._id)
+                                          }
+                                        >
+                                          Like
+                                        </button>
+                                      </div>
+                                      <div>
+                                        <button
+                                          className="text-xs flex items-center gap-2 text-gray-500 hover:text-primary2 transition-colors"
+                                          onClick={() => {
+                                            comment.totalReplies !== 0 &&
+                                              setSelectedCommnetReplay(
+                                                (prev) =>
+                                                  prev.includes(comment._id)
+                                                    ? prev.filter(
+                                                        (id) =>
+                                                          id !== comment._id
+                                                      ) // Toggle off
+                                                    : [...prev, comment._id] // Toggle on
+                                              );
+                                          }}
+                                        >
+                                          {comment.totalReplies}{" "}
+                                          <span>replies</span>
+                                          <IoIosArrowDown />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div>
-                                  <button
-                                    className="text-xs flex items-center gap-2 text-gray-500 hover:text-primary2 transition-colors"
-                                    onClick={() => {
-                                      comment.totalReplies !== 0 &&
-                                        setSelectedCommnetReplay(
-                                          (prev) =>
-                                            prev.includes(comment._id)
-                                              ? prev.filter(
-                                                  (id) => id !== comment._id
-                                                ) // Toggle off
-                                              : [...prev, comment._id] // Toggle on
-                                        );
-                                    }}
-                                  >
-                                    {comment.totalReplies} <span>replies</span>
-                                    <IoIosArrowDown />
-                                  </button>
-                                </div>
+                                {selectedCommnetReplay.includes(
+                                  comment._id
+                                ) && (
+                                  <ChildReplies
+                                    commentId={comment._id}
+                                    replyToComment={replyToChildComment}
+                                    // childComId={childComId}
+                                    handleCommentLike={handleCommentLike}
+                                  />
+                                )}
                               </div>
-                            </div>
-                          </div>
-                          {selectedCommnetReplay.includes(comment._id) && (
-                            <ChildReplies
-                              commentId={comment._id}
-                              replyToComment={replyToChildComment}
-                              // childComId={childComId}
-                              handleCommentLike={handleCommentLike}
-                            />
-                          )}
+                            </motion.div>
+                          ))}
                         </div>
-                      </motion.div>
-                    ))
+                      ))}
+                      {isFetching && (
+                        <div className="py-[1rem] my-2 flex item-center justify-center bg-primary2/10 z-20">
+                          <Spinner />
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <p className="text-sm text-gray-400 text-center py-4  rounded-xl">
                       No comments yet. Be the first to comment!
@@ -858,17 +858,6 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
             Hide Comments
           </span>
         )}
-        <div className="flex flex-1 items-center justify-center">
-          {post._id && hasMoreComment[post._id] && (
-            <button
-              onClick={loadMoreComments}
-              disabled={isFetching}
-              className="text-primary2 mt-2"
-            >
-              {isFetching ? <Spinner /> : "Load More"}
-            </button>
-          )}
-        </div>
       </div>
       <hr className="my-1 border border-gray-400" />
     </motion.div>
@@ -886,19 +875,19 @@ export const ChildReplies = ({
   replyToComment: (id: string, replierName: string, childComId: string) => void;
   handleCommentLike: (parentComment: string, childComment?: string) => void;
 }) => {
-  const { data: childComments, isLoading } = useQuery({
+  const { data: childComments } = useQuery({
     queryKey: ["childComment", commentId],
     queryFn: () => getChildComments(commentId),
   });
 
   const { mode } = useRole();
 
-  if (isLoading)
-    return (
-      <div className="flex items-center justify-center my-2">
-        <Spinner className="text-primary2" />
-      </div>
-    );
+  // if (isLoading)
+  //   return (
+  //     <div className="flex items-center justify-center my-2">
+  //       <Spinner className="text-primary2" />
+  //     </div>
+  //   );
 
   return (
     <div className="ml-4">
@@ -911,9 +900,7 @@ export const ChildReplies = ({
           transition={{ duration: 0.3, delay: i * 0.05 }}
         >
           <Avatar className="w-9 h-9 transition-all duration-300 group-hover:scale-105">
-            <AvatarImage
-              src={`/placeholder.svg?height=36&width=36&text=${"U"}`}
-            />
+            <AvatarImage src={formatImageUrl(comment?.userPicturePath)} />
             <AvatarFallback
               className={`bg-gradient-to-br text-white ${
                 mode === "formal"
@@ -921,7 +908,7 @@ export const ChildReplies = ({
                   : "from-primary2 to-primary2/70 "
               }`}
             >
-              {"U"?.toUpperCase()}
+              {comment?.user?.name?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
@@ -939,12 +926,12 @@ export const ChildReplies = ({
               >
                 <div className="flex justify-between items-start">
                   <p className="font-medium text-sm text-gray-800">
-                    {"Anonymous"}
+                    {comment.user.name}
                   </p>
                   <span className="text-xs text-gray-500/80">
-                    {formatDateSmart(comment.createdAt, true) +
-                      " • " +
-                      formatMessageTime(comment.createdAt)}
+                    {formatDistanceToNow(new Date(comment.createdAt), {
+                      addSuffix: true,
+                    })}
                   </span>
                 </div>
                 <p className="text-sm text-gray-700 mt-1.5 leading-relaxed">
@@ -952,14 +939,6 @@ export const ChildReplies = ({
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex gap-3 mt-2 duration-300">
-                    {/* {childComId === comment._id ? (
-                      <button
-                        className="text-xs text-red-500 hover:text-red-400 transition-colors"
-                        onClick={() => CancelReplyToComment()}
-                      >
-                        Cancel
-                      </button>
-                    ) : ( */}
                     {comment?.likes ? (
                       <div className="flex items-center text-sm text-gray-500">
                         <IoMdHeart className="text-base text-red-500 " />
@@ -968,16 +947,28 @@ export const ChildReplies = ({
                       </div>
                     ) : null}
                     <button
-                      className="text-xs text-gray-500 hover:text-primary2 transition-colors"
+                      className={`text-xs text-gray-500  transition-colors ${
+                        mode === "formal"
+                          ? "hover:text-primary"
+                          : "hover:text-primary2"
+                      }`}
                       onClick={() =>
-                        replyToComment(commentId, "userName", comment._id)
+                        replyToComment(
+                          commentId,
+                          comment?.user.name,
+                          comment._id
+                        )
                       }
                     >
                       Reply
                     </button>
                     {/* )} */}
                     <button
-                      className="text-xs text-gray-500 hover:text-primary2 transition-colors"
+                      className={`text-xs text-gray-500 transition-colors ${
+                        mode === "formal"
+                          ? "hover:text-primary"
+                          : "hover:text-primary2"
+                      }`}
                       onClick={() => handleCommentLike(commentId, comment._id)}
                     >
                       Like

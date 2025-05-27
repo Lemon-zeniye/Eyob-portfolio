@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   deleteUserPicture,
   follow,
+  getPersonalInfo,
   getUserProfile,
   updateUserProfilePic,
   uploadUserPicture,
@@ -34,7 +35,6 @@ import ExperienceCard from "./ExperienceCard";
 import EducationCard from "./EducationCard";
 import SkillCard from "./SkillCard";
 import OrganizationCard from "./OrganizationCard";
-import EditProfile from "../Profile/EditProfile";
 import ShareProfile from "../Profile/ShareProfile";
 import CustomVideoPlayer from "../Video/Video";
 import { getAxiosErrorMessage } from "@/Api/axios";
@@ -42,6 +42,7 @@ import { FaUserPlus } from "react-icons/fa";
 import { Spinner } from "../ui/Spinner";
 import DocumentationCard from "./DocumentationCard";
 import { useRole } from "@/Context/RoleContext";
+import { ProfileTab } from "../Profile/ProfileTab";
 
 const ProfileCard = ({
   otherUser,
@@ -74,6 +75,11 @@ const ProfileCard = ({
     queryKey: ["userProfile"],
     queryFn: getUserProfile,
     enabled: !isOtherUser,
+  });
+
+  const { data: personalInfo } = useQuery({
+    queryKey: ["personalInfo"],
+    queryFn: getPersonalInfo,
   });
 
   useEffect(() => {
@@ -449,7 +455,7 @@ const ProfileCard = ({
       <Dialog.Root open={editProfile} onOpenChange={setEditProfile}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-lg flex flex-col gap-6">
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-lg flex flex-col gap-6">
             <div className="flex justify-between items-center">
               <Dialog.Title className="text-lg font-semibold text-gray-900">
                 {userData?.data ? "Edit Profile" : "Add Profile"}
@@ -460,9 +466,10 @@ const ProfileCard = ({
                 </button>
               </Dialog.Close>
             </div>
-            <EditProfile
+            <ProfileTab
+              profileInitialData={userData?.data}
+              personalInfoInitialData={personalInfo?.data}
               onSuccess={() => setEditProfile(false)}
-              initialData={userData?.data}
             />
           </Dialog.Content>
         </Dialog.Portal>

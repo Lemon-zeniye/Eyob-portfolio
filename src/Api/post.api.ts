@@ -15,10 +15,11 @@ export const getAllPosts = async (): Promise<PostRes> => {
 
 export const getAllPostsWithComments = async (
   page: number = 1,
-  limit: number = 5
+  limit: number = 5,
+  postMode: string
 ): Promise<PostComRes> => {
   const response = await axios.get<PostComRes>(
-    `https://awema.co/api/userPost/fetchAllPostsWithCommentsAndLikes`,
+    `https://awema.co/api/userPost/fetchAllPostsWithCommentsAndLikes/${postMode}`,
     {
       params: { page, limit },
     }

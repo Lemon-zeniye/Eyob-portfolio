@@ -10,11 +10,7 @@ import {
 // import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Button } from "../ui/button";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import {
-  addUserSkill,
-  fetchSkillCategories,
-  getSkills,
-} from "@/Api/profile.api";
+import { addUserSkill, fetchSkillCategories } from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import { Textarea } from "../ui/textarea";
@@ -47,10 +43,10 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
     },
   });
 
-  const {} = useQuery({
-    queryKey: ["skills"],
-    queryFn: getSkills,
-  });
+  // const {} = useQuery({
+  //   queryKey: ["skills"],
+  //   queryFn: getSkills,
+  // });
 
   const { data: categories } = useQuery({
     queryKey: ["skillsCategory"],
@@ -115,7 +111,7 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
             rules={{
               required: "Skill Name is required",
               minLength: {
-                value: 3,
+                value: 2,
                 message: "Skill Name must be at least 3 characters",
               },
             }}
@@ -165,7 +161,7 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
                             categories?.data.map((g) => (
                               <Select.Item
                                 key={g._id}
-                                value={g._id}
+                                value={g.name}
                                 className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded"
                               >
                                 <Select.ItemText>{g.name}</Select.ItemText>
@@ -201,6 +197,9 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
           <FormField
             control={form.control}
             name="skillDescription"
+            rules={{
+              required: "Required",
+            }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Description</FormLabel>

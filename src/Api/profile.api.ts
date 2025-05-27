@@ -12,6 +12,7 @@ import {
   FetchSkillsResponse,
   FileResponse,
   GetOrganizationsResponse,
+  PersonalInfoRes,
   PostPayload,
   SkillCategoriesResponse,
   TranscriptResponse,
@@ -355,5 +356,27 @@ export const follow = async (payload: any): Promise<any> => {
 
 export const getCertification = async (): Promise<CertificateRes> => {
   const response = await axios.get(`/organization/user/certificates`);
+  return response.data;
+};
+
+// Api/profile.api.ts
+export const addPersonalInfo = async (payload: any): Promise<any> => {
+  const response = await axios.post("/personalinfo/add", payload);
+  return response.data;
+};
+
+export const updatePersonalInfo = async (
+  id: string,
+  payload: any
+): Promise<any> => {
+  const response = await axios.put(
+    `/personalinfo/updatePersonalInfo/${id}`,
+    payload
+  );
+  return response.data;
+};
+
+export const getPersonalInfo = async (): Promise<PersonalInfoRes> => {
+  const response = await axios.get(`/personalinfo/fetch`);
   return response.data;
 };

@@ -9,7 +9,12 @@ import {
   likeOrDeslike,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   useState,
@@ -41,23 +46,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import {
-  formatDateSmart,
-  formatImageUrl,
-  formatMessageTime,
-  tos,
-  transformStories,
-} from "@/lib/utils";
+import { formatImageUrl, tos, transformStories } from "@/lib/utils";
 import PostGallery from "@/components/Post/PostGallery";
 import Cookies from "js-cookie";
 import { deletePost, getUserFullProfile } from "@/Api/profile.api";
 import { FaEllipsisH, FaTrash } from "react-icons/fa";
 import { Spinner } from "@/components/ui/Spinner";
 import { CommentNew, PostCom } from "@/Types/post.type";
-import { IoIosArrowDown } from "react-icons/io";
+import { IoIosArrowDown, IoMdHeart } from "react-icons/io";
 import { ChildReplies } from "@/components/Post/PostGalleryTwo";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { MdCancel } from "react-icons/md";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -88,24 +88,20 @@ function NormalHomePage() {
     Record<string, CommentNew[]>
   >({});
 
-  const [hasMoreComment, setHasMoreComment] = useState<Record<string, boolean>>(
-    {}
-  );
   const [replierName, setReplierName] = useState<string | undefined>(undefined);
 
-  const [commentPages, setCommentPages] = useState<Record<string, number>>({});
   const [selectedCommnetReplay, setSelectedCommnetReplay] = useState<string[]>(
     []
   );
 
-  const [childComId, setChildComId] = useState<string | undefined>(undefined);
+  const [, setChildComId] = useState<string | undefined>(undefined);
 
   const navigate = useNavigate();
 
   const profileImage = Cookies.get("profilePic");
   const { data, isLoading, isError, isFetching } = useQuery(
-    ["getAllPostsWithComments", page, limit],
-    () => getAllPostsWithComments(page, limit),
+    ["getAllPostsWithComments", page, limit, "formal"],
+    () => getAllPostsWithComments(page, limit, "formal"),
     {
       keepPreviousData: true,
       staleTime: 5000,
@@ -133,7 +129,7 @@ function NormalHomePage() {
   const [viewingStory, setViewingStory] = useState<null | {
     id: number;
     username: string;
-    title: string;
+    // title: string;
     avatar: string;
     items: Array<{ id: string; image: string }>;
   }>(null);
@@ -175,64 +171,69 @@ function NormalHomePage() {
   }, [viewingStory, currentStoryItemIndex]);
 
   const toggleComments = (postId: string) => {
+    refetch();
+
     setExpandedPost((prev) => {
       if (prev === postId) return undefined;
       // Reset if opening a new post
       if (!commentsByPost[postId]) {
         setCommentsByPost((prev) => ({ ...prev, [postId]: [] }));
-        setCommentPages((prev) => ({ ...prev, [postId]: 1 }));
       }
       return postId;
     });
   };
 
-  const loadMoreComments = () => {
-    if (!expandedPost) return;
-    setCommentPages((prev) => ({
-      ...prev,
-      [expandedPost]: (prev[expandedPost] || 1) + 1,
-    }));
-  };
-
   const {
-    data: postComments,
+    data: comments,
     isLoading: isLoadingComment,
     isFetching: isFetchingComment,
-  } = useQuery({
-    queryKey: [
-      "postComments",
-      expandedPost,
-      commentPages[expandedPost || ""] || 1,
-    ],
-    queryFn: async () => {
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["postComments", expandedPost],
+    queryFn: async ({ pageParam = 1 }) => {
+      console.log("step 1");
       if (!expandedPost) return;
-
-      const page = commentPages[expandedPost] || 1;
-      const res = await getComments(expandedPost, page);
-      const newComments = res.data;
-
-      // Filter duplicates by comment ID
-      setCommentsByPost((prev) => {
-        const existing = prev[expandedPost] || [];
-        const existingIds = new Set(existing.map((c) => c._id));
-        const filteredNew = newComments.filter((c) => !existingIds.has(c._id));
-        return {
-          ...prev,
-          [expandedPost]: [...existing, ...filteredNew],
-        };
-      });
-
-      // Set hasMoreComment[postId] based on response length
-      setHasMoreComment((prev) => ({
-        ...prev,
-        [expandedPost]: newComments.length === 5, // assuming limit is 5
-      }));
+      const res = await getComments(expandedPost, pageParam);
+      console.log("step 2", res);
 
       return res;
     },
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage?.data && lastPage?.data?.length > 0
+        ? allPages.length + 1
+        : undefined;
+    },
     enabled: !!expandedPost,
-    keepPreviousData: true,
   });
+
+  const scrollableDivRef = useRef<HTMLDivElement>(null);
+
+  const handleCommentScroll = useCallback(() => {
+    if (!scrollableDivRef.current) return;
+
+    const { scrollTop, clientHeight, scrollHeight } = scrollableDivRef.current;
+
+    // Check if scrolled near the bottom of the div (with 100px buffer)
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+
+    // Early return if conditions aren't met
+    if (!isNearBottom || isLoading || isFetching || !hasNextPage) {
+      return;
+    }
+
+    fetchNextPage();
+  }, [isLoading, isFetching, hasNextPage, fetchNextPage]);
+
+  // Add comment scroll event listener
+  useEffect(() => {
+    const div = scrollableDivRef.current;
+    if (!div) return;
+
+    div.addEventListener("scroll", handleCommentScroll);
+    return () => div.removeEventListener("scroll", handleCommentScroll);
+  }, [handleCommentScroll]);
 
   const handleCommentChange = (postId: string, value: string) => {
     setCommentInputs((prev) => ({
@@ -260,19 +261,46 @@ function NormalHomePage() {
     onError: () => {},
   });
 
+  // const { mutate: likeComment } = useMutation({
+  //   mutationFn: Commentlike,
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries("getAllPostsWithComments");
+  //     tos.success("Success");
+  //     const currentPage = (expandedPost && commentPages[expandedPost]) || 1;
+
+  //     queryClient.invalidateQueries([
+  //       "postComments",
+  //       expandedPost,
+  //       currentPage,
+  //     ]);
+  //     queryClient.invalidateQueries(["childComment", selectedCommnet]);
+  //   },
+  //   onError: () => {},
+  // });
+
+  const childComIdRef = useRef<string | null>(null);
+  // Mutation Function
   const { mutate: likeComment } = useMutation({
     mutationFn: Commentlike,
     onSuccess: () => {
-      queryClient.invalidateQueries("getAllPostsWithComments");
+      queryClient.invalidateQueries(["postComments", expandedPost]);
+      if (childComIdRef?.current) {
+        queryClient.invalidateQueries(["childComment", childComIdRef.current]);
+      }
+      refetch();
+      tos.success("Success");
     },
     onError: () => {},
   });
 
   const handleCommentLike = (parentComment: string, childComment?: string) => {
+    if (parentComment) {
+      childComIdRef.current = parentComment;
+    }
     const payload = "like";
     likeComment({
-      parentComment,
-      childComment,
+      parentComment: childComment ? "" : parentComment,
+      childComment: childComment || "",
       like: payload,
     });
   };
@@ -299,13 +327,7 @@ function NormalHomePage() {
   const { mutate: comment } = useMutation({
     mutationFn: addComment,
     onSuccess: () => {
-      const currentPage = (expandedPost && commentPages[expandedPost]) || 1;
-
-      queryClient.invalidateQueries([
-        "postComments",
-        expandedPost,
-        currentPage,
-      ]);
+      queryClient.invalidateQueries(["postComments", expandedPost]);
       if (expandedPost) {
         setCommentInputs((prev) => ({
           ...prev,
@@ -326,6 +348,7 @@ function NormalHomePage() {
   const { mutate: childComment } = useMutation({
     mutationFn: addChildComment,
     onSuccess: () => {
+      queryClient.invalidateQueries(["postComments", expandedPost]);
       queryClient.invalidateQueries(["childComment", selectedCommnet]);
       setSelectedCommnet(undefined);
       setReplierName(undefined);
@@ -526,6 +549,12 @@ function NormalHomePage() {
   const replyToComment = (commentId: string) => {
     commentRef.current?.focus();
     setSelectedCommnet(commentId);
+    setSelectedCommnetReplay(
+      (prev) =>
+        prev.includes(commentId)
+          ? prev // Keep as is if already exists
+          : [...prev, commentId] // Add if not present
+    );
   };
 
   const handleClick = (userId: string, userName: string) => {
@@ -555,7 +584,7 @@ function NormalHomePage() {
             <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide p-2 md:px-0">
               <div
                 key="add-story"
-                className="min-w-[140px] md:min-w-[180px] h-[180px] md:h-[200px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
+                className="min-w-[140px] md:min-w-[180px] h-[160px] md:h-[180px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
                 onClick={() => {
                   setOpenFileUpload(true);
                 }}
@@ -587,10 +616,10 @@ function NormalHomePage() {
                 {/* Matching glow effect on hover */}
                 <div className="absolute inset-0 rounded-xl md:rounded-2xl pointer-events-none transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(3,169,169,0.3)] group-hover:bg-[#03a9a9]/5"></div>
               </div>
-              {stories.map((story) => (
+              {[...stories]?.reverse().map((story) => (
                 <div
                   key={story.id}
-                  className="min-w-[140px] md:min-w-[180px] h-[180px] md:h-[200px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
+                  className="min-w-[140px] md:min-w-[180px] h-[160px] md:h-[180px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
                   onClick={() => {
                     setViewingStory(story);
                     setCurrentStoryItemIndex(0);
@@ -602,13 +631,8 @@ function NormalHomePage() {
                   <div className="h-[100px] md:h-[120px] relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/30 z-10"></div>
                     <img
-                      src={
-                        story.items[0]?.image ||
-                        `/placeholder.svg?height=120&width=180&text=${encodeURIComponent(
-                          story.title
-                        )}`
-                      }
-                      alt={story.title}
+                      src={story?.items[0]?.image}
+                      alt={story.username}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 
@@ -617,7 +641,7 @@ function NormalHomePage() {
                       <div className="p-0.5 rounded-full bg-gradient-to-br from-[#03a9a9] to-[#03c9c9] shadow-md">
                         <Avatar className="w-7 h-7 md:w-8 md:h-8 ring-2 ring-white">
                           <AvatarImage
-                            src={story.avatar || "/placeholder.svg"}
+                            src={story.avatar}
                             alt={story.username}
                           />
                           <AvatarFallback className="bg-[#03a9a9]/20 text-[#03a9a9] font-medium">
@@ -637,9 +661,9 @@ function NormalHomePage() {
 
                   {/* Content with modern typography */}
                   <div className="p-3 flex-1 flex flex-col justify-between">
-                    <h3 className="font-semibold text-sm md:text-base line-clamp-2 text-gray-900 group-hover:text-[#03a9a9] transition-colors">
+                    {/* <h3 className="font-semibold text-sm md:text-base line-clamp-2 text-gray-900 group-hover:text-[#03a9a9] transition-colors">
                       {story.title}
-                    </h3>
+                    </h3> */}
                     <div className="flex justify-between items-end">
                       <p className="text-xs text-gray-500 font-medium">
                         @{story.username}
@@ -787,9 +811,7 @@ function NormalHomePage() {
                           onClick={() => toggleComments(postId)}
                         >
                           <MessageCircle className="w-4 h-4" />
-                          <span>
-                            {postComments?.data?.length || 0} comments
-                          </span>
+                          <span>{post?.commentCount || 0} comments</span>
                         </button>
                         <div className="flex items-center gap-1">
                           <Share2 className="w-4 h-4" />
@@ -866,7 +888,7 @@ function NormalHomePage() {
                                 YA
                               </AvatarFallback>
                             </Avatar>
-                            <div className="flex-1 flex gap-2">
+                            <div className="flex-1 flex gap-2 relative">
                               <Textarea
                                 ref={commentRef}
                                 placeholder="Add a comment..."
@@ -901,6 +923,16 @@ function NormalHomePage() {
                               >
                                 <Send className="h-4 w-4" />
                               </Button>
+
+                              {selectedCommnet && (
+                                <div className="absolute top-[0.1rem] right-14">
+                                  <MdCancel
+                                    size={20}
+                                    className="text-primary cursor-pointer"
+                                    onClick={() => CancelReplyToComment()}
+                                  />
+                                </div>
+                              )}
                             </div>
                           </div>
 
@@ -931,132 +963,159 @@ function NormalHomePage() {
                                 ))}
                               </>
                             ) : (
-                              <div className="min-h-[5vh] max-h-[40vh] overflow-y-auto overflow-x-hidden">
-                                {commentsByPost[expandedPost] &&
-                                commentsByPost[expandedPost]?.length > 0 ? (
-                                  commentsByPost[expandedPost].map(
-                                    (comment, i) => (
-                                      <motion.div
-                                        key={i}
-                                        className="flex my-3"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                          duration: 0.2,
-                                          delay: i * 0.05,
-                                        }}
-                                      >
-                                        <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
-                                          <AvatarImage
-                                            src={`/placeholder-icon.png?height=32&width=32&text=${
-                                              comment.commentedBy.name || "U"
-                                            }`}
-                                          />
-                                          <AvatarFallback
-                                            className="text-white"
-                                            style={{
-                                              background:
-                                                "linear-gradient(135deg, #05A9A9, #4ecdc4)",
+                              <div
+                                className="min-h-[5vh] max-h-[40vh] overflow-y-auto overflow-x-hidden"
+                                ref={scrollableDivRef}
+                              >
+                                {comments?.pages &&
+                                comments?.pages?.[0]?.data?.length &&
+                                comments?.pages?.[0]?.data?.length > 0 ? (
+                                  <div>
+                                    {comments.pages.map((page, i) => (
+                                      <div key={i}>
+                                        {page?.data.map((comment, i) => (
+                                          <motion.div
+                                            key={i}
+                                            className="flex my-3"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{
+                                              duration: 0.2,
+                                              delay: i * 0.05,
                                             }}
                                           >
-                                            {(
-                                              comment.commentedBy.name?.slice(
-                                                0,
-                                                1
-                                              ) || "U"
-                                            )?.toUpperCase()}
-                                          </AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex-1 bg-[#f8fdfd] p-3 rounded-xl">
-                                          <div className="flex justify-between items-start">
-                                            <p className="font-medium text-sm text-gray-800">
-                                              {comment.commentedBy?.name ||
-                                                "Anonymous"}
-                                            </p>
-                                            <span className="text-xs text-gray-500">
-                                              {formatDateSmart(
-                                                comment.createdAt,
-                                                true
-                                              ) +
-                                                " at " +
-                                                formatMessageTime(
-                                                  comment.createdAt
+                                            <Avatar className="w-8 h-8 border-2 border-[#e6f7f7]">
+                                              <AvatarImage
+                                                src={formatImageUrl(
+                                                  comment?.commentedBy
+                                                    ?.userPicturePath
                                                 )}
-                                            </span>
-                                          </div>
-                                          <p className="text-sm text-gray-600 mt-1">
-                                            {comment.comment}
-                                          </p>
-                                          <div className="flex items-center justify-between">
-                                            <div className="flex gap-3 mt-2 duration-300">
-                                              {selectedCommnet ===
-                                                comment._id && !childComId ? (
-                                                <button
-                                                  className="text-xs text-red-500 hover:text-red-400 transition-colors"
-                                                  onClick={() =>
-                                                    CancelReplyToComment()
-                                                  }
-                                                >
-                                                  Cancel
-                                                </button>
-                                              ) : (
-                                                <button
-                                                  className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
-                                                  onClick={() =>
-                                                    replyToComment(comment._id)
-                                                  }
-                                                >
-                                                  Reply
-                                                </button>
-                                              )}
-                                              <button className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors">
-                                                Like
-                                              </button>
-                                            </div>
-                                            <div>
-                                              <button
-                                                className="text-xs flex items-center gap-2 text-gray-500 hover:text-[#05A9A9] transition-colors"
-                                                onClick={() => {
-                                                  setSelectedCommnetReplay(
-                                                    (prev) =>
-                                                      prev.includes(comment._id)
-                                                        ? prev.filter(
-                                                            (id) =>
-                                                              id !== comment._id
-                                                          ) // Toggle off
-                                                        : [...prev, comment._id] // Toggle on
-                                                  );
+                                                className="object-cover"
+                                              />
+                                              <AvatarFallback
+                                                className="text-white"
+                                                style={{
+                                                  background:
+                                                    "linear-gradient(135deg, #05A9A9, #4ecdc4)",
                                                 }}
                                               >
-                                                replies <IoIosArrowDown />
-                                              </button>
+                                                {(
+                                                  comment.commentedBy.name?.slice(
+                                                    0,
+                                                    1
+                                                  ) || "U"
+                                                )?.toUpperCase()}
+                                              </AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex-1 bg-[#f8fdfd] p-3 rounded-xl">
+                                              <div className="flex justify-between items-start">
+                                                <p className="font-medium text-sm text-gray-800">
+                                                  {comment.commentedBy?.name ||
+                                                    "Anonymous"}
+                                                </p>
+                                                <span className="text-xs text-gray-500">
+                                                  {formatDistanceToNow(
+                                                    new Date(comment.createdAt),
+                                                    {
+                                                      addSuffix: true,
+                                                    }
+                                                  )}
+                                                </span>
+                                              </div>
+                                              <p className="text-sm text-gray-600 mt-1">
+                                                {comment.comment}
+                                              </p>
+                                              <div className="flex items-center justify-between">
+                                                <div className="flex gap-3 mt-2 duration-300">
+                                                  {comment?.likes ? (
+                                                    <div className="flex items-center text-sm text-gray-500">
+                                                      <IoMdHeart className="text-base text-red-500 " />
+
+                                                      <span className="pl-2">
+                                                        {comment.likes}
+                                                      </span>
+                                                    </div>
+                                                  ) : null}
+                                                  <button
+                                                    className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                                    onClick={() =>
+                                                      replyToComment(
+                                                        comment._id
+                                                      )
+                                                    }
+                                                  >
+                                                    Reply
+                                                  </button>
+                                                  <button
+                                                    className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                                    onClick={() =>
+                                                      handleCommentLike(
+                                                        comment._id
+                                                      )
+                                                    }
+                                                  >
+                                                    Like
+                                                  </button>
+                                                </div>
+                                                <div>
+                                                  <button
+                                                    className="text-xs flex items-center gap-2 text-gray-500 hover:text-[#05A9A9] transition-colors"
+                                                    onClick={() => {
+                                                      setSelectedCommnetReplay(
+                                                        (prev) =>
+                                                          prev.includes(
+                                                            comment._id
+                                                          )
+                                                            ? prev.filter(
+                                                                (id) =>
+                                                                  id !==
+                                                                  comment._id
+                                                              ) // Toggle off
+                                                            : [
+                                                                ...prev,
+                                                                comment._id,
+                                                              ] // Toggle on
+                                                      );
+                                                    }}
+                                                  >
+                                                    {comment.totalReplies}{" "}
+                                                    <span>replies</span>{" "}
+                                                    <IoIosArrowDown />
+                                                  </button>
+                                                </div>
+                                              </div>
+                                              {selectedCommnetReplay.includes(
+                                                comment._id
+                                              ) && (
+                                                <ChildReplies
+                                                  commentId={comment._id}
+                                                  replyToComment={
+                                                    replyToChildComment
+                                                  }
+                                                  handleCommentLike={
+                                                    handleCommentLike
+                                                  }
+                                                />
+                                              )}
                                             </div>
-                                          </div>
-                                          {selectedCommnetReplay.includes(
-                                            comment._id
-                                          ) && (
-                                            <ChildReplies
-                                              commentId={comment._id}
-                                              replyToComment={
-                                                replyToChildComment
-                                              }
-                                              handleCommentLike={
-                                                handleCommentLike
-                                              }
-                                            />
-                                          )}
-                                        </div>
-                                      </motion.div>
-                                    )
-                                  )
+                                          </motion.div>
+                                        ))}
+                                      </div>
+                                    ))}
+                                  </div>
                                 ) : (
                                   <p className="text-sm text-gray-400 text-center py-4 bg-[#f8fdfd] rounded-xl">
                                     No comments yet. Be the first to comment!
                                   </p>
                                 )}{" "}
+                                {isFetchingComment && (
+                                  <div className="py-[1rem] my-2 flex item-center justify-center bg-primary/10 z-20">
+                                    <Spinner />
+                                  </div>
+                                )}
                               </div>
                             )}
-                            {expandedPost && hasMoreComment[expandedPost] && (
+                            {/* {expandedPost && hasMoreComment[expandedPost] && (
                               <button
                                 onClick={loadMoreComments}
                                 disabled={isFetchingComment}
@@ -1064,7 +1123,7 @@ function NormalHomePage() {
                               >
                                 {isFetchingComment ? <Spinner /> : "Load More"}
                               </button>
-                            )}
+                            )} */}
                           </div>
                         </motion.div>
                       )}
@@ -1417,12 +1476,12 @@ function NormalHomePage() {
                     src={
                       viewingStory.items[currentStoryItemIndex]?.image ||
                       `/placeholder.svg?height=1280&width=720&text=${
-                        encodeURIComponent(viewingStory.title) ||
+                        encodeURIComponent(viewingStory.username) ||
                         "/placeholder.svg" ||
                         "/placeholder.svg"
                       }`
                     }
-                    alt={viewingStory.title}
+                    alt={viewingStory.username}
                     className="w-full h-full object-contain"
                   />
                 </div>

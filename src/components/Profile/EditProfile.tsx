@@ -15,6 +15,7 @@ import { Spinner } from "../ui/Spinner";
 import { UserProfile } from "@/Types/profile.type";
 import { tos } from "@/lib/utils";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import { useRole } from "@/Context/RoleContext";
 
 type PostFormProps = {
   onSuccess: () => void;
@@ -30,6 +31,7 @@ function EditProfile({ initialData, onSuccess }: PostFormProps) {
       bio: initialData?.bio ?? "",
     },
   });
+  const { mode } = useRole();
 
   const { mutate, isLoading } = useMutation({
     mutationFn: updateUserProfile,
@@ -117,7 +119,14 @@ function EditProfile({ initialData, onSuccess }: PostFormProps) {
             )}
           />
 
-          <Button type="submit" className="w-full">
+          <Button
+            type="submit"
+            className={`w-full ${
+              mode === "formal"
+                ? "bg-primary hover:bg-primary/80"
+                : "bg-primary2 hover:bg-primary2/80"
+            }`}
+          >
             {isLoading || isAdding ? (
               <Spinner />
             ) : initialData ? (

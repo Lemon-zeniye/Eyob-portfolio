@@ -214,6 +214,30 @@ export interface UserProfileRes {
   data: UserProfile;
 }
 
+export interface PersonalInfoRes {
+  success: boolean;
+  msg: string;
+  data: PersonalInfo;
+}
+
+export interface PersonalInfo {
+  _id: string;
+  userid: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  dateOfBirth: string;
+  gender: string;
+  phoneNumber: string;
+  country: string;
+  state: string;
+  city: string;
+  experience?: string;
+  createdAt: string;
+  _v: number;
+}
+
 export interface UserProfile {
   position: string;
   location: string;

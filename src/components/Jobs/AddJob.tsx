@@ -58,26 +58,30 @@ function AddJob() {
   const form = useForm({
     mode: "onChange",
     defaultValues: {
-      // step 1
+      // From Schema
       jobTitle: jobDetail?.data.jobTitle ?? "",
       jobType: jobDetail?.data.jobType ?? "",
-      salaryType: jobDetail?.data.salaryType ?? "",
-      range: {
-        minimum: jobDetail?.data?.range[0]?.minimum ?? "",
-        maximum: jobDetail?.data?.range[0]?.maximum ?? "",
-      },
-      salary: jobDetail?.data.salary ?? 0,
-      skills: [],
-
-      // step 2
+      jobDescription: jobDetail?.data.jobDescription ?? "",
       deadLine: jobDetail?.data.deadLine
-        ? new Date(jobDetail?.data.deadLine)
+        ? new Date(jobDetail.data.deadLine)
         : new Date(),
+      // jobQualification: jobDetail?.data.jobQualification ?? "",
       jobLocation: jobDetail?.data.jobLocation ?? "",
       experience: jobDetail?.data.experience ?? "",
       locationType: jobDetail?.data.locationType ?? "",
-      jobDescription: jobDetail?.data.jobDescription ?? "",
-      // numberOfOpenings: jobDetail?.data?.numberOfOpenings ?? "",
+      // jobRequirement: jobDetail?.data.jobRequirement ?? "",
+      // jobIndustry: jobDetail?.data.jobIndustry ?? "",
+      // employmentMode: jobDetail?.data.employmentMode ?? "",
+      // employmentType: jobDetail?.data.employmentType ?? "",
+      skills: jobDetail?.data.skills ?? [],
+      range: {
+        minimum: jobDetail?.data.range?.[0]?.minimum ?? "",
+        maximum: jobDetail?.data.range?.[0]?.maximum ?? "",
+      },
+      salaryType: jobDetail?.data.salaryType ?? "",
+      salary: jobDetail?.data.salary ?? 0,
+      numberOfOpenings: jobDetail?.data.numberOfOpenings ?? 1,
+      // timeToHire: jobDetail?.data.timeToHire ?? 0,
     },
   });
 

@@ -1,5 +1,11 @@
-const Settings = () => {
-  return <div>Settings</div>
-}
+import NotificationSettings from "@/components/Notification/NotificationSettings";
 
-export default Settings
+const Settings = () => {
+  return (
+    <div>
+      <NotificationSettings />
+    </div>
+  );
+};
+
+export default Settings;

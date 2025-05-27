@@ -221,15 +221,18 @@ export const formatImageUrl = (
   path: string,
   baseUrl: string = "https://awema.co"
 ): string => {
+  if (!path) {
+    return "";
+  }
   return `${baseUrl}/${path.replace("public/", "")}`;
 };
 
 export const transformStories = (apiStories: StoryApiResponse[]): Story[] => {
   return apiStories.map((story, index) => ({
-    id: index + 1, // or use story._id if you prefer
-    username: `user_${story.userid.substring(0, 5)}`, // adjust as needed
-    title: story.filename.split(".")[0] || `Story ${index + 1}`, // use filename as title
-    avatar: `https://i.pravatar.cc/100?img=${index + 1}`, // default or fetch from user data
+    id: index + 1,
+    username: story?.user?.name, // adjust as needed
+    // title: `Story ${index + 1}`,
+    avatar: formatImageUrl(story?.userPicturePath), // default or fetch from user data
     items: [
       {
         id: `story-${story._id}`,

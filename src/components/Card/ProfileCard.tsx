@@ -9,6 +9,7 @@ import ActivityNew from "../Profile/ActivityNew";
 import {
   deleteUserPicture,
   follow,
+  getPersonalInfo,
   getUserProfile,
   updateUserProfilePic,
   uploadUserPicture,
@@ -22,13 +23,13 @@ import { formatImageUrl, getUserFromToken, tos } from "@/lib/utils";
 import OrganizationCard from "./OrganizationCard";
 import { Button } from "../ui/button";
 import { IoMdShare } from "react-icons/io";
-import EditProfile from "../Profile/EditProfile";
 import ShareProfile from "../Profile/ShareProfile";
 import Cookies from "js-cookie";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { IoPersonAdd } from "react-icons/io5";
 import DocumentationCard from "./DocumentationCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProfileTab } from "../Profile/ProfileTab";
 
 const ProfileCard = ({
   otherUser,
@@ -79,6 +80,11 @@ const ProfileCard = ({
   const { data: userData } = useQuery({
     queryKey: ["userProfile"],
     queryFn: getUserProfile,
+  });
+
+  const { data: personalInfo } = useQuery({
+    queryKey: ["personalInfo"],
+    queryFn: getPersonalInfo,
   });
 
   const { mutate, isLoading: uploading } = useMutation({
@@ -346,14 +352,19 @@ const ProfileCard = ({
       <Dialog.Root open={editProfile} onOpenChange={setEditProfile}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[90%] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg flex flex-col gap-6">
             <Dialog.Title className="text-lg font-semibold text-gray-900">
               {userData?.data ? "Edit Profile" : "Add Profile"}
             </Dialog.Title>
             <Dialog.Description></Dialog.Description>
-            <EditProfile
+            {/* <EditProfile
               onSuccess={() => setEditProfile(false)}
               initialData={userData?.data}
+            /> */}
+            <ProfileTab
+              profileInitialData={userData?.data}
+              personalInfoInitialData={personalInfo?.data}
+              onSuccess={() => setEditProfile(false)}
             />
           </Dialog.Content>
         </Dialog.Portal>

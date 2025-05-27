@@ -54,7 +54,7 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
     mutationFn: createPost,
     onSuccess: () => {
       onSuccess();
-      queryClient.invalidateQueries("getAllPostsWithComments");
+      queryClient.invalidateQueries(["getAllPostsWithComments", 1, 5, mode]);
       tos.success("Success");
     },
   });
