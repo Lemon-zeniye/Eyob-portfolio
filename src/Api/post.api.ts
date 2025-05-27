@@ -60,11 +60,6 @@ export const updateStory = async (id: string, payload: any): Promise<any> => {
   return response.data;
 };
 
-export const deleteStory = async (id: string): Promise<any> => {
-  const response = await axios.patch<any>(`/user/deleteUserStory/{id}/${id}`);
-  return response.data;
-};
-
 export const getComments = async (
   id: string,
   page: number = 1,
@@ -126,5 +121,20 @@ export const updateNotification = async ({
     `/notification/updateNotification/${id}`,
     payload
   );
+  return response.data;
+};
+
+export const likeOrDeslikeStory = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>(`/user/storyLikeOrDeslike`, payload);
+  return response.data;
+};
+
+export const deleteStory = async (id: string): Promise<any> => {
+  const response = await axios.delete<any>(`/user/deleteUserStory/${id}`);
+  return response.data;
+};
+
+export const trackStoryView = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>(`/user/trackStoryView`, payload);
   return response.data;
 };

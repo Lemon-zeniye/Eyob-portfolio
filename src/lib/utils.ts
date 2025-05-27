@@ -231,6 +231,11 @@ export const transformStories = (apiStories: StoryApiResponse[]): Story[] => {
   return apiStories.map((story, index) => ({
     id: index + 1,
     username: story?.user?.name, // adjust as needed
+    _id: story._id,
+    likes: story.likes,
+    userId: story.user._id,
+    isViewedByUser: story.isViewedByUser ?? false,
+
     // title: `Story ${index + 1}`,
     avatar: formatImageUrl(story?.userPicturePath), // default or fetch from user data
     items: [

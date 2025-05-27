@@ -1,7 +1,10 @@
 import {
   addStory,
+  deleteStory,
   getAllPostsWithComments,
   getAllUserStories,
+  likeOrDeslikeStory,
+  trackStoryView,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -19,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
+  Heart,
   ImageIcon,
   Layers,
   PlusIcon,
@@ -34,6 +38,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import PostGalleryTwo from "@/components/Post/PostGalleryTwo";
 import { tos, transformStories } from "@/lib/utils";
 import { PostCom } from "@/Types/post.type";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -87,7 +92,10 @@ function SocialHomePage() {
   const [viewingStory, setViewingStory] = useState<null | {
     id: number;
     username: string;
-    // title: string;
+    _id: string;
+    likes: number;
+    isViewedByUser: boolean;
+    userId: string;
     avatar: string;
     items: Array<{ id: string; image: string }>;
   }>(null);
@@ -95,7 +103,7 @@ function SocialHomePage() {
   useEffect(() => {
     if (!viewingStory) return;
 
-    const storyDuration = 5000;
+    const storyDuration = 10000;
     const interval = 100;
     let timer: NodeJS.Timeout;
     let progressTimer: NodeJS.Timeout;
@@ -236,6 +244,40 @@ function SocialHomePage() {
     }
   };
 
+  const { mutate: likeStory } = useMutation({
+    mutationFn: likeOrDeslikeStory,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["userStories"]);
+      tos.success("You liked the story");
+    },
+  });
+
+  const { mutate: tracStory } = useMutation({
+    mutationFn: trackStoryView,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["userStories"]);
+    },
+  });
+
+  useEffect(() => {
+    if (viewingStory?._id && !viewingStory?.isViewedByUser) {
+      console.log("sending", viewingStory);
+      tracStory({ storyid: viewingStory._id });
+    }
+  }, [viewingStory]);
+
+  const { mutate: deleteUserStory } = useMutation({
+    mutationFn: deleteStory,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["userStories"]);
+      tos.success("You delete the story");
+    },
+    onError: (e) => {
+      const message = getAxiosErrorMessage(e);
+      tos.error(message);
+    },
+  });
+
   const handleSubmit = () => {
     if (!selectedFile) return;
 
@@ -341,12 +383,11 @@ function SocialHomePage() {
                 >
                   <div className="relative mb-2">
                     <div
-                      className="w-16 h-16 md:w-20 md:h-20 rounded-full p-0.5 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, #FFA500, #fac970, #f2cf8f)",
-                        padding: "2px",
-                      }}
+                      className={`w-16 h-16  md:w-20 md:h-20 rounded-full p-0.5 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105 ${
+                        story.isViewedByUser
+                          ? "bg-gray-300"
+                          : "bg-gradient-to-br from-[#FFA500] via-[#fac970] to-[#f2cf8f]"
+                      }`}
                     >
                       <div className="w-full h-full rounded-full border-2 border-white overflow-hidden">
                         <img
@@ -658,7 +699,7 @@ function SocialHomePage() {
               }}
             />
             <Dialog.Content className="fixed inset-0 mx-auto z-50 w-full md:w-[50%] flex items-center justify-center focus:outline-none">
-              <div className="relative w-full max-w-3xl mx-auto">
+              <div className="relative w-full max-w-3xl max-h-screen  mx-auto">
                 <div className="absolute top-0 left-4 right-4 flex gap-1 z-10 p-4">
                   {viewingStory.items.map((item, idx) => (
                     <div
@@ -671,7 +712,7 @@ function SocialHomePage() {
                           style={{
                             width: `${storyProgress}%`,
                             background:
-                              "linear-gradient(to right, #05A9A9, #4ecdc4)",
+                              "linear-gradient(to right, #fda90b, #fcc358)",
                           }}
                         />
                       )}
@@ -690,13 +731,7 @@ function SocialHomePage() {
                         alt={viewingStory.username}
                         className="object-cover"
                       />
-                      <AvatarFallback
-                        className="text-white"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, #05A9A9, #4ecdc4)",
-                        }}
-                      >
+                      <AvatarFallback className="text-white bg-primary2">
                         {viewingStory.username[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -716,7 +751,7 @@ function SocialHomePage() {
                 </div>
 
                 <div
-                  className="aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl"
+                  className="h-[calc(100vh-10rem)] min-h-[400px]  bg-black rounded-xl overflow-hidden shadow-2xl"
                   onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const x = e.clientX - rect.left;
@@ -815,8 +850,8 @@ function SocialHomePage() {
                   <ChevronRight className="w-6 h-6" />
                 </button>
 
-                <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center">
-                  <div className="bg-white/10 backdrop-blur-md rounded-full px-5 py-3 flex items-center shadow-lg">
+                <div className="absolute bottom-8 bg-white/10 backdrop-blur-md  rounded-full px-4 mx-auto w-fit left-0 right-0 flex items-center justify-center">
+                  <div className="rounded-full px-5 py-3 flex items-center shadow-lg">
                     <input
                       type="text"
                       placeholder="Reply to story..."
@@ -826,6 +861,28 @@ function SocialHomePage() {
                       <Send className="w-5 h-5" />
                     </button>
                   </div>
+
+                  <span className="px-2"> {viewingStory.likes || 0}</span>
+
+                  <button
+                    className="ml-2 text-white bg-primary2 p-2 rounded-full hover:bg-primary2/50 transition-colors duration-200"
+                    onClick={() =>
+                      likeStory({
+                        storyid: viewingStory._id,
+                        like: "like",
+                      })
+                    }
+                  >
+                    <Heart className="w-5 h-5" />
+                  </button>
+                  {userId === viewingStory.userId && (
+                    <button
+                      className="ml-2 text-white bg-red-500 p-2 rounded-full hover:bg-red-400 transition-colors duration-200"
+                      onClick={() => deleteUserStory(viewingStory._id)}
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
               </div>
             </Dialog.Content>

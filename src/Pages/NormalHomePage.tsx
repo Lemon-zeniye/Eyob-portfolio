@@ -3,10 +3,13 @@ import {
   addComment,
   addStory,
   Commentlike,
+  deleteStory,
   getAllPostsWithComments,
   getAllUserStories,
   getComments,
   likeOrDeslike,
+  likeOrDeslikeStory,
+  trackStoryView,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
 import {
@@ -58,6 +61,7 @@ import { ChildReplies } from "@/components/Post/PostGalleryTwo";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -128,8 +132,12 @@ function NormalHomePage() {
 
   const [viewingStory, setViewingStory] = useState<null | {
     id: number;
+    _id: string;
     username: string;
     // title: string;
+    isViewedByUser: boolean;
+    userId: string;
+    likes: number;
     avatar: string;
     items: Array<{ id: string; image: string }>;
   }>(null);
@@ -137,7 +145,7 @@ function NormalHomePage() {
   useEffect(() => {
     if (!viewingStory) return;
 
-    const storyDuration = 5000;
+    const storyDuration = 10000;
     const interval = 100;
     let timer: NodeJS.Timeout;
     let progressTimer: NodeJS.Timeout;
@@ -361,6 +369,40 @@ function NormalHomePage() {
       }
     },
     onError: () => {},
+  });
+
+  const { mutate: likeStory } = useMutation({
+    mutationFn: likeOrDeslikeStory,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["userStories"]);
+      tos.success("You liked the story");
+    },
+  });
+
+  const { mutate: tracStory } = useMutation({
+    mutationFn: trackStoryView,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["userStories"]);
+    },
+  });
+
+  useEffect(() => {
+    if (viewingStory?._id && !viewingStory?.isViewedByUser) {
+      // Only if there's a valid story ID
+      tracStory({ storyid: viewingStory._id });
+    }
+  }, [viewingStory?._id]); // Only re-run when _id changes
+
+  const { mutate: deleteUserStory } = useMutation({
+    mutationFn: deleteStory,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["userStories"]);
+      tos.success("You delete the story");
+    },
+    onError: (e) => {
+      const message = getAxiosErrorMessage(e);
+      tos.error(message);
+    },
   });
 
   const handleLike = (id: string) => {
@@ -1375,13 +1417,13 @@ function NormalHomePage() {
         <Dialog.Root open={viewStory} onOpenChange={setViewStory}>
           <Dialog.Portal>
             <Dialog.Overlay
-              className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/90 backdrop-blur-sm z-20"
               onClick={() => {
                 setViewStory(false);
               }}
             />
-            <Dialog.Content className="fixed inset-0 mx-auto z-50 w-full md:w-[50%] flex items-center justify-center focus:outline-none">
-              <div className="relative w-full max-w-3xl mx-auto">
+            <Dialog.Content className="fixed inset-0 mx-auto z-40 w-full md:w-[50%]  flex items-center justify-center focus:outline-none">
+              <div className="relative w-full max-w-3xl max-h-screen  mx-auto">
                 <div className="absolute top-0 left-4 right-4 flex gap-1 z-10 p-4">
                   {viewingStory.items.map((item, idx) => (
                     <div
@@ -1439,7 +1481,7 @@ function NormalHomePage() {
                 </div>
 
                 <div
-                  className="aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl"
+                  className="h-[calc(100vh-10rem)] min-h-[400px] w-full bg-black rounded-xl overflow-hidden shadow-2xl flex items-center justify-center"
                   onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const x = e.clientX - rect.left;
@@ -1538,7 +1580,7 @@ function NormalHomePage() {
                   <ChevronRight className="w-6 h-6" />
                 </button>
 
-                <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center">
+                <div className="absolute bottom-0 bg-white/10 backdrop-blur-md w-fit mx-auto rounded-full px-4  left-0 right-0 flex items-center justify-center z-50">
                   <div className="bg-white/10 backdrop-blur-md rounded-full px-5 py-3 flex items-center shadow-lg">
                     <input
                       type="text"
@@ -1549,6 +1591,27 @@ function NormalHomePage() {
                       <Send className="w-5 h-5" />
                     </button>
                   </div>
+                  <span className="px-2"> {viewingStory.likes || 0}</span>
+
+                  <button
+                    onClick={() =>
+                      likeStory({
+                        storyid: viewingStory._id,
+                        like: "like",
+                      })
+                    }
+                    className="ml-2 text-white bg-primary p-2 rounded-full hover:bg-primary/50 transition-colors duration-200"
+                  >
+                    <Heart className="w-5 h-5" />
+                  </button>
+                  {userId === viewingStory.userId && (
+                    <button
+                      className="ml-2 text-white bg-red-500 p-2 rounded-full hover:bg-red-400 transition-colors duration-200"
+                      onClick={() => deleteUserStory(viewingStory._id)}
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
               </div>
             </Dialog.Content>

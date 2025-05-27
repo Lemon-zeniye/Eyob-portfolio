@@ -302,3 +302,32 @@ export const routeMeta = [
     isChildRoute: true,
   },
 ];
+
+export const jobIndustrys = [
+  { label: "Information Technology (IT)", value: "information-technology" },
+  { label: "Healthcare & Medical", value: "healthcare-medical" },
+  { label: "Finance & Banking", value: "finance-banking" },
+  { label: "Education & Training", value: "education-training" },
+  { label: "Engineering & Manufacturing", value: "engineering-manufacturing" },
+  { label: "Retail & Consumer Goods", value: "retail-consumer-goods" },
+  { label: "Hospitality & Tourism", value: "hospitality-tourism" },
+  { label: "Construction & Real Estate", value: "construction-real-estate" },
+  { label: "Marketing & Advertising", value: "marketing-advertising" },
+  { label: "Government & Public Sector", value: "government-public-sector" },
+  { label: "Transportation & Logistics", value: "transportation-logistics" },
+  { label: "Media & Entertainment", value: "media-entertainment" },
+  { label: "Legal Services", value: "legal-services" },
+  {
+    label: "Non-Profit & Social Services",
+    value: "non-profit-social-services",
+  },
+  { label: "Agriculture & Farming", value: "agriculture-farming" },
+  { label: "Energy & Utilities", value: "energy-utilities" },
+  { label: "Telecommunications", value: "telecommunications" },
+  { label: "Automotive", value: "automotive" },
+  {
+    label: "Pharmaceuticals & Biotechnology",
+    value: "pharmaceuticals-biotechnology",
+  },
+  { label: "Aerospace & Defense", value: "aerospace-defense" },
+];

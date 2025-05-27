@@ -47,14 +47,15 @@ function NewJobPage() {
         { id: 3, name: "Hybrid", value: "hybrid" },
       ],
     },
-    // {
-    //   category: { label: "Salary Type", value: "payment" },
-    //   options: [
-    //     { id: 1, name: "Hourly", value: "hourly" },
-    //     { id: 2, name: "Monthly", value: "monthly" },
-    //     { id: 3, name: "Annual", value: "Annual" },
-    //   ],
-    // },
+    {
+      category: { label: "Job Qualification", value: "jobQualification" },
+      options: [
+        { id: 1, name: "Diploma", value: "diploma" },
+        { id: 2, name: "Bachelor", value: "bachelor" },
+        { id: 3, name: "Masters", value: "masters" },
+        { id: 4, name: "PHD", value: "phd" },
+      ],
+    },
   ];
 
   const [openCategories, setOpenCategories] = useState<string[]>(
@@ -255,7 +256,8 @@ function NewJobPage() {
       </div>
 
       <div className="grid grid-cols-6">
-        <div className="hidden md:block md:col-span-1 p-4 space-y-3">
+        <div className="hidden md:block md:col-span-1 p-4 space-y-3 h-[70vh] overflow-y-auto">
+          <h1>Filter</h1>
           {filterValues.map((filter) => {
             const isOpen = openCategories.includes(filter.category.value);
             return (

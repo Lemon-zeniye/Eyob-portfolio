@@ -28,6 +28,7 @@ import { IoMdClose } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams } from "react-router-dom";
 import { useRole } from "@/Context/RoleContext";
+import { jobIndustrys } from "@/lib/constant";
 
 function AddJob() {
   const [skills, setSkills] = useState<string[]>([]);
@@ -632,10 +633,10 @@ function AddJob() {
                 <div className="grid grid-cols-1 md:grid-cols-4 my-2 gap-6">
                   <div className="col-span-1">
                     <h1 className="font-semibold space-y-1 text-[#25324B]">
-                      Workplace
+                      Location Type
                     </h1>
                     <p className="hidden sm:block font-light w-full lg:w-[60%]">
-                      Work location type
+                      Select the type of work location
                     </p>
                   </div>
 
@@ -706,16 +707,51 @@ function AddJob() {
                   <div className="col-span-3">
                     <FormField
                       control={form.control}
-                      rules={{ required: "Required" }}
                       name="jobQualification"
+                      rules={{ required: "Required" }}
                       render={({ field }) => (
                         <FormItem>
+                          <FormLabel className="hidden md:block text-sm font-medium text-gray-700">
+                            Selecte Qualification
+                          </FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder="e.g. Bachelor's degree in Computer Science, 5+ years experience"
-                              {...field}
-                              className="rounded-none bg-transparent border-gray-300 shadow-sm w-full md:w-[70%] lg:w-[50%]"
-                            />
+                            <Select.Root
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <Select.Trigger
+                                className={`flex items-center justify-between h-10 px-3 py-2 mt-1 border border-gray-300 bg-transparent rounded-none shadow-sm text-sm focus:outline-none focus:ring-1 ${
+                                  field.value ? "text-black" : "text-gray-400"
+                                } w-full md:w-[70%] lg:w-[50%]`}
+                              >
+                                <Select.Value placeholder="Selecte Qualification" />
+                                <Select.Icon>
+                                  <ChevronDownIcon className="w-4 h-4 text-gray-500" />
+                                </Select.Icon>
+                              </Select.Trigger>
+                              <Select.Portal>
+                                <Select.Content className="z-50 mt-1 w-full rounded-md bg-white shadow-lg border border-gray-200">
+                                  <Select.Viewport className="p-1">
+                                    {[
+                                      { label: "Diploma", value: "diploma" },
+                                      { label: "Bachelor", value: "bachelor" },
+                                      { label: "Masters", value: "masters" },
+                                      { label: "PHD", value: "phd" },
+                                    ].map((g) => (
+                                      <Select.Item
+                                        key={g.value}
+                                        value={g.value}
+                                        className="relative px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded-md"
+                                      >
+                                        <Select.ItemText>
+                                          {g.label}
+                                        </Select.ItemText>
+                                      </Select.Item>
+                                    ))}
+                                  </Select.Viewport>
+                                </Select.Content>
+                              </Select.Portal>
+                            </Select.Root>
                           </FormControl>
                           <FormMessage className="mt-1 text-sm text-red-600" />
                         </FormItem>
@@ -739,6 +775,57 @@ function AddJob() {
                   <div className="col-span-3">
                     <FormField
                       control={form.control}
+                      name="jobIndustry"
+                      rules={{ required: "Required" }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="hidden md:block text-sm font-medium text-gray-700">
+                            Selecte Job Industry
+                          </FormLabel>
+                          <FormControl>
+                            <Select.Root
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <Select.Trigger
+                                className={`flex items-center justify-between h-10 px-3 py-2 mt-1 border border-gray-300 bg-transparent rounded-none shadow-sm text-sm focus:outline-none focus:ring-1 ${
+                                  field.value ? "text-black" : "text-gray-400"
+                                } w-full md:w-[70%] lg:w-[50%]`}
+                              >
+                                <Select.Value placeholder="e.g. Technology, Healthcare, Education, Finance" />
+
+                                <Select.Icon>
+                                  <ChevronDownIcon className="w-4 h-4 text-gray-500" />
+                                </Select.Icon>
+                              </Select.Trigger>
+                              <Select.Portal>
+                                <Select.Content className="z-50 mt-1 w-full rounded-md bg-white shadow-lg border border-gray-200">
+                                  <Select.Viewport className="p-1">
+                                    {jobIndustrys.map((g) => (
+                                      <Select.Item
+                                        key={g.value}
+                                        value={g.value}
+                                        className="relative px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded-md"
+                                      >
+                                        <Select.ItemText>
+                                          {g.label}
+                                        </Select.ItemText>
+                                      </Select.Item>
+                                    ))}
+                                  </Select.Viewport>
+                                </Select.Content>
+                              </Select.Portal>
+                            </Select.Root>
+                          </FormControl>
+                          <FormMessage className="mt-1 text-sm text-red-600" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* <div className="col-span-3">
+                    <FormField
+                      control={form.control}
                       rules={{ required: "Required" }}
                       name="jobIndustry"
                       render={({ field }) => (
@@ -754,7 +841,7 @@ function AddJob() {
                         </FormItem>
                       )}
                     />
-                  </div>
+                  </div> */}
                 </div>
 
                 <hr className=" hidden sm:block my-4 border  border-gray-200" />
@@ -952,7 +1039,7 @@ function AddJob() {
                   </div>
                 </div>
 
-                <hr className=" hidden sm:block my-4 border  border-gray-200" />
+                {/* <hr className=" hidden sm:block my-4 border  border-gray-200" />
 
                 <div className="grid grid-cols-1 md:grid-cols-4 my-2 gap-6">
                   <div className="col-span-1">
@@ -983,7 +1070,7 @@ function AddJob() {
                       )}
                     />
                   </div>
-                </div>
+                </div> */}
 
                 <hr className=" hidden sm:block my-4 border  border-gray-200" />
 
