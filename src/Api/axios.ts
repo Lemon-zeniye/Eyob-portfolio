@@ -11,6 +11,7 @@ const axiosInstance = axios.create({
   baseURL: "https://awema.co/api",
 });
 
+// Only attach the request interceptor to add the token
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = Cookies.get("accessToken");
@@ -25,51 +26,51 @@ axiosInstance.interceptors.request.use(
 );
 
 // Response interceptor to handle 401 errors
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshToken = Cookies.get("refreshToken");
-        if (!refreshToken) {
-          throw new Error("Refresh token not available");
-        }
+//     if (error.response?.status === 401 && !originalRequest._retry) {
+//       originalRequest._retry = true;
+//       try {
+//         const refreshToken = Cookies.get("refreshToken");
+//         if (!refreshToken) {
+//           throw new Error("Refresh token not available");
+//         }
 
-        const refreshResponse = await axios.post(
-          "https://awema.co/api/auth/refresh",
-          {
-            refreshToken: refreshToken,
-          }
-        );
+//         const refreshResponse = await axios.post(
+//           "https://awema.co/api/auth/refresh",
+//           {
+//             refreshToken: refreshToken,
+//           }
+//         );
 
-        const newAccessToken = refreshResponse.data.tokens.accessToken;
-        const newRefreshToken = refreshResponse.data.tokens.refreshToken;
-        Cookies.set("accessToken", newAccessToken);
-        Cookies.set("refreshToken", newRefreshToken);
+//         const newAccessToken = refreshResponse.data.tokens.accessToken;
+//         const newRefreshToken = refreshResponse.data.tokens.refreshToken;
+//         Cookies.set("accessToken", newAccessToken);
+//         Cookies.set("refreshToken", newRefreshToken);
 
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+//         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
 
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        console.error("Failed to refresh token:", refreshError);
-        Cookies.remove("accessToken");
-        Cookies.remove("refreshToken");
+//         return axiosInstance(originalRequest);
+//       } catch (refreshError) {
+//         console.error("Failed to refresh token:", refreshError);
+//         Cookies.remove("accessToken");
+//         Cookies.remove("refreshToken");
 
-        // Navigate to login
-        if (navigateFunction) {
-          navigateFunction("/login");
-        }
+//         // Navigate to login
+//         if (navigateFunction) {
+//           navigateFunction("/login");
+//         }
 
-        return Promise.reject(refreshError);
-      }
-    }
+//         return Promise.reject(refreshError);
+//       }
+//     }
 
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );
 export const getAxiosErrorMessage = (error: any): string => {
   const errMes = error?.response?.data?.msg;
 

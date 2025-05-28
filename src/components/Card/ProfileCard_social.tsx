@@ -80,6 +80,7 @@ const ProfileCard = ({
   const { data: personalInfo } = useQuery({
     queryKey: ["personalInfo"],
     queryFn: getPersonalInfo,
+    enabled: !isOtherUser,
   });
 
   useEffect(() => {
