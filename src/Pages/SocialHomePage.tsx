@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
   ChevronRight,
+  Eye,
   FileText,
   Heart,
   ImageIcon,
@@ -102,6 +103,7 @@ function SocialHomePage() {
     isViewedByUser: boolean;
     isLikedByUser: boolean;
     userId: string;
+    views: number;
     avatar: string;
     items: Array<{ id: string; image: string }>;
   }>(null);
@@ -457,7 +459,7 @@ function SocialHomePage() {
                     >
                       <div className="w-full h-full rounded-full border-2 border-white overflow-hidden">
                         <img
-                          src={story.items[0]?.image}
+                          src={story?.items[0]?.image}
                           alt={story.username}
                           className="w-full h-full rounded-full object-cover"
                         />
@@ -465,7 +467,9 @@ function SocialHomePage() {
                     </div>
                   </div>
                   <span className="text-xs font-medium text-gray-600 truncate max-w-[80px] text-center">
-                    {story.username.split("_")[0]}
+                    {viewingStory?.username
+                      ? viewingStory?.username[0]?.toUpperCase()
+                      : ""}
                   </span>
                 </div>
               ))}
@@ -800,7 +804,9 @@ function SocialHomePage() {
                         className="object-cover"
                       />
                       <AvatarFallback className="text-white bg-primary2">
-                        {viewingStory.username[0].toUpperCase()}
+                        {viewingStory?.username
+                          ? viewingStory?.username[0]?.toUpperCase()
+                          : ""}
                       </AvatarFallback>
                     </Avatar>
                     <div className="ml-3 text-white">
@@ -918,19 +924,11 @@ function SocialHomePage() {
                   <ChevronRight className="w-6 h-6" />
                 </button>
 
-                <div className="absolute bottom-8 bg-white/10 backdrop-blur-md  rounded-full px-4 mx-auto w-fit left-0 right-0 flex items-center justify-center">
-                  {/* <div className="rounded-full px-5 py-3 flex items-center shadow-lg">
-                    <input
-                      type="text"
-                      placeholder="Reply to story..."
-                      className="bg-transparent border-none text-white placeholder-white/70 focus:outline-none w-full"
-                    />
-                    <button className="ml-2 text-white bg-primary2 p-2 rounded-full hover:bg-primary2/50 transition-colors duration-200">
-                      <Send className="w-5 h-5" />
-                    </button>
-                  </div> */}
+                {/* <div className="absolute bottom-8 bg-white/10 backdrop-blur-md  rounded-full px-4 mx-auto w-fit left-0 right-0 flex items-center justify-center">
+                  
 
                   <span className="px-2"> {viewingStory.likes || 0}</span>
+                  <span className="px-2"> {viewingStory.views || 0}</span>
 
                   <button
                     className="ml-2 text-white bg-primary2/70 p-2 rounded-full hover:bg-primary2/50 transition-colors duration-200"
@@ -958,6 +956,56 @@ function SocialHomePage() {
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
+                  )}
+                </div> */}
+
+                <div className="absolute bottom-8 bg-white/10 backdrop-blur-md rounded-full px-4 mx-auto w-fit left-0 right-0 flex items-center justify-center gap-2 py-2 border border-white/20 shadow-lg">
+                  {/* Views - with eye icon */}
+                  <div className="flex items-center text-sm text-white/80">
+                    <Eye className="w-4 h-4 mr-1" />
+                    <span>{viewingStory.views || 0}</span>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-4 w-px bg-white/30"></div>
+
+                  {/* Likes - with heart icon and count */}
+                  <div className="flex items-center">
+                    <button
+                      className="flex items-center justify-center p-1 rounded-full hover:bg-white/10 transition-colors duration-200"
+                      onClick={() =>
+                        likeStory({
+                          storyid: viewingStory._id,
+                          like: viewingStory.isLikedByUser
+                            ? "neutralize"
+                            : "like",
+                        })
+                      }
+                    >
+                      <Heart
+                        className={`w-5 h-5 transition-colors ${
+                          viewingStory.isLikedByUser
+                            ? "text-red-500 fill-red-500"
+                            : "text-white/70 fill-transparent"
+                        }`}
+                      />
+                    </button>
+                    <span className="ml-1 text-sm text-white/80">
+                      {viewingStory.likes || 0}
+                    </span>
+                  </div>
+
+                  {/* Delete button (only for owner) */}
+                  {userId === viewingStory.userId && (
+                    <>
+                      <div className="h-4 w-px bg-white/30"></div>
+                      <button
+                        className="flex items-center justify-center p-1 rounded-full hover:bg-white/10 transition-colors duration-200"
+                        onClick={() => deleteUserStory(viewingStory._id)}
+                      >
+                        <Trash2 className="w-5 h-5 text-white/70 hover:text-red-400 transition-colors" />
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

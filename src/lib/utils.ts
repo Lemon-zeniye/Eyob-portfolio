@@ -235,7 +235,9 @@ export const transformStories = (apiStories: StoryApiResponse[]): Story[] => {
     likes: story.likes,
     userId: story.user._id,
     isViewedByUser: story.isViewedByUser ?? false,
-    isLikedByUser: story.isLikedByUser ?? false,
+    views: story.views,
+
+    isLikedByUser: story.isViewedByUser ?? false,
 
     // title: `Story ${index + 1}`,
     avatar: formatImageUrl(story?.userPicturePath), // default or fetch from user data
@@ -260,6 +262,7 @@ export const transformInfiniteStories = (
     likes: story.likes,
     userId: story.user._id,
     isViewedByUser: story.isViewedByUser,
+    views: story.views,
     isLikedByUser: story.isLikedByUser,
     avatar: formatImageUrl(story?.userPicturePath),
     items: [

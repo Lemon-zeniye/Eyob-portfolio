@@ -135,7 +135,7 @@ export interface Story {
   userId: string;
   isViewedByUser: boolean;
   isLikedByUser: boolean;
-  // title: string;
+  views: number;
   avatar: string;
   items: StoryItem[]; // But API will only return 1 item
 }
