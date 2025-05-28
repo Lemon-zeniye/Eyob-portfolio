@@ -1,12 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-let navigateFunction: ((path: string) => void) | null = null;
-
-export const setNavigateFunction = (navigate: (path: string) => void) => {
-  navigateFunction = navigate;
-};
-
 const axiosInstance = axios.create({
   baseURL: "https://awema.co/api",
 });
