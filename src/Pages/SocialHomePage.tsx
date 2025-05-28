@@ -31,7 +31,7 @@ import {
   ImageIcon,
   Layers,
   PlusIcon,
-  Send,
+  // Send,
   Trash2,
   Upload,
   X,
@@ -919,7 +919,7 @@ function SocialHomePage() {
                 </button>
 
                 <div className="absolute bottom-8 bg-white/10 backdrop-blur-md  rounded-full px-4 mx-auto w-fit left-0 right-0 flex items-center justify-center">
-                  <div className="rounded-full px-5 py-3 flex items-center shadow-lg">
+                  {/* <div className="rounded-full px-5 py-3 flex items-center shadow-lg">
                     <input
                       type="text"
                       placeholder="Reply to story..."
@@ -928,7 +928,7 @@ function SocialHomePage() {
                     <button className="ml-2 text-white bg-primary2 p-2 rounded-full hover:bg-primary2/50 transition-colors duration-200">
                       <Send className="w-5 h-5" />
                     </button>
-                  </div>
+                  </div> */}
 
                   <span className="px-2"> {viewingStory.likes || 0}</span>
 

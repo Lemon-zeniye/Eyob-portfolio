@@ -29,7 +29,7 @@ import {
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Bookmark,
+  // Bookmark,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -40,7 +40,7 @@ import {
   MessageCircle,
   PlusIcon,
   Send,
-  Share2,
+  // Share2,
   Trash2,
   Upload,
   X,
@@ -877,11 +877,11 @@ function NormalHomePage() {
                         </div>
                       </div>
 
-                      <button className="text-gray-400 hover:text-[#05A9A9] group relative transition-colors duration-200">
-                        <div className="flex items-center gap-1">
-                          <FaEllipsisH className="w-5 h-5" />
+                      {userId === post.postOwner?._id && (
+                        <button className="text-gray-400 hover:text-[#05A9A9] group relative transition-colors duration-200">
+                          <div className="flex items-center gap-1">
+                            <FaEllipsisH className="w-5 h-5" />
 
-                          {userId === post.postOwner?._id && (
                             <span
                               className="hidden group-hover:flex items-center gap-1 absolute top-4 right-2 ml-2 bg-white px-3 z-20 py-2 rounded-lg shadow-md whitespace-nowrap"
                               onClick={() => {
@@ -893,9 +893,9 @@ function NormalHomePage() {
                                 Delete
                               </span>
                             </span>
-                          )}
-                        </div>
-                      </button>
+                          </div>
+                        </button>
+                      )}
                     </div>
 
                     {post?.postPictures?.length > 0 ? (
@@ -914,7 +914,7 @@ function NormalHomePage() {
                         </p>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 mb-3">
+                      {/* <div className="flex flex-wrap gap-2 mb-3">
                         {["photography", "design", "creative"].map((tag) => (
                           <span
                             key={tag}
@@ -923,7 +923,7 @@ function NormalHomePage() {
                             #{tag}
                           </span>
                         ))}
-                      </div>
+                      </div> */}
 
                       <Separator className="my-4 bg-[#e6f7f7]" />
 
@@ -939,10 +939,10 @@ function NormalHomePage() {
                           <MessageCircle className="w-4 h-4" />
                           <span>{post?.commentCount || 0} comments</span>
                         </button>
-                        <div className="flex items-center gap-1">
+                        {/* <div className="flex items-center gap-1">
                           <Share2 className="w-4 h-4" />
                           <span>Share</span>
-                        </div>
+                        </div> */}
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -983,12 +983,12 @@ function NormalHomePage() {
                           <MessageCircle className="w-4 h-4 mr-2" />
                           Comment
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="outline"
                           className="w-10 h-10 p-0 rounded-full border-[#e6f7f7] text-gray-700 hover:bg-[#f8fdfd]"
                         >
                           <Bookmark className="w-4 h-4" />
-                        </Button>
+                        </Button> */}
                       </div>
 
                       {isCommentsExpanded && (
@@ -1665,7 +1665,7 @@ function NormalHomePage() {
                 </button>
 
                 <div className="absolute bottom-0 bg-white/10 backdrop-blur-md w-fit mx-auto rounded-full px-4  left-0 right-0 flex items-center justify-center z-50">
-                  <div className="bg-white/10 backdrop-blur-md rounded-full px-5 py-3 flex items-center shadow-lg">
+                  {/* <div className="bg-white/10 backdrop-blur-md rounded-full px-5 py-3 flex items-center shadow-lg">
                     <input
                       type="text"
                       placeholder="Reply to story..."
@@ -1674,7 +1674,7 @@ function NormalHomePage() {
                     <button className="ml-2 text-white bg-[#05A9A9] p-2 rounded-full hover:bg-[#4ecdc4] transition-colors duration-200">
                       <Send className="w-5 h-5" />
                     </button>
-                  </div>
+                  </div> */}
                   <span className="px-2"> {viewingStory.likes || 0}</span>
 
                   <button

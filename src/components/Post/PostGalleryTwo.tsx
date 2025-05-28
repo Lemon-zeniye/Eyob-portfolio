@@ -10,9 +10,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatImageUrl, formatImageUrls, tos } from "@/lib/utils";
 import { FaRegComment } from "react-icons/fa";
-import { RiSendPlaneLine } from "react-icons/ri";
+// import { RiSendPlaneLine } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
-import { LuBookmarkMinus } from "react-icons/lu";
+// import { LuBookmarkMinus } from "react-icons/lu";
 import {
   useInfiniteQuery,
   useMutation,
@@ -329,7 +329,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                 <p className="text-gray-600 text-sm">
                   {post.postContent || "No description provided."}
                 </p>
-                <div className="flex flex-wrap gap-2">
+                {/* <div className="flex flex-wrap gap-2">
                   {["photography", "design", "creative"].map((tag) => (
                     <span
                       key={tag}
@@ -338,7 +338,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                       #{tag}
                     </span>
                   ))}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -433,10 +433,10 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                 hasNoImage ? "text-gray-600" : "text-white"
               }`}
             >
-              <div className="flex items-center gap-1">
-                <FaEllipsisV className="w-4 h-4 md:w-5 md:h-5" />
+              {userId === post.postOwner?._id && (
+                <div className="flex items-center gap-1">
+                  <FaEllipsisV className="w-4 h-4 md:w-5 md:h-5" />
 
-                {userId === post.postOwner?._id && (
                   <span
                     className="hidden group-hover:flex items-center gap-1 absolute top-4 right-2 ml-2 bg-white px-2 md:px-3 z-20 py-1 md:py-2 rounded shadow whitespace-nowrap"
                     onClick={() => {
@@ -448,19 +448,19 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                       Delete
                     </span>
                   </span>
-                )}
-              </div>
+                </div>
+              )}
             </button>
           </div>
         </div>
 
         {/* Modern Bottom Absolute Container */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-[80%] max-w-md px-4">
-          <div className="flex justify-between items-center bg-[#FFC55B]/50 backdrop-blur-md rounded-full p-1 md:p-3 shadow-md shadow-white/20 border-2 border-[#FFC55B]/10">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-[60%] max-w-md px-4">
+          <div className="flex justify-around  items-center bg-[#FFC55B]/50 backdrop-blur-md rounded-full p-1 md:p-3 shadow-md shadow-white/20 border-2 border-[#FFC55B]/10">
             <motion.button
               onClick={() => handleLike(post._id, post.isLikedByUser)}
               disabled={isLoading}
-              className="flex items-center justify-center flex-1 gap-1 md:gap-2 h-7 md:h-9 px-2 md:px-4 bg-transparent hover:scale-110 transition-transform"
+              className="flex items-center flex-1 justify-center  gap-1 md:gap-2 h-7 md:h-9 px-2 md:px-4 bg-transparent hover:scale-110 transition-transform"
               whileTap={{ scale: 0.9 }}
             >
               <motion.div
@@ -490,7 +490,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
             </motion.button>
 
             <button
-              className="flex gap-1 md:gap-2 items-center justify-center w-full text-white hover:scale-110 transition-transform"
+              className="flex gap-1 flex-1 md:gap-2 items-center justify-center w-full text-white hover:scale-110 transition-transform"
               onClick={() => {
                 toggleComments(post._id);
                 refetch();
@@ -502,13 +502,13 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
               </span>
             </button>
 
-            <button className="flex flex-col items-center justify-center w-full text-white hover:scale-110 transition-transform">
+            {/* <button className="flex flex-col items-center justify-center w-full text-white hover:scale-110 transition-transform">
               <RiSendPlaneLine className="text-2xl md:text-4xl text-white" />
-            </button>
+            </button> */}
 
-            <button className="flex flex-col items-center justify-center w-full text-white hover:scale-110 transition-transform">
+            {/* <button className="flex flex-col items-center justify-center w-full text-white hover:scale-110 transition-transform">
               <LuBookmarkMinus className="text-2xl md:text-4xl text-white" />
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -572,7 +572,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
               <p className="text-gray-600 text-sm">
                 {post.postContent || "No description provided."}
               </p>
-              <div className="flex flex-wrap gap-2">
+              {/* <div className="flex flex-wrap gap-2">
                 {["photography", "design", "creative"].map((tag) => (
                   <span
                     key={tag}
@@ -581,7 +581,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                     #{tag}
                   </span>
                 ))}
-              </div>
+              </div> */}
             </div>
           </>
         )}
