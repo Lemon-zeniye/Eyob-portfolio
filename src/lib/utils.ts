@@ -235,9 +235,33 @@ export const transformStories = (apiStories: StoryApiResponse[]): Story[] => {
     likes: story.likes,
     userId: story.user._id,
     isViewedByUser: story.isViewedByUser ?? false,
+    isLikedByUser: story.isLikedByUser ?? false,
 
     // title: `Story ${index + 1}`,
     avatar: formatImageUrl(story?.userPicturePath), // default or fetch from user data
+    items: [
+      {
+        id: `story-${story._id}`,
+        image: formatImageUrl(story.path),
+      },
+    ],
+  }));
+};
+
+// Transform the infinite query data
+
+export const transformInfiniteStories = (
+  apiStories: StoryApiResponse[]
+): Story[] => {
+  return apiStories.map((story, index) => ({
+    id: index + 1,
+    username: story?.user?.name,
+    _id: story._id,
+    likes: story.likes,
+    userId: story.user._id,
+    isViewedByUser: story.isViewedByUser,
+    isLikedByUser: story.isLikedByUser,
+    avatar: formatImageUrl(story?.userPicturePath),
     items: [
       {
         id: `story-${story._id}`,

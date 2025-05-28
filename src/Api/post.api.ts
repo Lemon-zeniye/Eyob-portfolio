@@ -47,8 +47,20 @@ export const getUserStories = async (): Promise<StoryRes> => {
   return response.data;
 };
 
-export const getAllUserStories = async (): Promise<StoryRes> => {
-  const response = await axios.get<any>(`/user/getAllUserStories`);
+// export const getAllUserStories = async ({ page = 1 }): Promise<StoryRes> => {
+//   const response = await axios.get(
+//     `/user/getAllUserStories?page=${page}&limit=10`
+//   );
+//   return response.data;
+// };
+
+export const getAllUserStories = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<StoryRes> => {
+  const response = await axios.get<any>(`/user/getAllUserStories`, {
+    params: { page, limit },
+  });
   return response.data;
 };
 

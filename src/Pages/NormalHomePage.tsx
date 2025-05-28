@@ -49,7 +49,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { formatImageUrl, tos, transformStories } from "@/lib/utils";
+import {
+  formatImageUrl,
+  tos,
+  transformInfiniteStories,
+  // transformStories,
+} from "@/lib/utils";
 import PostGallery from "@/components/Post/PostGallery";
 import Cookies from "js-cookie";
 import { deletePost, getUserFullProfile } from "@/Api/profile.api";
@@ -136,6 +141,7 @@ function NormalHomePage() {
     username: string;
     // title: string;
     isViewedByUser: boolean;
+    isLikedByUser: boolean;
     userId: string;
     likes: number;
     avatar: string;
@@ -346,12 +352,69 @@ function NormalHomePage() {
     onError: () => {},
   });
 
-  const { data: userStories } = useQuery({
+  // const { data: userStories } = useQuery({
+  //   queryKey: ["userStories"],
+  //   queryFn: getAllUserStories,
+  // });
+
+  const {
+    data: userStories,
+    isLoading: isLoadingStories,
+    isFetching: isFetchingStories,
+    fetchNextPage: fetchNextStories,
+    hasNextPage: hasNextStories,
+  } = useInfiniteQuery({
     queryKey: ["userStories"],
-    queryFn: getAllUserStories,
+    queryFn: async ({ pageParam = 1 }) => {
+      const res = await getAllUserStories(pageParam);
+      return res;
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage?.data && lastPage?.data?.length > 0
+        ? allPages.length + 1
+        : undefined;
+    },
   });
 
-  const stories = userStories ? transformStories(userStories.data) : [];
+  // const stories = userStories ? transformStories(userStories) : [];
+  const stories = userStories
+    ? userStories?.pages &&
+      transformInfiniteStories(userStories?.pages?.flatMap((page) => page.data))
+    : [];
+
+  // story scroll effects
+  const storiesContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleStoriesScroll = useCallback(() => {
+    if (!storiesContainerRef.current) return;
+
+    const { scrollLeft, clientWidth, scrollWidth } =
+      storiesContainerRef.current;
+
+    // Check if scrolled near the right edge (with 100px buffer)
+    const isNearRightEdge = scrollLeft + clientWidth >= scrollWidth - 100;
+
+    // Early return if conditions aren't met
+    if (
+      !isNearRightEdge ||
+      isLoadingStories ||
+      isFetchingStories ||
+      !hasNextStories
+    ) {
+      return;
+    }
+
+    fetchNextStories();
+  }, [isLoadingStories, isFetchingStories, hasNextStories, fetchNextStories]);
+
+  // Add horizontal scroll event listener
+  useEffect(() => {
+    const container = storiesContainerRef.current;
+    if (!container) return;
+
+    container.addEventListener("scroll", handleStoriesScroll);
+    return () => container.removeEventListener("scroll", handleStoriesScroll);
+  }, [handleStoriesScroll]);
 
   const { mutate: childComment } = useMutation({
     mutationFn: addChildComment,
@@ -623,7 +686,10 @@ function NormalHomePage() {
             <h2 className="font-medium text-lg mb-5 text-gray-800 flex items-center gap-2">
               Stories
             </h2>
-            <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide p-2 md:px-0">
+            <div
+              ref={storiesContainerRef}
+              className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide p-2 md:px-0"
+            >
               <div
                 key="add-story"
                 className="min-w-[140px] md:min-w-[180px] h-[160px] md:h-[180px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
@@ -658,7 +724,7 @@ function NormalHomePage() {
                 {/* Matching glow effect on hover */}
                 <div className="absolute inset-0 rounded-xl md:rounded-2xl pointer-events-none transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(3,169,169,0.3)] group-hover:bg-[#03a9a9]/5"></div>
               </div>
-              {[...stories]?.reverse().map((story) => (
+              {stories?.map((story) => (
                 <div
                   key={story.id}
                   className="min-w-[140px] md:min-w-[180px] h-[160px] md:h-[180px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
@@ -680,14 +746,20 @@ function NormalHomePage() {
 
                     {/* Avatar with modern ring */}
                     <div className="absolute top-3 left-3 z-10">
-                      <div className="p-0.5 rounded-full bg-gradient-to-br from-[#03a9a9] to-[#03c9c9] shadow-md">
-                        <Avatar className="w-7 h-7 md:w-8 md:h-8 ring-2 ring-white">
+                      <div className={`p-0.5 rounded-full shadow-md`}>
+                        <Avatar
+                          className={`w-7 h-7 md:w-8 md:h-8 ring-2 bg-white ${
+                            story.isViewedByUser
+                              ? " ring-gray-200"
+                              : " ring-primary"
+                          } `}
+                        >
                           <AvatarImage
                             src={story.avatar}
                             alt={story.username}
                             className="object-cover"
                           />
-                          <AvatarFallback className="bg-[#03a9a9]/20 text-[#03a9a9] font-medium">
+                          <AvatarFallback className="text-primary bg-white font-medium">
                             {story.username[0].toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
@@ -722,6 +794,7 @@ function NormalHomePage() {
                 </div>
               ))}
             </div>
+            {isLoadingStories ? <Spinner /> : null}
           </div>
 
           {/* header */}
@@ -1597,12 +1670,20 @@ function NormalHomePage() {
                     onClick={() =>
                       likeStory({
                         storyid: viewingStory._id,
-                        like: "like",
+                        like: viewingStory.isLikedByUser
+                          ? "neutralize"
+                          : "like",
                       })
                     }
                     className="ml-2 text-white bg-primary p-2 rounded-full hover:bg-primary/50 transition-colors duration-200"
                   >
-                    <Heart className="w-5 h-5" />
+                    <Heart
+                      className={`w-5 h-5${
+                        viewingStory.isLikedByUser
+                          ? " text-red-400"
+                          : "text-black"
+                      }`}
+                    />
                   </button>
                   {userId === viewingStory.userId && (
                     <button

@@ -120,7 +120,7 @@ const EducationCard = ({
   const displayData = otherUserEducation || educations?.data;
 
   return (
-    <div className="flex flex-col gap-5 relative overflow-hidden">
+    <div className="flex flex-col gap-5 relative overflow-hidden min-h-[40vh]">
       {!otherUserEducation && (
         <div className="flex flex-row gap-2 justify-between items-end px-2">
           <h1 className="text-lg p-2 items-center font-semibold">
@@ -134,7 +134,7 @@ const EducationCard = ({
           </h1>
           <div className="flex gap-2">
             {!open && !certification && !transcriptAction && (
-              <>
+              <div className="bg-white">
                 <div className="relative inline-block text-left">
                   <div>
                     <button
@@ -152,7 +152,7 @@ const EducationCard = ({
                   </div>
 
                   {isOpen && (
-                    <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-20">
+                    <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg   ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                       <div className="py-1" role="none">
                         {/* Certification Buttons */}
                         <button
@@ -212,7 +212,7 @@ const EducationCard = ({
                 >
                   <FiPlus size={20} />
                 </Button>
-              </>
+              </div>
             )}
 
             {open || certification || transcriptAction ? (

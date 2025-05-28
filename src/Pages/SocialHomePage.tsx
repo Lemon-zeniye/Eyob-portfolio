@@ -7,7 +7,12 @@ import {
   trackStoryView,
 } from "@/Api/post.api";
 import { AddPost } from "@/components/Post/AddPost";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   useState,
@@ -36,7 +41,7 @@ import Cookies from "js-cookie";
 import { getUserFullProfile } from "@/Api/profile.api";
 import { Spinner } from "@/components/ui/Spinner";
 import PostGalleryTwo from "@/components/Post/PostGalleryTwo";
-import { tos, transformStories } from "@/lib/utils";
+import { tos, transformInfiniteStories } from "@/lib/utils";
 import { PostCom } from "@/Types/post.type";
 import { getAxiosErrorMessage } from "@/Api/axios";
 
@@ -95,6 +100,7 @@ function SocialHomePage() {
     _id: string;
     likes: number;
     isViewedByUser: boolean;
+    isLikedByUser: boolean;
     userId: string;
     avatar: string;
     items: Array<{ id: string; image: string }>;
@@ -167,12 +173,64 @@ function SocialHomePage() {
     onError: () => {},
   });
 
-  const { data: userStories } = useQuery({
+  const {
+    data: userStories,
+    isLoading: isLoadingStories,
+    isFetching: isFetchingStories,
+    fetchNextPage: fetchNextStories,
+    hasNextPage: hasNextStories,
+  } = useInfiniteQuery({
     queryKey: ["userStories"],
-    queryFn: getAllUserStories,
+    queryFn: async ({ pageParam = 1 }) => {
+      const res = await getAllUserStories(pageParam);
+      return res;
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage?.data && lastPage?.data?.length > 0
+        ? allPages.length + 1
+        : undefined;
+    },
   });
 
-  const stories = userStories ? transformStories(userStories.data) : [];
+  // const stories = userStories ? transformStories(userStories) : [];
+  const stories = userStories
+    ? userStories?.pages &&
+      transformInfiniteStories(userStories?.pages?.flatMap((page) => page.data))
+    : [];
+
+  // story scroll effects
+  const storiesContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleStoriesScroll = useCallback(() => {
+    if (!storiesContainerRef.current) return;
+
+    const { scrollLeft, clientWidth, scrollWidth } =
+      storiesContainerRef.current;
+
+    // Check if scrolled near the right edge (with 100px buffer)
+    const isNearRightEdge = scrollLeft + clientWidth >= scrollWidth - 100;
+
+    // Early return if conditions aren't met
+    if (
+      !isNearRightEdge ||
+      isLoadingStories ||
+      isFetchingStories ||
+      !hasNextStories
+    ) {
+      return;
+    }
+
+    fetchNextStories();
+  }, [isLoadingStories, isFetchingStories, hasNextStories, fetchNextStories]);
+
+  // Add horizontal scroll event listener
+  useEffect(() => {
+    const container = storiesContainerRef.current;
+    if (!container) return;
+
+    container.addEventListener("scroll", handleStoriesScroll);
+    return () => container.removeEventListener("scroll", handleStoriesScroll);
+  }, [handleStoriesScroll]);
 
   // file uploader
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -342,7 +400,10 @@ function SocialHomePage() {
               <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
               Stories
             </h2>
-            <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
+            <div
+              className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide"
+              ref={storiesContainerRef}
+            >
               <div
                 key="add-story"
                 className="flex flex-col items-center cursor-pointer group"
@@ -370,7 +431,7 @@ function SocialHomePage() {
                 <span className="text-xs font-medium text-gray-600">Add</span>
               </div>
 
-              {[...stories]?.reverse().map((story) => (
+              {stories?.map((story) => (
                 <div
                   key={story.id}
                   className="flex flex-col items-center cursor-pointer group"
@@ -865,15 +926,23 @@ function SocialHomePage() {
                   <span className="px-2"> {viewingStory.likes || 0}</span>
 
                   <button
-                    className="ml-2 text-white bg-primary2 p-2 rounded-full hover:bg-primary2/50 transition-colors duration-200"
+                    className="ml-2 text-white bg-primary2/70 p-2 rounded-full hover:bg-primary2/50 transition-colors duration-200"
                     onClick={() =>
                       likeStory({
                         storyid: viewingStory._id,
-                        like: "like",
+                        like: viewingStory.isLikedByUser
+                          ? "neutralize"
+                          : "like",
                       })
                     }
                   >
-                    <Heart className="w-5 h-5" />
+                    <Heart
+                      className={`w-5 h-5${
+                        viewingStory.isLikedByUser
+                          ? " text-red-400"
+                          : "text-black"
+                      }`}
+                    />
                   </button>
                   {userId === viewingStory.userId && (
                     <button

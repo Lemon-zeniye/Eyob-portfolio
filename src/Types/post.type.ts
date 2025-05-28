@@ -134,6 +134,7 @@ export interface Story {
   likes: number;
   userId: string;
   isViewedByUser: boolean;
+  isLikedByUser: boolean;
   // title: string;
   avatar: string;
   items: StoryItem[]; // But API will only return 1 item
@@ -151,6 +152,7 @@ export interface StoryApiResponse {
   __v?: number;
   isViewedByUser: boolean;
   userPicturePath: string;
+  isLikedByUser: boolean;
   user: {
     _id: string;
     name: string;
