@@ -152,6 +152,33 @@ function AddEducation({
 
           <FormField
             control={form.control}
+            rules={{
+              required: "Field of study is required",
+              pattern: {
+                value: /^[A-Za-z\s]+$/,
+                message: "Only letters and spaces are allowed",
+              },
+              minLength: {
+                value: 3,
+                message: "Minimum 3 characters required",
+              },
+            }}
+            name="fieldOfStudy"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                {/* <FormLabel>School Name</FormLabel> */}
+                <FormLabel>Field of Study</FormLabel>
+
+                <FormControl>
+                  <Input placeholder="Field of Study" {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* <FormField
+            control={form.control}
             name="fieldOfStudy"
             rules={{
               required: "Field of study is required",
@@ -198,7 +225,7 @@ function AddEducation({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
             control={form.control}

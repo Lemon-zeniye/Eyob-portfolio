@@ -4,7 +4,7 @@ import ExperienceCard from "./ExperienceCard";
 import EducationCard from "./EducationCard";
 import SkillCard from "./SkillCard";
 import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import ActivityNew from "../Profile/ActivityNew";
 import {
   deleteUserPicture,
@@ -30,15 +30,18 @@ import { IoPersonAdd } from "react-icons/io5";
 import DocumentationCard from "./DocumentationCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfileTab } from "../Profile/ProfileTab";
+import { Following } from "@/Types/post.type";
 
 const ProfileCard = ({
   otherUser,
   isOtherUser,
   userProfile,
+  myFollowers,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
   userProfile?: UserProfile | undefined;
+  myFollowers?: Following[] | undefined;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
@@ -51,6 +54,12 @@ const ProfileCard = ({
     undefined
   );
   const userProfileImg = Cookies.get("profilePic");
+
+  const queryClient = useQueryClient();
+
+  const isFollower = !!myFollowers?.some(
+    (f) => f.followedId?._id === otherUser?._id
+  );
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
@@ -131,6 +140,7 @@ const ProfileCard = ({
     mutationFn: follow,
     onSuccess: () => {
       tos.success("Success");
+      queryClient.invalidateQueries(["IamFollowingTo"]);
     },
     onError: (error) => {
       const msg = getAxiosErrorMessage(error);
@@ -288,13 +298,16 @@ const ProfileCard = ({
           <Button
             className="border-primary flex items-center gap-2  text-primary hover:text-primary"
             variant="outline"
-            onClick={() =>
-              followUser({
-                followedId: otherUser._id,
-              })
-            }
+            onClick={() => {
+              if (!isFollower) {
+                followUser({
+                  followedId: otherUser._id,
+                });
+              }
+            }}
           >
-            <IoPersonAdd /> {isFollowLoading ? <Spinner /> : "Follow"}
+            <IoPersonAdd />{" "}
+            {isFollowLoading ? <Spinner /> : isFollower ? "UnFollow" : "Follow"}
           </Button>
         ) : (
           <Button

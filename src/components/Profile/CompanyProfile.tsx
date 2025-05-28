@@ -56,7 +56,6 @@ const CompanyProfileCard = () => {
     queryFn: getCompanyProfile,
   });
 
-  console.log("3333", companyProfile);
   const { mutate, isLoading: uploading } = useMutation({
     mutationFn: uploadUserPicture,
     onSuccess: (res) => {

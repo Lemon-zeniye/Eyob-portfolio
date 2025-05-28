@@ -57,7 +57,11 @@ import {
 } from "@/lib/utils";
 import PostGallery from "@/components/Post/PostGallery";
 import Cookies from "js-cookie";
-import { deletePost, getUserFullProfile } from "@/Api/profile.api";
+import {
+  deletePost,
+  getUserFullProfile,
+  getUserProfile,
+} from "@/Api/profile.api";
 import { FaEllipsisH, FaTrash } from "react-icons/fa";
 import { Spinner } from "@/components/ui/Spinner";
 import { CommentNew, PostCom } from "@/Types/post.type";
@@ -255,6 +259,11 @@ function NormalHomePage() {
       [postId]: value,
     }));
   };
+
+  const { data: userData } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: getUserProfile,
+  });
 
   const { data: userFullProfile } = useQuery({
     queryKey: ["getUserFullProfile", userId],
@@ -1342,7 +1351,8 @@ function NormalHomePage() {
                   {userFullProfile?.data.name ?? "Your Name"}
                 </h3>
                 <p className="text-gray-500 text-sm">
-                  {userFullProfile?.data.position || "No position specified"}
+                  {(userData?.data && userData?.data.position) ||
+                    "No position specified"}
                 </p>
                 <div className="h-[60vh] overflow-y-auto pb-10">
                   {/* Stats */}
@@ -1363,7 +1373,8 @@ function NormalHomePage() {
 
                   {/* Bio */}
                   <p className="text-gray-600 text-sm mt-3">
-                    {userFullProfile?.data.bio || "No bio available"}
+                    {(userData?.data && userData?.data.bio) ||
+                      "No bio available"}
                   </p>
 
                   {/* Current Role (if available) */}

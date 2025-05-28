@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Cookies from "js-cookie";
-import { getUserFullProfile } from "@/Api/profile.api";
+import { getUserFullProfile, getUserProfile } from "@/Api/profile.api";
 import { Spinner } from "@/components/ui/Spinner";
 import PostGalleryTwo from "@/components/Post/PostGalleryTwo";
 import { tos, transformInfiniteStories } from "@/lib/utils";
@@ -151,6 +151,11 @@ function SocialHomePage() {
   //     },
   //     enabled: !!expandedPost,
   //   });
+
+  const { data: userData } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: getUserProfile,
+  });
 
   const { data: userFullProfile } = useQuery({
     queryKey: ["getUserFullProfile", userId],
@@ -602,7 +607,8 @@ function SocialHomePage() {
                   {userFullProfile?.data.name ?? "Your Name"}
                 </h3>
                 <p className="text-gray-500 text-sm">
-                  {userFullProfile?.data.position || "No position specified"}
+                  {(userData?.data && userData?.data?.position) ||
+                    "No position specified"}
                 </p>
 
                 <div className="h-[60vh] pb-10 overflow-y-auto">
@@ -622,7 +628,8 @@ function SocialHomePage() {
                   </div> */}
 
                   <p className="text-gray-600 text-sm mt-4">
-                    {userFullProfile?.data.bio || "No bio available"}
+                    {(userData?.data && userData?.data?.bio) ||
+                      "No bio available"}
                   </p>
 
                   {userFullProfile?.data.experience?.find(

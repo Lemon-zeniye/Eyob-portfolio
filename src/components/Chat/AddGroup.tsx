@@ -75,6 +75,7 @@ function AddGroup({ onSuccess }: { onSuccess: () => void }) {
       mutate(payload);
     }
   };
+  // ["event", "study", "social", "work", "other"]
 
   return (
     <div className="space-y-4">
@@ -126,17 +127,15 @@ function AddGroup({ onSuccess }: { onSuccess: () => void }) {
                     <Select.Portal>
                       <Select.Content className="z-50 mt-1 w-[--radix-select-trigger-width] rounded-md border border-gray-200 bg-white shadow-md">
                         <Select.Viewport className="p-1">
-                          {["event", "study", "social", "work", "other"].map(
-                            (g) => (
-                              <Select.Item
-                                key={g}
-                                value={g}
-                                className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded"
-                              >
-                                <Select.ItemText>{g}</Select.ItemText>
-                              </Select.Item>
-                            )
-                          )}
+                          {["event", "social"].map((g) => (
+                            <Select.Item
+                              key={g}
+                              value={g}
+                              className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer rounded"
+                            >
+                              <Select.ItemText>{g}</Select.ItemText>
+                            </Select.Item>
+                          ))}
                         </Select.Viewport>
                       </Select.Content>
                     </Select.Portal>

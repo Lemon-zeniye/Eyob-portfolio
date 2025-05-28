@@ -4,12 +4,18 @@ import ProfileCardNormal from "@/components/Card/ProfileCard";
 import ProfileCardSocial from "@/components/Card/ProfileCard_social";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "react-query";
-import { fetchSingleProfile, getUserFullProfile } from "@/Api/profile.api";
+import {
+  fetchSingleProfile,
+  getMyIamFollowingTo,
+  getUserFullProfile,
+} from "@/Api/profile.api";
 
 function UserProfilePage() {
   const { mode } = useRole();
   const location = useLocation();
   const userId = location.state?.id;
+
+  console.log("this is the other user id", userId);
 
   const { data: userFullProfile } = useQuery({
     queryKey: ["getUserFullProfile", userId],
@@ -31,6 +37,11 @@ function UserProfilePage() {
     enabled: !!userId,
   });
 
+  const { data: myFollowers } = useQuery({
+    queryKey: ["IamFollowingTo"],
+    queryFn: getMyIamFollowingTo,
+  });
+
   return (
     <div className="w-full pr-5 flex flex-col">
       <AnimatePresence mode="wait">
@@ -47,12 +58,14 @@ function UserProfilePage() {
               otherUser={userFullProfile?.data}
               isOtherUser={true}
               userProfile={userProfile?.data}
+              myFollowers={myFollowers?.data}
             />
           ) : (
             <ProfileCardNormal
               otherUser={userFullProfile?.data}
               isOtherUser={true}
               userProfile={userProfile?.data}
+              myFollowers={myFollowers?.data}
             />
           )}
         </motion.div>

@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState, useEffect } from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import Cookies from "js-cookie";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
@@ -43,15 +43,18 @@ import { Spinner } from "../ui/Spinner";
 import DocumentationCard from "./DocumentationCard";
 import { useRole } from "@/Context/RoleContext";
 import { ProfileTab } from "../Profile/ProfileTab";
+import { Following } from "@/Types/post.type";
 
 const ProfileCard = ({
   otherUser,
   isOtherUser,
   userProfile,
+  myFollowers,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
   userProfile?: UserProfile | undefined;
+  myFollowers?: Following[] | undefined;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
@@ -66,6 +69,12 @@ const ProfileCard = ({
     undefined
   );
   const { mode } = useRole();
+
+  const queryClient = useQueryClient();
+
+  const isFollowing = !!myFollowers?.some(
+    (f) => f.followedId?._id === otherUser?._id
+  );
 
   const userProfileImg = Cookies.get("profilePic");
 
@@ -165,6 +174,7 @@ const ProfileCard = ({
     mutationFn: follow,
     onSuccess: () => {
       tos.success("Success");
+      queryClient.invalidateQueries(["IamFollowingTo"]);
     },
     onError: (error) => {
       const msg = getAxiosErrorMessage(error);
@@ -341,14 +351,22 @@ const ProfileCard = ({
                       ? "text-primary hover:bg-primary"
                       : "text-primary2 hover:bg-primary2"
                   }`}
-                  onClick={() =>
-                    followUser({
-                      followedId: otherUser._id,
-                    })
-                  }
+                  onClick={() => {
+                    if (!isFollowing) {
+                      followUser({
+                        followedId: otherUser._id,
+                      });
+                    }
+                  }}
                 >
                   <FaUserPlus size={16} />{" "}
-                  {isFollowLoading ? <Spinner /> : "Follow"}
+                  {isFollowLoading ? (
+                    <Spinner />
+                  ) : isFollowing ? (
+                    "UnFollow"
+                  ) : (
+                    "Follow"
+                  )}
                 </Button>
               )}
               <Button

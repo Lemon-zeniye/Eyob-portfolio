@@ -21,6 +21,7 @@ import {
   UserProfileRes,
   UserSkillsRes,
 } from "@/Types/profile.type";
+import { FollowersRes, FollowingRes } from "@/Types/post.type";
 
 export const getUserJob = async (): Promise<EducationResponse> => {
   const response = await axios.get<any>("/job/fetch");
@@ -351,6 +352,16 @@ export const fetchSkillCategories =
 
 export const follow = async (payload: any): Promise<any> => {
   const response = await axios.post<any>(`/follow/followEntity`, payload);
+  return response.data;
+};
+
+export const getMyFollowers = async (): Promise<FollowersRes> => {
+  const response = await axios.get("/follow/fetchMyFollowers");
+  return response.data;
+};
+
+export const getMyIamFollowingTo = async (): Promise<FollowingRes> => {
+  const response = await axios.get("/follow/fetchEntitiesIamFollowingTo");
   return response.data;
 };
 

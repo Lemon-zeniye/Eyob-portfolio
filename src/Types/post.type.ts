@@ -184,3 +184,50 @@ export interface NotificationRes {
   success: boolean;
   msg: string;
 }
+
+export interface FollowersRes {
+  data: Follow[];
+  success: boolean;
+  msg: string;
+}
+
+export interface FollowingRes {
+  data: Following[];
+  success: boolean;
+  msg: string;
+}
+export interface Follow {
+  _id: string;
+  blocked: boolean;
+  createdAt: string; // ISO date string
+  followType: string; // assuming other types may exist
+  followedId: string;
+  followerId: {
+    _id: string;
+    email: string;
+    name: string;
+    role: string; // e.g., 'company'
+  };
+  notificationPreferences: boolean;
+  status: string; // assuming possible statuses
+  __v: number;
+}
+
+export interface FollowedUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: string; // e.g., 'user' or 'company'
+}
+
+export interface Following {
+  _id: string;
+  followerId: string;
+  followedId: FollowedUser;
+  status: "active" | "inactive";
+  followType: "public" | "private"; // adjust if other types exist
+  notificationPreferences: boolean;
+  blocked: boolean;
+  createdAt: string; // or Date if you parse it
+  __v: number;
+}
