@@ -12,7 +12,7 @@ import {
   Briefcase,
   Edit,
   Loader,
-  Share2,
+  // Share2,
   Trash2,
   Upload,
   X,
@@ -264,7 +264,7 @@ const CompanyProfileCard = () => {
               >
                 <Edit size={16} /> Edit Profile
               </Button>
-              <Button
+              {/* <Button
                 variant="outline"
                 className={`rounded-full px-6 gap-2 hover:bg-purple-50 ${
                   mode === "formal"
@@ -274,7 +274,7 @@ const CompanyProfileCard = () => {
                 onClick={() => setShareProfile(true)}
               >
                 <Share2 size={16} /> Share
-              </Button>
+              </Button> */}
             </div>
           </div>
 

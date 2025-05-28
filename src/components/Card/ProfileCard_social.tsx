@@ -9,8 +9,8 @@ import {
   Trash2,
   Edit,
   Share2,
-  MapPin,
-  Briefcase,
+  // MapPin,
+  // Briefcase,
   Loader,
 } from "lucide-react";
 
@@ -28,7 +28,7 @@ import {
   uploadUserPicture,
 } from "@/Api/profile.api";
 import { formatImageUrl, getUserFromToken, tos } from "@/lib/utils";
-import type { UserData, UserInfo } from "@/Types/profile.type";
+import type { UserData, UserInfo, UserProfile } from "@/Types/profile.type";
 
 import ActivityNew from "../Profile/ActivityNew";
 import ExperienceCard from "./ExperienceCard";
@@ -47,25 +47,27 @@ import { ProfileTab } from "../Profile/ProfileTab";
 const ProfileCard = ({
   otherUser,
   isOtherUser,
+  userProfile,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
+  userProfile?: UserProfile | undefined;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [editProfile, setEditProfile] = useState(false);
   const [shareProfile, setShareProfile] = useState(false);
-  const getOtherUserPic = otherUser
-    ? otherUser?.pictures[0]?.path &&
-      formatImageUrl(otherUser?.pictures[0].path)
-    : Cookies.get("profilePic");
+  // const getOtherUserPic = otherUser
+  //   ? otherUser?.pictures[0]?.path &&
+  //     formatImageUrl(otherUser?.pictures[0].path)
+  //   : Cookies.get("profilePic");
   const [profileImage, setprofileImage] = useState<string | undefined>(
     undefined
   );
   const { mode } = useRole();
 
-  const userProfileImg = getOtherUserPic;
+  const userProfileImg = Cookies.get("profilePic");
 
   const [activeTab, setActiveTab] = useState(
     !otherUser ? "activity" : "experience"
@@ -180,6 +182,8 @@ const ProfileCard = ({
       mutate(formData);
     }
   };
+
+  console.log("33333333", userProfile);
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -300,27 +304,21 @@ const ProfileCard = ({
               {otherUser?.name ?? userInfo?.name}
             </h2>
 
-            <div className="flex flex-col items-center gap-1 mt-1 text-gray-600">
-              {userData?.data?.position && (
-                <div className="flex items-center gap-1">
-                  <Briefcase size={14} />
-                  <span>{otherUser?.position ?? userData.data.position}</span>
-                </div>
-              )}
-
-              {userData?.data?.location && (
-                <div className="flex items-center gap-1">
-                  <MapPin size={14} />
-                  <span>{otherUser?.location ?? userData.data.location}</span>
-                </div>
-              )}
-            </div>
-
-            {userData?.data?.bio && (
-              <p className="mt-3 text-gray-600 max-w-lg mx-auto">
-                {otherUser?.bio ?? userData.data.bio}
+            <div className="flex flex-col gap-1">
+              <p className="font-extralight">
+                {userProfile?.position ??
+                  userData?.data?.position ??
+                  "No Position specified"}
               </p>
-            )}
+              <p className="font-extralight">
+                {userProfile?.location ??
+                  userData?.data?.location ??
+                  "No Location specified"}
+              </p>
+              <p className="md:text-base font-extralight">
+                {userProfile?.bio ?? userData?.data?.bio ?? "No bio yet"}
+              </p>
+            </div>
 
             <div className="flex justify-center gap-4 mt-6">
               {!otherUser ? (

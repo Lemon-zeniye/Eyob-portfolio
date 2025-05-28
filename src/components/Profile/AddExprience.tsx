@@ -74,7 +74,7 @@ function AddExprience({
     <div className="p-2 md:p-0">
       <FormProvider {...form}>
         <form className="" onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
+          {/* <FormField
             control={form.control}
             name="jobTitle"
             rules={{
@@ -117,7 +117,30 @@ function AddExprience({
                 <FormMessage />
               </FormItem>
             )}
+          /> */}
+
+          <FormField
+            control={form.control}
+            rules={{
+              required: "Position",
+
+              minLength: {
+                value: 3,
+                message: "Position  must be at least 3 characters",
+              },
+            }}
+            name="jobTitle"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Position</FormLabel>
+                <FormControl>
+                  <Input placeholder="Position" {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
+
           <FormField
             control={form.control}
             rules={{

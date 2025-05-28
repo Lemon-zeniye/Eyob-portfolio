@@ -4,7 +4,7 @@ import { FormField, FormItem, FormControl, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import goggle from "../../assets/icons8-google-48.png";
+// import goggle from "../../assets/icons8-google-48.png";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { useMutation } from "react-query";
 import { getAxiosErrorMessage, signup } from "@/Api/auth.api";
@@ -225,12 +225,12 @@ const SignupForm = () => {
               </Button>
             </form>
           </FormProvider>
-          <Button variant={"outline"} type="button" onClick={() => {}}>
+          {/* <Button variant={"outline"} type="button" onClick={() => {}}>
             <div className="flex flex-row gap-2 items-center justify-center">
               <img className="w-7 h-7" src={goggle} alt="googleIcon" />
               <p>Sign Up With Google</p>
             </div>
-          </Button>
+          </Button> */}
           <div className="flex flex-row gap-0 items-center justify-center">
             <p>Already have an account?</p>
             <Button

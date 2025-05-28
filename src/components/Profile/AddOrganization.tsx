@@ -86,6 +86,9 @@ function AddOrganization({
 
     if (logoFile instanceof File) {
       formData.append("organizationLogo", logoFile);
+    } else {
+      tos.error("Please Upload Logo");
+      return;
     }
 
     if (initialData) {

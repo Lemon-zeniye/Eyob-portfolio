@@ -16,7 +16,7 @@ import CustomVideoPlayer from "../Video/Video";
 import { UserInfo } from "@/Types/profile.type";
 import { getUserFromToken, tos } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { IoMdShare } from "react-icons/io";
+// import { IoMdShare } from "react-icons/io";
 import ShareProfile from "./ShareProfile";
 import AboutCard from "./AboutCard";
 import EmployeeCard from "./EmployeeCard";
@@ -237,14 +237,14 @@ const CompanyProfileCard = () => {
         >
           Edit Profile
         </Button>
-        <Button
+        {/* <Button
           className="flex items-center gap-2 border-primary text-primary hover:text-primary"
           variant="outline"
           onClick={() => setShareProfile(true)}
         >
           {" "}
           <IoMdShare /> Share
-        </Button>
+        </Button> */}
       </div>
 
       <div className="flex flex-row sm-phone:bg-white sm-phone:border sm:border-none sm:bg-none justify-between sm-phone:px-0 sm:px-12 min-h-[40vh]">

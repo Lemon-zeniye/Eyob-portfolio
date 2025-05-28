@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import ActivityCard from "../Card/ActivityCard";
 import AddPost from "./AddPost";
 import { Post } from "@/Types/profile.type";
-import { FiPlus, FiX } from "react-icons/fi";
-import { useRole } from "@/Context/RoleContext";
+// import { FiPlus, FiX } from "react-icons/fi";
+// import { useRole } from "@/Context/RoleContext";
 
 function ActivityNew() {
   const [open, setOpen] = useState(false);
@@ -16,7 +16,7 @@ function ActivityNew() {
     queryKey: ["singleUserPost"],
     queryFn: getSingleUserPost,
   });
-  const { mode } = useRole();
+  // const { mode } = useRole();
 
   return (
     <div className="flex flex-col gap-5 mb-12">
@@ -26,7 +26,7 @@ function ActivityNew() {
         ) : (
           <div></div>
         )}
-        <button
+        {/* <button
           onClick={() => setOpen(!open)}
           className={`
               p-3 rounded-full transition-all duration-300
@@ -44,7 +44,7 @@ function ActivityNew() {
             `}
         >
           {open ? <FiX size={20} /> : <FiPlus size={20} />}
-        </button>
+        </button> */}
       </div>
 
       <div className="relative">

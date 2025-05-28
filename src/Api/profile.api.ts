@@ -380,3 +380,10 @@ export const getPersonalInfo = async (): Promise<PersonalInfoRes> => {
   const response = await axios.get(`/personalinfo/fetch`);
   return response.data;
 };
+
+export const fetchSingleProfile = async (
+  id: string
+): Promise<UserProfileRes> => {
+  const response = await axios.get(`/userProfile/fetchSingle/${id}`);
+  return response.data;
+};

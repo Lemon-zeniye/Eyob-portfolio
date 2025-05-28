@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Job } from "@/Types/job.type";
 import { toMonthDayYear } from "@/lib/utils";
 import Tabs from "../Tabs/TabsLine";
-import { SearchBar } from "../SearchBar/SearchBar";
+// import { SearchBar } from "../SearchBar/SearchBar";
 import ApplicantsList from "./ApplicantsList";
 
 const RelatedJobSkeleton = () => {
@@ -293,14 +293,14 @@ function JobsDetailComapny() {
           {/* Applicants */}
           <div>
             <div className="flex items-center justify-between px-2">
-              <h1 className="text-lg font-semibold">Total Applicants : 19</h1>
-              <div>
+              <h1 className="text-lg font-semibold">Applicants</h1>
+              {/* <div>
                 <SearchBar
                   search=""
                   setSearch={() => {}}
                   className="rounded-none outline-none"
                 />
-              </div>
+              </div> */}
             </div>
             <ApplicantsList />
           </div>

@@ -1,15 +1,15 @@
 // import logo from "../assets/logo_2.png";
 // import { ChevronLeft } from "lucide-react"
 // import { Button } from "@/components/ui/button"
-import LoginForm from "@/components/Forms/LoginForm"
+import LoginForm from "@/components/Forms/LoginForm";
+import logo from "../../assets/bevylogo.svg";
 
 const Login: React.FC = () => {
   return (
     <div className="flex flex-row justify-between h-screen overflow-y-hidden">
       <div className="lg:w-1/2 sm-phone:hidden bg-primary lg:flex items-center justify-center">
         <div className="flex flex-col gap-1 items-center">
-          <img src="" alt="" />
-          <p className="text-white text-h2 font-bold ">Bevy</p>
+          <img src={logo} className="w-32 h-auto" alt="Logo" />
         </div>
       </div>
       <div className="lg:w-1/2 sm-phone:w-full flex flex-col py-14 px-8r justify-between bg-white">
@@ -27,7 +27,7 @@ const Login: React.FC = () => {
         <div></div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

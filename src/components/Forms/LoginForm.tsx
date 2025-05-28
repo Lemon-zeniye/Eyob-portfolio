@@ -16,17 +16,17 @@ import { useMutation } from "react-query";
 import { getAxiosErrorMessage, login } from "@/Api/auth.api";
 import Cookies from "js-cookie";
 import { Spinner } from "../ui/Spinner";
-import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-import axiosInstance from "@/Api/axios";
+// import { GoogleLogin } from "@react-oauth/google";
+// import { jwtDecode } from "jwt-decode";
+// import axiosInstance from "@/Api/axios";
 import { useRole } from "@/Context/RoleContext";
 import { getUserFromToken, tos } from "@/lib/utils";
 
-interface GooglePayload {
-  name: string;
-  email: string;
-  sub: string; // This is the Google ID
-}
+// interface GooglePayload {
+//   name: string;
+//   email: string;
+//   sub: string; // This is the Google ID
+// }
 
 const LoginForm = () => {
   const { login: authLogin } = useAuth();
@@ -50,38 +50,38 @@ const LoginForm = () => {
     mutate(payload);
   };
 
-  const handleSuccess = async (credentialResponse: any) => {
-    const idToken = credentialResponse.credential;
+  // const handleSuccess = async (credentialResponse: any) => {
+  //   const idToken = credentialResponse.credential;
 
-    // Decode the token to get user info
-    const decoded: GooglePayload = jwtDecode(idToken);
+  //   // Decode the token to get user info
+  //   const decoded: GooglePayload = jwtDecode(idToken);
 
-    const payload = {
-      idToken,
-      name: decoded.name,
-      email: decoded.email,
-      googleId: decoded.sub,
-    };
+  //   const payload = {
+  //     idToken,
+  //     name: decoded.name,
+  //     email: decoded.email,
+  //     googleId: decoded.sub,
+  //   };
 
-    try {
-      const response = await axiosInstance.post("/auth/verifyTokenId", payload);
-      const accessToken = response.data?.access_token;
-      const refreshToken = response.data?.refresh_token;
-      if (accessToken && refreshToken) {
-        Cookies.set("accessToken", accessToken);
-        Cookies.set("refreshToken", refreshToken);
-        authLogin(accessToken, refreshToken);
+  //   try {
+  //     const response = await axiosInstance.post("/auth/verifyTokenId", payload);
+  //     const accessToken = response.data?.access_token;
+  //     const refreshToken = response.data?.refresh_token;
+  //     if (accessToken && refreshToken) {
+  //       Cookies.set("accessToken", accessToken);
+  //       Cookies.set("refreshToken", refreshToken);
+  //       authLogin(accessToken, refreshToken);
 
-        navigate("/");
-        tos.success("Successfully logged in!");
-      } else {
-        throw new Error("Login failed, tokens missing");
-      }
-    } catch (error) {
-      const mes = getAxiosErrorMessage(error);
-      tos.error(mes);
-    }
-  };
+  //       navigate("/");
+  //       tos.success("Successfully logged in!");
+  //     } else {
+  //       throw new Error("Login failed, tokens missing");
+  //     }
+  //   } catch (error) {
+  //     const mes = getAxiosErrorMessage(error);
+  //     tos.error(mes);
+  //   }
+  // };
 
   const { mutate, isLoading } = useMutation({
     mutationFn: login,
@@ -199,12 +199,12 @@ const LoginForm = () => {
             <p>Sign In With Google</p>
           </div>
         </Button> */}
-        <GoogleLogin
+        {/* <GoogleLogin
           onSuccess={handleSuccess}
           onError={() => {
             console.log("Login Failed");
           }}
-        />
+        /> */}
         <div className="flex flex-row gap-0 items-center justify-center">
           <p>Don't have an account?</p>
           <Button

@@ -2,11 +2,11 @@ import { Group } from "@/Types/chat.type";
 import { BsExclamationCircle } from "react-icons/bs";
 import { MdLink, MdMoreVert } from "react-icons/md";
 import {
-  FaBell,
-  FaAngleDown,
+  // FaBell,
+  // FaAngleDown,
   FaTrash,
   FaSignOutAlt,
-  FaAngleUp,
+  // FaAngleUp,
 } from "react-icons/fa";
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -38,12 +38,12 @@ function GroupDetail({
   groupDetail: boolean;
   setGroupDetail: any;
 }) {
-  const [openSection, setOpenSection] = useState<string | null>(null);
+  // const [openSection, setOpenSection] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const userId = Cookies.get("userId");
-  const toggleSection = (section: string) => {
-    setOpenSection((prev) => (prev === section ? null : section));
-  };
+  // const toggleSection = (section: string) => {
+  //   setOpenSection((prev) => (prev === section ? null : section));
+  // };
   const [selectedUsers, setSelectedUsers] = useState<ActiveUser[]>([]);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(true);
@@ -182,7 +182,7 @@ function GroupDetail({
             </div>
 
             {/* Settings Section */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <h2 className="text-lg font-semibold mb-3 text-gray-700">
                 Settings
               </h2>
@@ -193,18 +193,17 @@ function GroupDetail({
                     Notifications
                   </span>
                 </div>
-                {/* <Switch defaultChecked /> */}
+                <Switch defaultChecked />
                 <span>switch</span>
               </div>
-            </div>
+            </div> */}
 
             {/* Shared Content Section */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <h2 className="text-lg font-semibold mb-3 text-gray-700">
                 Shared Content
               </h2>
               <div className="space-y-2">
-                {/* Media Section */}
                 <div>
                   <div
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
@@ -230,7 +229,6 @@ function GroupDetail({
                   )}
                 </div>
 
-                {/* Files Section */}
                 <div>
                   <div
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
@@ -259,7 +257,6 @@ function GroupDetail({
                   )}
                 </div>
 
-                {/* Links Section */}
                 <div>
                   <div
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
@@ -292,7 +289,7 @@ function GroupDetail({
                   )}
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Members Section */}
             <div className="mb-6">

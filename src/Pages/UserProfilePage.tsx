@@ -4,7 +4,7 @@ import ProfileCardNormal from "@/components/Card/ProfileCard";
 import ProfileCardSocial from "@/components/Card/ProfileCard_social";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "react-query";
-import { getUserFullProfile } from "@/Api/profile.api";
+import { fetchSingleProfile, getUserFullProfile } from "@/Api/profile.api";
 
 function UserProfilePage() {
   const { mode } = useRole();
@@ -16,6 +16,16 @@ function UserProfilePage() {
     queryFn: () => {
       if (userId) {
         return getUserFullProfile(userId);
+      }
+    },
+    enabled: !!userId,
+  });
+
+  const { data: userProfile } = useQuery({
+    queryKey: ["getUserProfile", userId],
+    queryFn: () => {
+      if (userId) {
+        return fetchSingleProfile(userId);
       }
     },
     enabled: !!userId,
@@ -36,11 +46,13 @@ function UserProfilePage() {
             <ProfileCardSocial
               otherUser={userFullProfile?.data}
               isOtherUser={true}
+              userProfile={userProfile?.data}
             />
           ) : (
             <ProfileCardNormal
               otherUser={userFullProfile?.data}
               isOtherUser={true}
+              userProfile={userProfile?.data}
             />
           )}
         </motion.div>

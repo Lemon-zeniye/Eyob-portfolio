@@ -6,7 +6,7 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import logo from "../../assets/Bevy.png";
+import logo from "../../assets/bevylogo.svg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar/Navbar";
 import SidebarSm from "@/components/Sidebar/SidebarSm";
@@ -40,7 +40,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
     <div className="w-full flex sm-phone:flex-col sm-phone:justify-between md:flex-row bg-[#f5f5f5] min-h-screen scroll-smooth">
       <div className="bg-white hidden h-screen fixed w-20 border-r md:flex flex-col justify-between py-5 items-center">
         <div className="flex flex-col gap-10">
-          <img src={logo} className="h-auto" alt="Logo" />
+          <img src={logo} className="w-8 h-auto" alt="Logo" />
           <div className="flex flex-col items-center justify-between h-[30vh]">
             {routes.slice(0, 4).map((route) => {
               const isHome = route.path === "/";

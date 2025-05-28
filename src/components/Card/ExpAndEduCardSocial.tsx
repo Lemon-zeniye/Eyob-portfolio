@@ -192,7 +192,7 @@ const ExpAndEduCardSocial = ({
         </div>
 
         {/* Context menu */}
-        {showIcon && (
+        {showIcon && type !== "Ski" && (
           <div
             className="relative"
             onClick={(e) => e.stopPropagation()}

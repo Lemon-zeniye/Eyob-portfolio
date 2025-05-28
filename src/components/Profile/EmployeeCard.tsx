@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AddEmployee from "./AddEmployee";
-import { MoreHorizontal } from "lucide-react";
+// import { MoreHorizontal } from "lucide-react";
 import EmptyCard from "../Card/EmptyCard";
 import user from "../../assets/user.jpg";
 import { useQuery } from "react-query";
@@ -10,7 +10,7 @@ import { FiPlus, FiX } from "react-icons/fi";
 import { useRole } from "@/Context/RoleContext";
 function EmployeeCard() {
   const [open, setOpen] = useState(false);
-  const [showMenu, setShowMenu] = useState<string | null>(null);
+  // const [showMenu, setShowMenu] = useState<string | null>(null);
   const { data: employees } = useQuery({
     queryKey: ["employees"],
     queryFn: getCompanyEmployees,
@@ -75,7 +75,7 @@ function EmployeeCard() {
                       </p>
                     </div>
                     {/* 3-dot menu */}
-                    <div
+                    {/* <div
                       className="absolute top-3 right-4 group z-10"
                       onClick={(e) => e.stopPropagation()}
                       onMouseEnter={() => setShowMenu(employee._id)}
@@ -93,7 +93,7 @@ function EmployeeCard() {
                           </button>
                         </div>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 </EmptyCard>
               ))}

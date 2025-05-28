@@ -150,7 +150,7 @@ const ExpAndEduCard = ({
         )}
       </div>
       {/* 3-dot menu */}
-      {showIcon && (
+      {showIcon && type !== "Ski" && (
         <div
           className="absolute top-3 right-4 group z-10"
           onClick={(e) => e.stopPropagation()}

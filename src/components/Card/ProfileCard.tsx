@@ -18,7 +18,7 @@ import { Spinner } from "../ui/Spinner";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Upload, X } from "lucide-react";
 import CustomVideoPlayer from "../Video/Video";
-import { UserData, UserInfo } from "@/Types/profile.type";
+import { UserData, UserInfo, UserProfile } from "@/Types/profile.type";
 import { formatImageUrl, getUserFromToken, tos } from "@/lib/utils";
 import OrganizationCard from "./OrganizationCard";
 import { Button } from "../ui/button";
@@ -34,21 +34,23 @@ import { ProfileTab } from "../Profile/ProfileTab";
 const ProfileCard = ({
   otherUser,
   isOtherUser,
+  userProfile,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
+  userProfile?: UserProfile | undefined;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [editProfile, setEditProfile] = useState(false);
   const [shareProfile, setShareProfile] = useState(false);
-  const getOtherUserPic =
-    otherUser?.pictures[0]?.path && formatImageUrl(otherUser?.pictures[0].path);
+  // const getOtherUserPic =
+  //   otherUser?.pictures[0]?.path && formatImageUrl(otherUser?.pictures[0].path);
   const [profileImage, setprofileImage] = useState<string | undefined>(
     undefined
   );
-  const userProfileImg = getOtherUserPic;
+  const userProfileImg = Cookies.get("profilePic");
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
@@ -265,17 +267,17 @@ const ProfileCard = ({
                 {otherUser?.name ?? userInfo?.name}
               </p>
               <p className="font-extralight">
-                {otherUser?.position ??
+                {userProfile?.position ??
                   userData?.data?.position ??
                   "No Position specified"}
               </p>
               <p className="font-extralight">
-                {otherUser?.location ??
+                {userProfile?.location ??
                   userData?.data?.location ??
                   "No Location specified"}
               </p>
               <p className="md:text-base font-extralight">
-                {otherUser?.bio ?? userData?.data?.bio ?? "No bio yet"}
+                {userProfile?.bio ?? userData?.data?.bio ?? "No bio yet"}
               </p>
             </div>
           </div>
