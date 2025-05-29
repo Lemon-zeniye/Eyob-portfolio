@@ -154,14 +154,18 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
     mutate({ like: payload, postId: id });
   };
 
-  const handleCommentLike = (parentComment: string, childComment?: string) => {
+  const handleCommentLike = (
+    parentComment: string,
+    isLikedByUser: boolean,
+    childComment?: string
+  ) => {
     if (parentComment) {
       childComIdRef.current = parentComment;
     }
-    const payload = "like";
+    const payload = isLikedByUser ? "neutralize" : "like";
     likeComment({
-      parentComment: childComment ? "" : parentComment,
-      childComment: childComment || "",
+      parentComment: childComment ? null : parentComment,
+      childComment: childComment || null,
       like: payload,
     });
   };
@@ -772,7 +776,10 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                                         <button
                                           className="text-xs text-gray-500 hover:text-primary2 transition-colors"
                                           onClick={() =>
-                                            handleCommentLike(comment._id)
+                                            handleCommentLike(
+                                              comment._id,
+                                              comment.isLikedByUser
+                                            )
                                           }
                                         >
                                           Like
@@ -873,7 +880,11 @@ export const ChildReplies = ({
 }: {
   commentId: string;
   replyToComment: (id: string, replierName: string, childComId: string) => void;
-  handleCommentLike: (parentComment: string, childComment?: string) => void;
+  handleCommentLike: (
+    parentComment: string,
+    isLikedByUser: boolean,
+    childComment?: string
+  ) => void;
 }) => {
   const { data: childComments } = useQuery({
     queryKey: ["childComment", commentId],
@@ -969,7 +980,13 @@ export const ChildReplies = ({
                           ? "hover:text-primary"
                           : "hover:text-primary2"
                       }`}
-                      onClick={() => handleCommentLike(commentId, comment._id)}
+                      onClick={() =>
+                        handleCommentLike(
+                          commentId,
+                          comment.isLikedByUser,
+                          comment._id
+                        )
+                      }
                     >
                       Like
                     </button>

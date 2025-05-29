@@ -91,6 +91,7 @@ export interface CommentNew {
   totalReplies: number;
   likes: number;
   deslikes: number;
+  isLikedByUser: boolean;
 }
 
 export interface CommentedBy {
@@ -115,6 +116,7 @@ export interface ChildComments {
   deslikes: number;
   createdAt: string;
   userPicturePath: string;
+  isLikedByUser: boolean;
   user: {
     _id: string;
     name: string;

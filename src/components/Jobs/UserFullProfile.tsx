@@ -6,6 +6,8 @@ import { X } from "lucide-react";
 import ShareProfile from "../Profile/ShareProfile";
 import Tabs from "../Tabs/TabsLine";
 import ShareCompanyProfile from "../Profile/ShareCompanyProfile";
+import CustomVideoPlayer from "../Video/Video";
+import { formatImageUrl } from "@/lib/utils";
 
 const UserProfile = ({
   id,
@@ -25,6 +27,10 @@ const UserProfile = ({
     setExpandedSection(expandedSection === section ? null : section);
   };
 
+  const [profileImage, setprofileImage] = useState<string | undefined>(
+    undefined
+  );
+
   const { data: userFullProfile } = useQuery({
     queryKey: ["getUserFullProfile", id],
     queryFn: () => {
@@ -34,6 +40,12 @@ const UserProfile = ({
     },
     enabled: !!id,
   });
+
+  useEffect(() => {
+    if (userFullProfile?.data && userFullProfile?.data?.pictures[0]?.path) {
+      setprofileImage(formatImageUrl(userFullProfile?.data?.pictures[0]?.path));
+    }
+  }, [userFullProfile]);
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -46,16 +58,18 @@ const UserProfile = ({
             <div className="text-center mb-6">
               <div className="relative h-[20vh] rounded-t-xl mb-12">
                 {/* Background Image */}
-                <img
-                  src="https://images.unsplash.com/photo-1499336315816-097655dcfbda" // Replace with your desired background image
-                  alt="Background"
-                  className="w-full h-full object-cover rounded-t-xl"
-                />
+                <div className="max-h-[20vh]">
+                  <CustomVideoPlayer
+                    isOtherUser={true}
+                    otherUser={userFullProfile?.data}
+                    fromChat={true}
+                  />
+                </div>
 
                 {/* Profile Image */}
                 <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
                   <img
-                    src="https://i.pravatar.cc/100?img=8"
+                    src={profileImage}
                     alt="Profile"
                     className="w-24 h-24 rounded-full border-4 border-indigo-100 z-10"
                   />

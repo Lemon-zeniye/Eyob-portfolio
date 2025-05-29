@@ -317,14 +317,18 @@ function NormalHomePage() {
     onError: () => {},
   });
 
-  const handleCommentLike = (parentComment: string, childComment?: string) => {
+  const handleCommentLike = (
+    parentComment: string,
+    isLikedByUser: boolean,
+    childComment?: string
+  ) => {
     if (parentComment) {
       childComIdRef.current = parentComment;
     }
-    const payload = "like";
+    const payload = isLikedByUser ? "neutralize" : "like";
     likeComment({
-      parentComment: childComment ? "" : parentComment,
-      childComment: childComment || "",
+      parentComment: childComment ? null : parentComment,
+      childComment: childComment || null,
       like: payload,
     });
   };
@@ -772,7 +776,8 @@ function NormalHomePage() {
                             className="object-cover"
                           />
                           <AvatarFallback className="text-primary bg-white font-medium">
-                            {story?.username?.toUpperCase()}
+                            {story?.username &&
+                              story?.username?.slice(0, 1)?.toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                       </div>
@@ -1180,7 +1185,8 @@ function NormalHomePage() {
                                                     className="text-xs text-gray-500 hover:text-[#05A9A9] transition-colors"
                                                     onClick={() =>
                                                       handleCommentLike(
-                                                        comment._id
+                                                        comment._id,
+                                                        comment.isLikedByUser
                                                       )
                                                     }
                                                   >

@@ -489,45 +489,50 @@ const Chat = () => {
                           <div className="text-center my-4 text-sm text-gray-500">
                             {dateLabel}
                           </div>
-                          {messages.map((message) => (
-                            <div
-                              key={message._id}
-                              className={`flex ${
-                                message.memberId._id === userId
-                                  ? "justify-end"
-                                  : "justify-start"
-                              }`}
-                            >
+                          {messages &&
+                            messages.map((message) => (
                               <div
-                                className={`p-3 my-1 max-w-xs md:max-w-md rounded-lg ${
+                                key={message._id}
+                                className={`flex ${
+                                  message.memberId &&
                                   message.memberId._id === userId
-                                    ? mode === "formal"
-                                      ? "bg-primary text-white"
-                                      : "bg-primary2 text-white"
-                                    : "bg-gray-200 text-black"
+                                    ? "justify-end"
+                                    : "justify-start"
                                 }`}
                               >
-                                {/* Show sender name in group chats */}
-                                {message.memberId._id !== userId && (
-                                  <p className="font-semibold text-sm mb-1">
-                                    {message.memberId.name}
-                                  </p>
-                                )}
-                                <p>{message.content}</p>
-                                <div className="flex justify-end w-full">
-                                  <p
-                                    className={`text-xs ${
-                                      message.memberId._id === userId
-                                        ? "text-white"
-                                        : "text-gray-500"
-                                    }`}
-                                  >
-                                    {formatMessageTime(message.createdAt)}
-                                  </p>
+                                <div
+                                  className={`p-3 my-1 max-w-xs md:max-w-md rounded-lg ${
+                                    message.memberId &&
+                                    message.memberId._id === userId
+                                      ? mode === "formal"
+                                        ? "bg-primary text-white"
+                                        : "bg-primary2 text-white"
+                                      : "bg-gray-200 text-black"
+                                  }`}
+                                >
+                                  {/* Show sender name in group chats */}
+                                  {message.memberId &&
+                                    message.memberId._id !== userId && (
+                                      <p className="font-semibold text-sm mb-1">
+                                        {message.memberId.name}
+                                      </p>
+                                    )}
+                                  <p>{message.content}</p>
+                                  <div className="flex justify-end w-full">
+                                    <p
+                                      className={`text-xs ${
+                                        message.memberId &&
+                                        message.memberId._id === userId
+                                          ? "text-white"
+                                          : "text-gray-500"
+                                      }`}
+                                    >
+                                      {formatMessageTime(message.createdAt)}
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
                         </div>
                       )
                     )

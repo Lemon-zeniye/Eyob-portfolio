@@ -23,9 +23,11 @@ import { useRole } from "@/Context/RoleContext";
 const CustomVideoPlayer = ({
   otherUser,
   isOtherUser,
+  fromChat = false,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
+  fromChat?: boolean;
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -178,7 +180,9 @@ const CustomVideoPlayer = ({
         <video
           ref={videoRef}
           src={videoURL}
-          className="w-full h-[200px] md:h-[300px] object-cover"
+          className={`w-full object-cover ${
+            fromChat ? "h-[150px]" : "h-[200px] md:h-[300px] "
+          }`}
           loop
           poster={thumbnailURL || undefined}
           muted={isMuted}
