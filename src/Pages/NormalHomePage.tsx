@@ -72,6 +72,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import ReadMoreText from "@/components/ui/ReadMoreText";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -918,7 +919,10 @@ function NormalHomePage() {
                           {post.postTitle}
                         </h3>
                         <p className="text-gray-600 text-sm">
-                          {post.postContent || "No description provided."}
+                          <ReadMoreText
+                            text={post.postContent}
+                            buttonClassName="text-primary underline ml-1"
+                          />
                         </p>
                       </div>
 

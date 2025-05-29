@@ -51,7 +51,7 @@ const PostGallery: React.FC<PostCardProps> = ({ post, index }) => {
     >
       {/* Image Container */}
       <div className="relative">
-        <div className="h-[600px] w-full max-w-[600px] mx-auto">
+        <div className="h-[400px] md:h-[600px] w-full max-w-[600px] mx-auto">
           {currentImages.map((image, idx) => (
             <div key={idx} className="h-full">
               <motion.img

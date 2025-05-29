@@ -79,7 +79,7 @@ const NotificationDropdown = () => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="w-[22rem] mt-2 p-0 rounded-xl shadow-lg border border-gray-100"
+        className="w-[22rem] mx-2 mt-2 p-0 rounded-xl shadow-lg border border-gray-100"
         align="end"
       >
         <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">

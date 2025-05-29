@@ -39,6 +39,7 @@ import { formatDistanceToNow } from "date-fns";
 import { MdCancel } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useRole } from "@/Context/RoleContext";
+import ReadMoreText from "../ui/ReadMoreText";
 
 interface PostCardProps {
   post: PostCom;
@@ -326,12 +327,15 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
       {/* Image Container */}
       <div className="relative ">
         {hasNoImage ? (
-          <div className="min-h-[48vh] py-[5rem] flex items-center pl-4 border-2 border-primary/30 rounded-3xl">
+          <div className="min-h-[30vh] py-[5rem] flex items-center pl-4 border-2 border-primary/30 rounded-3xl">
             <div className="p-2 space-y-1 md:space-y-2 ">
               <h3 className="font-semibold text-lg">{post.postTitle}</h3>
               <div className="space-y-2">
                 <p className="text-gray-600 text-sm">
-                  {post.postContent || "No description provided."}
+                  <ReadMoreText
+                    text={post.postContent}
+                    buttonClassName="text-primary2 underline ml-1"
+                  />
                 </p>
                 {/* <div className="flex flex-wrap gap-2">
                   {["photography", "design", "creative"].map((tag) => (
@@ -347,7 +351,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
             </div>
           </div>
         ) : (
-          <div className="h-[600px] w-full max-w-[600px] mx-auto">
+          <div className="h-[400px] md:h-[600px] w-full max-w-[600px] mx-auto">
             {currentImages.map((image, idx) => (
               <div key={idx} className="h-full">
                 <motion.img
@@ -574,7 +578,10 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
             <h3 className="font-semibold text-lg">{post.postTitle}</h3>
             <div className="space-y-2">
               <p className="text-gray-600 text-sm">
-                {post.postContent || "No description provided."}
+                <ReadMoreText
+                  text={post.postContent}
+                  buttonClassName="text-primary2 underline ml-1"
+                />
               </p>
               {/* <div className="flex flex-wrap gap-2">
                 {["photography", "design", "creative"].map((tag) => (
