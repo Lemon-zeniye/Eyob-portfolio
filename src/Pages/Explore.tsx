@@ -51,6 +51,8 @@ function Explore() {
                     // }}
                     onClick={() => handleClick(user._id, user.name)}
                     isSelected={false}
+                    isChat={false}
+                    userPicturePath={user.picturePath}
                   />
                 ))}
           </div>

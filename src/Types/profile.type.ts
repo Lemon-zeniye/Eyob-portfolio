@@ -152,6 +152,7 @@ export interface ActiveUser {
   name: string;
   role: "user" | "company";
   _id: string;
+  picturePath?: string;
 }
 export interface ActiveUserResponse {
   success: boolean;

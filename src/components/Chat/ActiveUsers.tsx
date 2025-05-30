@@ -1,12 +1,17 @@
 import { useRole } from "@/Context/RoleContext";
+import { formatImageUrl } from "@/lib/utils";
 import { ActiveUsers } from "@/Types/chat.type";
 import React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Props {
   user: ActiveUsers;
   onlineUser: string;
   onClick: (user: ActiveUsers) => void;
   isSelected: boolean;
+  lastMessage?: string;
+  userPicturePath?: string;
+  isChat: boolean;
 }
 
 export const UserCardSkeleton: React.FC = () => {
@@ -29,6 +34,9 @@ const UserCard: React.FC<Props> = ({
   onClick,
   onlineUser,
   isSelected,
+  lastMessage,
+  userPicturePath,
+  isChat = false,
 }) => {
   const { mode } = useRole();
   return (
@@ -44,11 +52,27 @@ const UserCard: React.FC<Props> = ({
       onClick={() => onClick(user)}
     >
       <div className="relative shrink-0">
-        <img
-          src={`https://i.pravatar.cc/100?img=10`}
-          alt={user.name}
-          className="w-12  h-12 rounded-full object-cover"
-        />
+        <Avatar className="w-12  h-12 rounded-full object-cover">
+          <AvatarImage
+            src={userPicturePath && formatImageUrl(userPicturePath)}
+            alt="Your avatar"
+            className="object-cover"
+          />
+          <AvatarFallback
+            className={`${
+              isSelected
+                ? "bg-white text-black"
+                : mode === "formal"
+                ? "text-white  bg-gradient-to-r from-primary to-primary/60"
+                : "text-white  bg-gradient-to-r from-primary2 to-primary2/60"
+            }`}
+          >
+            {user?.name
+              ?.split(" ")
+              .map((word) => word[0])
+              .join("")}
+          </AvatarFallback>
+        </Avatar>
         <div
           className={`w-3 h-3 absolute right-0 bottom-0 ${
             onlineUser === user._id ? "bg-green-500" : "bg-gray-400"
@@ -60,7 +84,7 @@ const UserCard: React.FC<Props> = ({
         <span
           className={`text-xs ${isSelected ? "text-white" : "text-gray-500"} `}
         >
-          {user.email}
+          {isChat ? lastMessage : user.email}
         </span>
       </div>
     </div>

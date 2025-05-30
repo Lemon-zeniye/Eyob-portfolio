@@ -1,6 +1,7 @@
 import { useRole } from "@/Context/RoleContext";
 import { Group } from "@/Types/chat.type";
 import React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Props {
   group: Group;
@@ -22,11 +23,27 @@ const GroupCard: React.FC<Props> = ({ group, onClick, isSelected }) => {
   }`}
       onClick={() => onClick(group)}
     >
-      <img
-        src={`https://i.pravatar.cc/100?img=12`}
-        alt={group.groupName}
-        className="w-12 h-12 rounded-full object-cover"
-      />
+      <Avatar className="w-12  h-12 rounded-full object-cover">
+        <AvatarImage
+          src={undefined}
+          alt="Your avatar"
+          className="object-cover"
+        />
+        <AvatarFallback
+          className={`${
+            isSelected
+              ? "bg-white text-black"
+              : mode === "formal"
+              ? "text-white  bg-gradient-to-r from-primary to-primary/60"
+              : "text-white  bg-gradient-to-r from-primary2 to-primary2/60"
+          }`}
+        >
+          {group?.groupName
+            ?.split(" ")
+            .map((word) => word[0])
+            .join("")}
+        </AvatarFallback>
+      </Avatar>
       <div className="flex flex-col">
         <span className="text-sm font-medium">{group.groupName}</span>
         <span

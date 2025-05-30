@@ -9,6 +9,8 @@ export interface ActiveUsers {
   name: string;
   email: string;
   role: string;
+  picturePath?: string;
+  // isNotEmployee: boolean;
 }
 
 export interface User {
@@ -143,10 +145,20 @@ export interface PreviousChatRes {
   success: boolean;
   data: PreviousChat[];
 }
+
 export interface PreviousChat {
+  _id: string;
   userId: string;
   email: string;
   name: string;
+  userPicturePath: string;
+  lastMessage: {
+    _id: string;
+    content: string;
+    sender: string;
+    receiver: string;
+    createdAt: string;
+  };
 }
 
 export interface GroupMemberNew {

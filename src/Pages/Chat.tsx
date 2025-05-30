@@ -1,6 +1,5 @@
 import { SearchBar } from "@/components/SearchBar/SearchBar";
 import { useState, useEffect, useRef } from "react";
-import user from "../assets/user.jpg";
 import { Button } from "@/components/ui/button";
 import { Paperclip, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,11 @@ import {
 import UserCard, { UserCardSkeleton } from "@/components/Chat/ActiveUsers";
 import { ActiveUsers, Group } from "@/Types/chat.type";
 import { useSocket } from "../Context/SocketProvider";
-import { formatMessageTime, groupMessagesByDate } from "@/lib/utils";
+import {
+  formatImageUrl,
+  formatMessageTime,
+  groupMessagesByDate,
+} from "@/lib/utils";
 import Cookies from "js-cookie";
 import GroupCard from "@/components/Chat/GroupCard";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -27,6 +30,7 @@ import GroupDetail from "@/components/Chat/GroupDetail";
 import { useIsMobile } from "@/hooks/use-isMobile";
 import UserProfile from "@/components/Jobs/UserFullProfile";
 import { useRole } from "@/Context/RoleContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function NoChatSelected({ onClick }: { onClick: () => void }) {
   return (
@@ -288,6 +292,8 @@ const Chat = () => {
                           }}
                           // onClick={() => handleClick(user._id, user.name)}
                           isSelected={user._id === selectedUser?._id}
+                          userPicturePath={user.picturePath}
+                          isChat={false}
                         />
                       ))}
                 </div>
@@ -305,6 +311,7 @@ const Chat = () => {
                       name: user.name,
                       email: user.email,
                       role: "user",
+                      // isNotEmployee: true,
                     }}
                     onlineUser={onlineUser}
                     onClick={() => {
@@ -313,10 +320,15 @@ const Chat = () => {
                         name: user.name,
                         email: user.email,
                         role: "user",
+                        picturePath: user?.userPicturePath,
+                        // isNotEmployee: true,
                       });
                       setSidebarOpen(false);
                     }}
                     isSelected={user.userId === selectedUser?._id}
+                    lastMessage={user?.lastMessage?.content}
+                    userPicturePath={user.userPicturePath}
+                    isChat={true}
                   />
                 ))}
               </div>
@@ -388,11 +400,34 @@ const Chat = () => {
                   }}
                 >
                   <div className="relative ">
-                    <img
+                    {/* <img
                       className="w-10 h-10 md:w-12 md:h-12 rounded-full"
                       src={selectedGroup ? user : user}
                       alt=""
-                    />
+                    /> */}
+                    <Avatar className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover">
+                      <AvatarImage
+                        src={
+                          selectedUser?.picturePath
+                            ? formatImageUrl(selectedUser.picturePath)
+                            : undefined
+                        }
+                        alt="Your avatar"
+                        className="object-cover"
+                      />
+                      <AvatarFallback
+                        className={`text-white ${
+                          mode === "formal"
+                            ? "bg-gradient-to-r from-primary to-primary/60"
+                            : "bg-gradient-to-r from-primary2 to-primary2/60"
+                        }`}
+                      >
+                        {(selectedUser?.name || selectedGroup?.groupName)
+                          ?.split(" ")
+                          .map((word) => word[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
                     {!selectedGroup && (
                       <div
                         className={`w-3 h-3 absolute right-0 bottom-0 ${
