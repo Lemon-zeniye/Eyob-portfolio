@@ -86,7 +86,7 @@ function AddOrganization({
 
     if (logoFile instanceof File) {
       formData.append("organizationLogo", logoFile);
-    } else {
+    } else if (!initialData) {
       tos.error("Please Upload Logo");
       return;
     }
@@ -160,7 +160,11 @@ function AddOrganization({
                     }}
                     value={field.value}
                   >
-                    <Select.Trigger className="flex items-center justify-between w-full h-10 px-3 border rounded-md bg-white text-gray-500 text-sm focus:outline-none">
+                    <Select.Trigger
+                      className={`flex items-center justify-between w-full h-10 px-3 border rounded-md bg-white  text-sm focus:outline-none ${
+                        field.value ? "text-black" : "text-gray-400"
+                      }`}
+                    >
                       <Select.Value placeholder="Select Category" />
                       <Select.Icon>
                         <ChevronDownIcon className="w-4 h-4 text-gray-600" />

@@ -80,6 +80,7 @@ const OrganizationCard = ({
                         type="Org"
                         category={item.organizationType}
                         orgEmail={item.email}
+                        orgLogo={item.path}
                         showIcon={!otherUserOrganization}
                         onClick={(id: string) => {
                           const org = displayData?.find(

@@ -26,7 +26,7 @@ import { PiListChecksFill } from "react-icons/pi";
 import { FaPlus } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useRole } from "@/Context/RoleContext";
 import { jobIndustrys } from "@/lib/constant";
 
@@ -36,6 +36,7 @@ function AddJob() {
   const [step, setStep] = useState(true);
   const { mode } = useRole();
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data: jobDetail } = useQuery({
     queryKey: ["jobDetail", id],
     queryFn: () => {
@@ -113,6 +114,7 @@ function AddJob() {
     onSuccess: () => {
       tos.success("Job Added Successfully!");
       // form.reset();
+      navigate("/jobs");
     },
     onError: (err) => {
       const mes = getAxiosErrorMessage(err);
@@ -125,6 +127,7 @@ function AddJob() {
     onSuccess: () => {
       tos.success("Job Updated Successfully!");
       // form.reset();
+      navigate("/jobs");
     },
     onError: (err) => {
       const mes = getAxiosErrorMessage(err);

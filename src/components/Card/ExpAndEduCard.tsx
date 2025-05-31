@@ -13,7 +13,7 @@ import {
   deleteOrganization,
   deleteSkill,
 } from "@/Api/profile.api";
-import { tos } from "@/lib/utils";
+import { formatImageUrl, tos } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ExpAndEduCardProps {
@@ -28,6 +28,7 @@ interface ExpAndEduCardProps {
   gpa?: number;
   type: "Edu" | "Exp" | "Ski" | "Org";
   orgEmail?: string;
+  orgLogo?: string;
   showIcon: boolean;
   onClick?: (id: string) => void;
 }
@@ -44,6 +45,7 @@ const ExpAndEduCard = ({
   gpa,
   type,
   orgEmail,
+  orgLogo,
   showIcon,
   onClick,
 }: ExpAndEduCardProps) => {
@@ -115,7 +117,14 @@ const ExpAndEduCard = ({
         {type === "Exp" ? (
           <TbBriefcase2 size={40} />
         ) : type === "Org" ? (
-          <HiBuildingOffice2 size={40} />
+          orgLogo ? (
+            <img
+              className="w-full h-full rounded-full object-cover"
+              src={formatImageUrl(orgLogo)}
+            />
+          ) : (
+            <HiBuildingOffice2 size={40} />
+          )
         ) : (
           <LuGraduationCap size={40} />
         )}

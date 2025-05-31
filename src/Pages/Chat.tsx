@@ -631,6 +631,7 @@ const Chat = () => {
         userGroup={selectedGroup}
         groupDetail={groupDetail}
         setGroupDetail={setGroupDetail}
+        setSelectedGroup={setSelectedGroup}
       />
       <UserProfile
         open={openProfile}

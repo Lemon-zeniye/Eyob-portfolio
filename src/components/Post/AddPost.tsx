@@ -4,7 +4,6 @@ import { useState, useRef, ChangeEvent } from "react";
 import {
   FaImage,
   FaTimes,
-  FaEllipsisH,
   // FaThumbsUp,
   // FaComment,
   // FaShare,
@@ -13,6 +12,9 @@ import { FiSend } from "react-icons/fi";
 import { useMutation, useQueryClient } from "react-query";
 import { Spinner } from "../ui/Spinner";
 import { useRole } from "@/Context/RoleContext";
+import Cookies from "js-cookie";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 // import { FiUploadCloud } from "react-icons/fi";
 
 export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
@@ -22,6 +24,8 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+  const profileImage = Cookies.get("profilePic");
+  const userName = Cookies.get("userName");
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
@@ -87,17 +91,19 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
       <div className="p-4 flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
-            <img
-              src="https://i.pravatar.cc/150?img=3"
-              alt="User"
-              className="w-full h-full object-cover"
-            />
+            <Avatar className={`w-full h-full ring-2 bg-white`}>
+              <AvatarImage
+                src={profileImage}
+                alt={userName}
+                className="object-cover"
+              />
+              <AvatarFallback className="text-primary bg-white font-medium">
+                {userName && userName?.slice(0, 1)?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
           </div>
           <span className="font-medium text-gray-800">You</span>
         </div>
-        <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
-          <FaEllipsisH className="text-lg" />
-        </button>
       </div>
 
       {/* Post content */}

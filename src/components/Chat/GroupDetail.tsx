@@ -33,10 +33,12 @@ function GroupDetail({
   userGroup,
   groupDetail,
   setGroupDetail,
+  setSelectedGroup,
 }: {
   userGroup: Group | undefined;
   groupDetail: boolean;
   setGroupDetail: any;
+  setSelectedGroup: React.Dispatch<React.SetStateAction<Group | undefined>>;
 }) {
   // const [openSection, setOpenSection] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -95,8 +97,9 @@ function GroupDetail({
   const { mutate: delGroup, isLoading } = useMutation({
     mutationFn: deleteGroup,
     onSuccess: () => {
-      tos.success("Success");
       queryClient.invalidateQueries(["groups"]);
+      tos.success("Group deleted successfully");
+      setSelectedGroup(undefined);
       setGroupDetail(false);
     },
     onError: (err) => {
