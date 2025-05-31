@@ -193,6 +193,15 @@ function JobDetailNew() {
             <p className="text-gray-600 leading-relaxed font-light">
               {jobDetail?.data.jobDescription}
             </p>
+            <br />
+            <hr />
+            <br />
+            <h2 className="font-semibold text-gray-800 mb-2 text-lg">
+              Requirement
+            </h2>
+            <p className="text-gray-600 leading-relaxed font-light">
+              {jobDetail?.data.jobRequirement}
+            </p>
           </div>
 
           <div className="flex gap-2 ">
@@ -216,9 +225,11 @@ function JobDetailNew() {
           </div>
         </div>
         <div className="lg:col-span-1 ">
-          <h1 className="text-xl font-semibold pl-4 mb-4">
-            Jobs from {jobDetail?.data.company}
-          </h1>
+          {jobsData?.data && (
+            <h1 className="text-xl font-semibold pl-4 mb-4">
+              Jobs from {jobDetail?.data.company}
+            </h1>
+          )}
           <div className="flex flex-col gap-y-2 md:items-center justify-between">
             <div className="flex flex-col gap-y-2 md:items-center justify-between">
               {isLoading

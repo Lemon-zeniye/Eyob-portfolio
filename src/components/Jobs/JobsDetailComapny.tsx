@@ -170,6 +170,15 @@ function JobsDetailComapny() {
                 <p className="text-gray-600 leading-relaxed font-light">
                   {jobDetail?.data.jobDescription}
                 </p>
+                <br />
+                <hr />
+                <br />
+                <h2 className="font-semibold text-gray-800 mb-2 text-lg">
+                  Requirement
+                </h2>
+                <p className="text-gray-600 leading-relaxed font-light">
+                  {jobDetail?.data.jobRequirement}
+                </p>
               </div>
             </div>
             <div className="lg:col-span-1 lg:px-4 ">

@@ -36,7 +36,7 @@ const LatestJobs: React.FC = () => {
       ) : (
         <>
           {companyJobs?.data &&
-            [...companyJobs?.data]?.reverse()?.map((job) => (
+            companyJobs?.data?.map((job) => (
               <Link
                 key={job._id}
                 to={`/jobs/${job._id}`}
