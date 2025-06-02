@@ -397,8 +397,6 @@ function NormalHomePage() {
       transformInfiniteStories(userStories?.pages?.flatMap((page) => page.data))
     : [];
 
-  console.log("eeeeeeeeeee", stories);
-
   // story scroll effects
   const storiesContainerRef = useRef<HTMLDivElement>(null);
 

@@ -280,7 +280,7 @@ export const updateCompanyProfile = async (payload: any): Promise<any> => {
 };
 
 export const addCompanyProfile = async (payload: any): Promise<any> => {
-  const response = await axios.put(
+  const response = await axios.post(
     "/companyProfile/addCompanyProfile",
     payload
   );

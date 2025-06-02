@@ -14,6 +14,7 @@ import { Spinner } from "../ui/Spinner";
 import { useRole } from "@/Context/RoleContext";
 import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 // import { FiUploadCloud } from "react-icons/fi";
 
@@ -60,6 +61,10 @@ export const AddPost = ({ onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
       queryClient.invalidateQueries(["getAllPostsWithComments", 1, 5, mode]);
       tos.success("Success");
+    },
+    onError: (e) => {
+      const msg = getAxiosErrorMessage(e);
+      tos.error(msg);
     },
   });
 
