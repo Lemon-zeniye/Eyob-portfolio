@@ -357,7 +357,23 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
           ) : (
             <div className="h-[400px] md:h-[600px] w-full max-w-[600px] mx-auto">
               {currentImages.map((image, idx) => (
-                <div key={idx} className="h-full" onClick={() => setOpen(true)}>
+                <motion.div
+                  key={idx}
+                  className="h-full"
+                  onClick={() => setOpen(true)}
+                  // Swipe gestures
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x > 50) {
+                      // Swipe right
+                      prevImage();
+                    } else if (info.offset.x < -50) {
+                      // Swipe left
+                      nextImage();
+                    }
+                  }}
+                >
                   <motion.img
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -371,7 +387,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                     alt={post.postTitle || "Post"}
                     className="w-full h-full object-cover rounded-b-xl md:rounded-b-3xl"
                   />
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
@@ -938,10 +954,21 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
 
               <div className="h-[calc(100vh-10rem)] min-h-[400px]  bg-black  overflow-hidden shadow-2xl relative">
                 {currentImages.map((image, idx) => (
-                  <div
+                  <motion.div
                     key={idx}
                     className="h-full"
-                    onClick={() => setOpen(true)}
+                    // Swipe gestures
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={(_, info) => {
+                      if (info.offset.x > 50) {
+                        // Swipe right
+                        prevImage();
+                      } else if (info.offset.x < -50) {
+                        // Swipe left
+                        nextImage();
+                      }
+                    }}
                   >
                     <motion.img
                       initial={{ opacity: 0 }}
@@ -956,7 +983,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                       alt={post.postTitle || "Post"}
                       className="w-full h-full object-cover "
                     />
-                  </div>
+                  </motion.div>
                 ))}
                 {postImages.length > 1 && (
                   <>
