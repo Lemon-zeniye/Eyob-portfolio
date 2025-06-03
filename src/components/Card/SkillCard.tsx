@@ -21,6 +21,9 @@ const SkillCard = ({
     queryFn: getUserSkills,
     enabled: !otherUserSkill,
   });
+  const [initialData, setInitialData] = useState<UserSkill | undefined>(
+    undefined
+  );
 
   const displayData = otherUserSkill || skills?.data;
 
@@ -80,6 +83,11 @@ const SkillCard = ({
                         showIcon={!otherUserSkill}
                         category={item.category}
                         institution={item.company}
+                        onClick={(id) => {
+                          const ski = displayData.find((ski) => ski._id === id);
+                          setOpen(true);
+                          setInitialData(ski);
+                        }}
                       />
                     ))
                   : displayData?.map((item, index) => (
@@ -92,6 +100,11 @@ const SkillCard = ({
                         showIcon={!otherUserSkill}
                         category={item.category}
                         institution={item.company}
+                        onClick={(id) => {
+                          const ski = displayData.find((ski) => ski._id === id);
+                          setOpen(true);
+                          setInitialData(ski);
+                        }}
                       />
                     )))}
             </motion.div>
@@ -103,7 +116,10 @@ const SkillCard = ({
               exit={{ x: "100%" }}
               transition={{ type: "tween", ease: "easeInOut" }}
             >
-              <AddSkill onSuccess={() => setOpen(false)} />
+              <AddSkill
+                initialData={initialData}
+                onSuccess={() => setOpen(false)}
+              />
             </motion.div>
           )}
         </AnimatePresence>

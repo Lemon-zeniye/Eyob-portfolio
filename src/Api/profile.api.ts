@@ -114,6 +114,27 @@ export const addUserSkill = async (payload: any): Promise<any> => {
   return response.data;
 };
 
+export const updateUserSkill = async ({
+  id,
+  payload,
+}: {
+  id: string;
+  payload: any;
+}): Promise<any> => {
+  const response = await axios.patch<any>(
+    `/experience/updateUserSkillOfGivenId/${id}`,
+    payload
+  );
+  return response.data;
+};
+
+export const deleteUserSkill = async (id: string): Promise<any> => {
+  const response = await axios.delete<any>(
+    `/experience/deleteUserSkillOfGivenId/${id}`
+  );
+  return response.data;
+};
+
 export const getUserPicture = async (): Promise<FileResponse> => {
   const response = await axios.get<any>("/user/getUserPicture");
   return response.data;

@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { getActiveCompanies, referCompany } from "@/Api/profile.api";
 import { Input } from "../ui/input";
-import { tos } from "@/lib/utils";
+import { formatImageUrl, tos } from "@/lib/utils";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export interface ActiveCompany {
   email: string;
@@ -112,11 +113,23 @@ function ShareCompanyProfile({
               <div className="flex items-center justify-between flex-grow">
                 <div className="flex items-center space-x-3">
                   <div className="flex-shrink-0">
-                    <img
-                      className="h-12 w-12 rounded-full object-cover"
-                      src="https://i.pravatar.cc/100?img=9"
-                      alt={company.name}
-                    />
+                    <Avatar
+                      className={`w-12 h-12 shrink-0 border rounded-full`}
+                    >
+                      <AvatarImage
+                        src={
+                          company?.picturePath
+                            ? formatImageUrl(company.picturePath)
+                            : undefined
+                        }
+                        alt={company.name}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className=" bg-white font-medium">
+                        {company?.name &&
+                          company?.name?.slice(0, 1)?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">

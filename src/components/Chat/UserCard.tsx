@@ -1,6 +1,8 @@
 import { ActiveUser } from "@/Types/profile.type";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatImageUrl } from "@/lib/utils";
 
 export const UserCard = ({
   user,
@@ -20,11 +22,18 @@ export const UserCard = ({
     >
       <div className="flex items-center justify-between gap-4">
         <div className="w-12 h-12 rounded-full overflow-hidden">
-          <img
-            src="https://i.pravatar.cc/100?img=8"
-            alt={`${user.name}'s avatar`}
-            className="w-full h-full object-cover"
-          />
+          <Avatar className={`w-full h-full shrink-0 border rounded-full`}>
+            <AvatarImage
+              src={
+                user?.picturePath ? formatImageUrl(user.picturePath) : undefined
+              }
+              alt={user.name}
+              className="object-cover"
+            />
+            <AvatarFallback className=" bg-white font-medium">
+              {user?.name && user?.name?.slice(0, 1)?.toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
         </div>
         <div className="flex-1  min-w-0">
           <h1 className="text-lg font-semibold truncate">{user.name}</h1>

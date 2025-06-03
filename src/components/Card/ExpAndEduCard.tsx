@@ -11,7 +11,7 @@ import {
   deleteEducation,
   deleteExperience,
   deleteOrganization,
-  deleteSkill,
+  deleteUserSkill,
 } from "@/Api/profile.api";
 import { formatImageUrl, tos } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -69,10 +69,10 @@ const ExpAndEduCard = ({
   });
 
   const deleteSkillMutation = useMutation({
-    mutationFn: deleteSkill,
+    mutationFn: deleteUserSkill,
     onSuccess: () => {
       tos.success("Success");
-      queryClient.invalidateQueries("skill");
+      queryClient.invalidateQueries("skills");
     },
   });
 
@@ -159,7 +159,7 @@ const ExpAndEduCard = ({
         )}
       </div>
       {/* 3-dot menu */}
-      {showIcon && type !== "Ski" && (
+      {showIcon && (
         <div
           className="absolute top-3 right-4 group z-10"
           onClick={(e) => e.stopPropagation()}

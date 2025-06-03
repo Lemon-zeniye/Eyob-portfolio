@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect, useMemo } from "react";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
-import { tos } from "@/lib/utils";
+import { formatImageUrl, tos } from "@/lib/utils";
 import Cookies from "js-cookie";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const UserCard = ({
   user,
@@ -38,11 +39,18 @@ const UserCard = ({
             small ? "w-8 h-8" : "w-12 h-12"
           } rounded-full overflow-hidden`}
         >
-          <img
-            src="https://i.pravatar.cc/100?img=8"
-            alt={`${user.name}'s avatar`}
-            className="w-full h-full object-cover"
-          />
+          <Avatar className={`w-full h-full border rounded-full`}>
+            <AvatarImage
+              src={
+                user?.picturePath ? formatImageUrl(user.picturePath) : undefined
+              }
+              alt={user.name}
+              className="object-cover"
+            />
+            <AvatarFallback className=" bg-white font-medium">
+              {user?.name && user?.name?.slice(0, 1)?.toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
         </div>
         <div className="flex-1 space-y-${small ? '0.5' : '1'} min-w-0">
           <h1

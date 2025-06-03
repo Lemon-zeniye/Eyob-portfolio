@@ -89,13 +89,13 @@ function AddCertification({ onSuccess }: { onSuccess: () => void }) {
                       <div className="p-4 text-center">
                         <FileText className="w-24 h-12 mx-auto" />
                         <span className="text-green-500 text-sm">
-                          PDF Uploaded
+                          Certificate Uploaded
                         </span>
                       </div>
                     ) : (
                       <div className="h-14 w-44 flex items-center justify-center rounded-xl bg-gray-50  border-gray-400 border-dashed">
                         <span className="text-gray-500 text-sm">
-                          Upload Certificate PDF
+                          Upload Certificate
                         </span>
                       </div>
                     )}
@@ -104,10 +104,11 @@ function AddCertification({ onSuccess }: { onSuccess: () => void }) {
                 <input
                   id="certificate-file"
                   type="file"
-                  accept=".pdf"
+                  accept=".pdf,image/*"
                   onChange={handleLogoUpload}
                   className="hidden"
                 />
+
                 {/* <FormLabel>Certificate Pdf</FormLabel> */}
               </div>
             </FormControl>

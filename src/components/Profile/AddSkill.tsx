@@ -10,7 +10,11 @@ import {
 // import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Button } from "../ui/button";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { addUserSkill, fetchSkillCategories } from "@/Api/profile.api";
+import {
+  addUserSkill,
+  fetchSkillCategories,
+  updateUserSkill,
+} from "@/Api/profile.api";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Spinner } from "../ui/Spinner";
 import { Textarea } from "../ui/textarea";
@@ -18,15 +22,22 @@ import { tos } from "@/lib/utils";
 import { Input } from "../ui/input";
 import * as Select from "@radix-ui/react-select";
 import { ChevronDownIcon } from "lucide-react";
+import { UserSkill } from "@/Types/profile.type";
 
-function AddSkill({ onSuccess }: { onSuccess: () => void }) {
+function AddSkill({
+  initialData,
+  onSuccess,
+}: {
+  initialData: UserSkill | undefined;
+  onSuccess: () => void;
+}) {
   const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
-      skill: "",
-      category: "",
-      company: "",
-      skillDescription: "",
+      skill: initialData?.skill ?? "",
+      category: initialData?.category ?? "",
+      company: initialData?.company ?? "",
+      skillDescription: initialData?.skillDescription ?? "",
     },
   });
 
@@ -34,6 +45,19 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
     mutationFn: addUserSkill,
     onSuccess: () => {
       tos.success("Skill added Successfully");
+      queryClient.invalidateQueries("skills");
+      onSuccess();
+    },
+    onError: (error: any) => {
+      const message = getAxiosErrorMessage(error);
+      tos.error(message);
+    },
+  });
+
+  const { mutate: updapteSkill, isLoading: isUpdateLoading } = useMutation({
+    mutationFn: updateUserSkill,
+    onSuccess: () => {
+      tos.success("Skill updated Successfully");
       queryClient.invalidateQueries("skills");
       onSuccess();
     },
@@ -54,7 +78,11 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
   });
 
   const onSubmit = (data: any) => {
-    mutate(data);
+    if (initialData) {
+      updapteSkill({ id: initialData._id, payload: data });
+    } else {
+      mutate(data);
+    }
   };
   return (
     <div className="p-2 md:p-0">
@@ -147,7 +175,11 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
                     }}
                     value={field.value}
                   >
-                    <Select.Trigger className="flex items-center justify-between w-full h-10 px-3 border rounded-md bg-white text-gray-500 text-sm focus:outline-none">
+                    <Select.Trigger
+                      className={`flex items-center justify-between w-full h-10 px-3 border rounded-md bg-white  text-sm focus:outline-none ${
+                        field.value ? "text-black" : "text-gray-500"
+                      }`}
+                    >
                       <Select.Value placeholder="Select Category" />
                       <Select.Icon>
                         <ChevronDownIcon className="w-4 h-4 text-gray-600" />
@@ -212,7 +244,15 @@ function AddSkill({ onSuccess }: { onSuccess: () => void }) {
           />
 
           <div className="my-4 flex items-center justify-end">
-            <Button>{isLoading ? <Spinner /> : "Add Skill"}</Button>
+            <Button>
+              {isLoading || isUpdateLoading ? (
+                <Spinner />
+              ) : initialData ? (
+                "Edit Skill"
+              ) : (
+                "Add Skill"
+              )}
+            </Button>
           </div>
         </form>
       </FormProvider>

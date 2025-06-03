@@ -155,7 +155,15 @@ const CertificateCard = ({ certificate }: { certificate: Certificate }) => {
                     padding: "10px",
                   }}
                 >
-                  <DocumentViewer fileUrl={fileUrl} />
+                  {fileUrl.endsWith(".pdf") ? (
+                    <DocumentViewer fileUrl={fileUrl} />
+                  ) : (
+                    <img
+                      src={fileUrl}
+                      alt="Uploaded file"
+                      className="max-h-[80vh] mx-auto"
+                    />
+                  )}
                 </div>
               )}
             </div>

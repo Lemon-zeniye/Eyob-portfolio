@@ -15,7 +15,7 @@ import {
   deleteEducation,
   deleteExperience,
   deleteOrganization,
-  deleteSkill,
+  deleteUserSkill,
 } from "@/Api/profile.api";
 import { tos } from "@/lib/utils";
 import { TbBriefcase2 } from "react-icons/tb";
@@ -96,7 +96,7 @@ const ExpAndEduCardSocial = ({
     deleteExperience,
     "experiences"
   );
-  const deleteSkillMutation = createMutation(deleteSkill, "skill");
+  const deleteSkillMutation = createMutation(deleteUserSkill, "skills");
   const deleteOrganizationMutation = createMutation(
     deleteOrganization,
     "organization"
@@ -192,7 +192,7 @@ const ExpAndEduCardSocial = ({
         </div>
 
         {/* Context menu */}
-        {showIcon && type !== "Ski" && (
+        {showIcon && (
           <div
             className="relative"
             onClick={(e) => e.stopPropagation()}
