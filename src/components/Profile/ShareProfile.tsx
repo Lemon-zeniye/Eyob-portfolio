@@ -11,7 +11,7 @@ import { formatImageUrl, tos } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const UserCard = ({
+export const UserCard = ({
   user,
   small,
   selected,

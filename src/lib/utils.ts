@@ -265,6 +265,7 @@ export const transformInfiniteStories = (
     views: story.views,
     isLikedByUser: story.isLikedByUser,
     avatar: formatImageUrl(story?.userPicturePath),
+    caption: story?.caption,
     items: [
       {
         id: `story-${story._id}`,

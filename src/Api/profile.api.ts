@@ -282,6 +282,11 @@ export const addEmployee = async (payload: any): Promise<any> => {
   return response.data;
 };
 
+export const deleteEmployee = async (id: string): Promise<any> => {
+  const response = await axios.delete(`/company/deleteEmployee/${id}`);
+  return response.data;
+};
+
 export const getCompanyAbout = async (): Promise<CompanyAboutResponse> => {
   const response = await axios.get("companyAbout/fetch");
   return response.data;

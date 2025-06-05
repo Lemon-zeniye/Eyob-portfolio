@@ -45,6 +45,7 @@ import PostGalleryTwo from "@/components/Post/PostGalleryTwo";
 import { tos, transformInfiniteStories } from "@/lib/utils";
 import { PostCom } from "@/Types/post.type";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import { Input } from "@/components/ui/input";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -94,6 +95,8 @@ function SocialHomePage() {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const profileImage = Cookies.get("profilePic");
+  const [caption, setCaption] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
 
   const [viewingStory, setViewingStory] = useState<null | {
     id: number;
@@ -105,6 +108,7 @@ function SocialHomePage() {
     userId: string;
     views: number;
     avatar: string;
+    caption?: string;
     items: Array<{ id: string; image: string }>;
   }>(null);
 
@@ -276,6 +280,18 @@ function SocialHomePage() {
     setSelectedFile(storyFile);
   };
 
+  useEffect(() => {
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+
+      // Cleanup function
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    }
+  }, [selectedFile]);
+
   const validateFile = (file: File): boolean => {
     const validTypes = [
       "image/jpeg",
@@ -287,7 +303,7 @@ function SocialHomePage() {
     const maxSize = 50 * 1024 * 1024; // 50MB
 
     if (!validTypes.includes(file.type)) {
-      tos.error("Please select a valid file type (JPG, PNG, MP4, AVI)");
+      tos.error("Please select a valid file type (JPG, PNG, MP4)");
       return false;
     }
 
@@ -326,7 +342,6 @@ function SocialHomePage() {
 
   useEffect(() => {
     if (viewingStory?._id && !viewingStory?.isViewedByUser) {
-      console.log("sending", viewingStory);
       tracStory({ storyid: viewingStory._id });
     }
   }, [viewingStory]);
@@ -336,10 +351,12 @@ function SocialHomePage() {
     onSuccess: () => {
       queryClient.invalidateQueries(["userStories"]);
       tos.success("You delete the story");
+      setViewStory(false);
     },
     onError: (e) => {
       const message = getAxiosErrorMessage(e);
       tos.error(message);
+      setViewStory(false);
     },
   });
 
@@ -349,6 +366,9 @@ function SocialHomePage() {
     // Create FormData for your API call
     const formData = new FormData();
     formData.append("storyFile", selectedFile);
+    if (caption && caption !== "") {
+      formData.append("caption", caption);
+    }
 
     addUserStory(formData);
   };
@@ -460,7 +480,7 @@ function SocialHomePage() {
                       <div className="w-full h-full rounded-full border-2 border-white overflow-hidden">
                         <img
                           src={story?.items[0]?.image}
-                          alt={story.username}
+                          alt={story?.username}
                           className="w-full h-full rounded-full object-cover"
                         />
                       </div>
@@ -903,6 +923,7 @@ function SocialHomePage() {
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
+
                 <button
                   className="absolute top-1/2 right-4 -translate-y-1/2 w-12 h-12 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/50 transition-colors duration-200"
                   onClick={(e) => {
@@ -1061,7 +1082,7 @@ function SocialHomePage() {
                       </p>
                     </div>
                     <p className="text-xs text-gray-400 bg-[#f8fdfd] px-4 py-2 rounded-full">
-                      Supports JPG, PNG, MP4, AVI (Max 50MB)
+                      Supports JPG, PNG, MP4 (Max 50MB)
                     </p>
                   </div>
                   <input
@@ -1076,44 +1097,50 @@ function SocialHomePage() {
               )}
 
               {selectedFile && (
-                <div className="rounded-xl overflow-hidden bg-[#f8fdfd] border border-[#e6f7f7] shadow-md">
-                  {selectedFile.type.startsWith("image/") ? (
-                    <img
-                      src={
-                        URL.createObjectURL(selectedFile) || "/placeholder.svg"
-                      }
-                      alt="Preview"
-                      className="w-full h-auto max-h-96 object-contain"
-                    />
-                  ) : (
-                    <video
-                      src={URL.createObjectURL(selectedFile)}
-                      controls
-                      className="w-full h-auto max-h-96"
-                    />
-                  )}
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 rounded-full bg-[#e6f7f7]">
-                        <FileText className="w-4 h-4 text-primary2" />
+                <>
+                  <div className="rounded-xl overflow-hidden bg-[#f8fdfd] border border-[#e6f7f7] shadow-md">
+                    {selectedFile.type.startsWith("image/") ? (
+                      <img
+                        src={previewUrl || "/placeholder.svg"}
+                        alt="Preview"
+                        className="w-full h-auto max-h-96 object-contain"
+                      />
+                    ) : (
+                      <video
+                        src={previewUrl}
+                        controls
+                        className="w-full h-auto max-h-96"
+                      />
+                    )}
+                    <div className="p-4 flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 rounded-full bg-[#e6f7f7]">
+                          <FileText className="w-4 h-4 text-primary2" />
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium truncate max-w-[180px] text-gray-700 block">
+                            {selectedFile.name}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {(selectedFile.size / (1024 * 1024)).toFixed(1)}MB
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-sm font-medium truncate max-w-[180px] text-gray-700 block">
-                          {selectedFile.name}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {(selectedFile.size / (1024 * 1024)).toFixed(1)}MB
-                        </span>
-                      </div>
+                      <button
+                        onClick={() => setSelectedFile(null)}
+                        className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setSelectedFile(null)}
-                      className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
                   </div>
-                </div>
+                  <Input
+                    placeholder="Write a caption (optional)"
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    className="w-full rounded-md my-3"
+                  />
+                </>
               )}
 
               {selectedFile && (

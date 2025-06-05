@@ -73,6 +73,7 @@ import { useNavigate } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import ReadMoreText from "@/components/ui/ReadMoreText";
+import { Input } from "@/components/ui/input";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -110,6 +111,9 @@ function NormalHomePage() {
   );
 
   const [, setChildComId] = useState<string | undefined>(undefined);
+
+  const [caption, setCaption] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
 
   const navigate = useNavigate();
 
@@ -151,6 +155,7 @@ function NormalHomePage() {
     userId: string;
     likes: number;
     avatar: string;
+    caption?: string;
     items: Array<{ id: string; image: string }>;
   }>(null);
 
@@ -476,10 +481,12 @@ function NormalHomePage() {
     onSuccess: () => {
       queryClient.invalidateQueries(["userStories"]);
       tos.success("You delete the story");
+      setViewStory(false);
     },
     onError: (e) => {
       const message = getAxiosErrorMessage(e);
       tos.error(message);
+      setViewStory(false);
     },
   });
 
@@ -524,6 +531,18 @@ function NormalHomePage() {
     setSelectedFile(storyFile);
   };
 
+  useEffect(() => {
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+
+      // Cleanup function
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    }
+  }, [selectedFile]);
+
   const validateFile = (file: File): boolean => {
     const validTypes = [
       "image/jpeg",
@@ -563,6 +582,9 @@ function NormalHomePage() {
     // Create FormData for your API call
     const formData = new FormData();
     formData.append("storyFile", selectedFile);
+    if (caption && caption !== "") {
+      formData.append("caption", caption);
+    }
 
     addUserStory(formData);
   };
@@ -742,7 +764,7 @@ function NormalHomePage() {
               {stories?.map((story) => (
                 <div
                   key={story.id}
-                  className="min-w-[140px] md:min-w-[180px] h-[160px] md:h-[180px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
+                  className="min-w-[140px] md:min-w-[180px] h-[180px] md:h-[200px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
                   onClick={() => {
                     setViewingStory(story);
                     setCurrentStoryItemIndex(0);
@@ -792,9 +814,9 @@ function NormalHomePage() {
 
                   {/* Content with modern typography */}
                   <div className="p-3 flex-1 flex flex-col justify-between">
-                    {/* <h3 className="font-semibold text-sm md:text-base line-clamp-2 text-gray-900 group-hover:text-[#03a9a9] transition-colors">
-                      {story.title}
-                    </h3> */}
+                    <h3 className="text-sm line-clamp-2 text-gray-900 group-hover:text-[#03a9a9] transition-colors">
+                      {story?.caption}
+                    </h3>
                     <div className="flex justify-between items-end">
                       <p className="text-xs text-gray-500 font-medium">
                         @{story.username}
@@ -1819,7 +1841,7 @@ function NormalHomePage() {
                       </p>
                     </div>
                     <p className="text-xs text-gray-400 bg-[#f8fdfd] px-4 py-2 rounded-full">
-                      Supports JPG, PNG, MP4, AVI (Max 50MB)
+                      Supports JPG, PNG, MP4 (Max 50MB)
                     </p>
                   </div>
                   <input
@@ -1834,44 +1856,50 @@ function NormalHomePage() {
               )}
 
               {selectedFile && (
-                <div className="rounded-xl overflow-hidden bg-[#f8fdfd] border border-[#e6f7f7] shadow-md">
-                  {selectedFile.type.startsWith("image/") ? (
-                    <img
-                      src={
-                        URL.createObjectURL(selectedFile) || "/placeholder.svg"
-                      }
-                      alt="Preview"
-                      className="w-full h-auto max-h-96 object-contain"
-                    />
-                  ) : (
-                    <video
-                      src={URL.createObjectURL(selectedFile)}
-                      controls
-                      className="w-full h-auto max-h-96"
-                    />
-                  )}
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 rounded-full bg-[#e6f7f7]">
-                        <FileText className="w-4 h-4 text-[#05A9A9]" />
+                <>
+                  <div className="rounded-xl overflow-hidden bg-[#f8fdfd] border border-[#e6f7f7] shadow-md">
+                    {selectedFile.type.startsWith("image/") ? (
+                      <img
+                        src={previewUrl || "/placeholder.svg"}
+                        alt="Preview"
+                        className="w-full h-auto max-h-96 object-contain"
+                      />
+                    ) : (
+                      <video
+                        src={previewUrl}
+                        controls
+                        className="w-full h-auto max-h-96"
+                      />
+                    )}
+                    <div className="p-4 flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 rounded-full bg-[#e6f7f7]">
+                          <FileText className="w-4 h-4 text-[#05A9A9]" />
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium truncate max-w-[180px] text-gray-700 block">
+                            {selectedFile.name}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {(selectedFile.size / (1024 * 1024)).toFixed(1)}MB
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-sm font-medium truncate max-w-[180px] text-gray-700 block">
-                          {selectedFile.name}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {(selectedFile.size / (1024 * 1024)).toFixed(1)}MB
-                        </span>
-                      </div>
+                      <button
+                        onClick={() => setSelectedFile(null)}
+                        className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setSelectedFile(null)}
-                      className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors duration-200"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
                   </div>
-                </div>
+                  <Input
+                    placeholder="Write a caption (optional)"
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    className="w-full rounded-md my-3"
+                  />
+                </>
               )}
 
               {selectedFile && (

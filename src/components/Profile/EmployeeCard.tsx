@@ -4,18 +4,29 @@ import AddEmployee from "./AddEmployee";
 // import { MoreHorizontal } from "lucide-react";
 import EmptyCard from "../Card/EmptyCard";
 import user from "../../assets/user.jpg";
-import { useQuery } from "react-query";
-import { getCompanyEmployees } from "@/Api/profile.api";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { deleteEmployee, getCompanyEmployees } from "@/Api/profile.api";
 import { FiPlus, FiX } from "react-icons/fi";
 import { useRole } from "@/Context/RoleContext";
+import { MoreHorizontal } from "lucide-react";
+import { tos } from "@/lib/utils";
 function EmployeeCard() {
   const [open, setOpen] = useState(false);
-  // const [showMenu, setShowMenu] = useState<string | null>(null);
+  const [showMenu, setShowMenu] = useState<string | null>(null);
   const { data: employees } = useQuery({
     queryKey: ["employees"],
     queryFn: getCompanyEmployees,
   });
   const { mode } = useRole();
+  const queryClient = useQueryClient();
+
+  const { mutate } = useMutation({
+    mutationFn: deleteEmployee,
+    onSuccess: () => {
+      tos.success("Success");
+      queryClient.invalidateQueries("employees");
+    },
+  });
 
   return (
     <div className="mb-12">
@@ -75,7 +86,7 @@ function EmployeeCard() {
                       </p>
                     </div>
                     {/* 3-dot menu */}
-                    {/* <div
+                    <div
                       className="absolute top-3 right-4 group z-10"
                       onClick={(e) => e.stopPropagation()}
                       onMouseEnter={() => setShowMenu(employee._id)}
@@ -87,13 +98,13 @@ function EmployeeCard() {
                         <div className="absolute right-0 mt-0 bg-white shadow-md rounded-md border text-sm z-20">
                           <button
                             className="px-4 py-2 text-red-500 hover:bg-gray-100 w-full text-left"
-                            onClick={() => {}}
+                            onClick={() => mutate(employee._id)}
                           >
                             Delete
                           </button>
                         </div>
                       )}
-                    </div> */}
+                    </div>
                   </div>
                 </EmptyCard>
               ))}
