@@ -255,7 +255,7 @@ function NewJobPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-6">
+      <div className="grid grid-cols-6 gap-2 lg:gap-4">
         <div className="hidden md:block md:col-span-1 p-4 space-y-3 h-[70vh] overflow-y-auto">
           <h1>Filter</h1>
           {filterValues.map((filter) => {
@@ -328,7 +328,7 @@ function NewJobPage() {
             <div className="flex flex-col md:flex-row justify-between flex-1 w-full items-start md:items-center py-2 pr-0 md:pr-4 border-b border-gray-200">
               <div>
                 <h2 className="font-bold text-2xl mr-2">All Jobs</h2>
-                {/* <span className="text-gray-600">Showing 73 results</span> */}
+                <span className="text-gray-600">Showing 73 results</span>
               </div>
 
               <div className="flex items-center justify-between gap-4">

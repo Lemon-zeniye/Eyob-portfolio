@@ -74,6 +74,10 @@ import { MdCancel } from "react-icons/md";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import ReadMoreText from "@/components/ui/ReadMoreText";
 import { Input } from "@/components/ui/input";
+import { RelatedJobSkeleton } from "@/components/Jobs/JobDetailNew";
+import { getAppliedJobs } from "@/Api/job.api";
+import CustomVideoPlayer from "@/components/Video/Video";
+import { RelatedJob } from "@/components/Jobs/RelatedJob";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -114,6 +118,8 @@ function NormalHomePage() {
 
   const [caption, setCaption] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
+
+  const [showAll, setShowAll] = useState(false);
 
   const navigate = useNavigate();
 
@@ -281,6 +287,15 @@ function NormalHomePage() {
     },
     enabled: !!userId,
   });
+
+  const { data: appliedJobs } = useQuery({
+    queryKey: ["appliedJobs"],
+    queryFn: getAppliedJobs,
+  });
+
+  const jobsToShow = showAll
+    ? appliedJobs?.data?.slice()?.reverse()
+    : appliedJobs?.data?.slice()?.reverse()?.slice(0, 3);
 
   ///// mutuation
   const { mutate, isLoading: likeIsLoading } = useMutation({
@@ -716,141 +731,165 @@ function NormalHomePage() {
   return (
     // <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
     <div className="min-h-screen">
-      <div className="grid grid-cols-12 mx-auto gap-5 pr-1 md:px-4 py-2">
-        <div className="col-span-12 lg:col-span-9  space-y-8">
-          {/* story */}
-          <div className="bg-white rounded-md md:rounded-2xl shadow-sm p-2 md:p-5 overflow-hidden">
-            <h2 className="font-medium text-lg mb-5 text-gray-800 flex items-center gap-2">
-              Stories
-            </h2>
-            <div
-              ref={storiesContainerRef}
-              className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide p-2 md:px-0"
-            >
-              <div
-                key="add-story"
-                className="min-w-[140px] md:min-w-[180px] h-[160px] md:h-[180px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
-                onClick={() => {
-                  setOpenFileUpload(true);
-                }}
-              >
-                {/* Image container with matching height */}
-                <div className="h-[100px] md:h-[120px] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative">
-                  {/* Animated plus button with gradient */}
-                  <div className="relative z-10">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-[#03a9a9] to-[#03c9c9] flex items-center justify-center text-white shadow-lg duration-300 group-hover:scale-110">
-                      <PlusIcon className="w-6 h-6 md:w-7 md:h-7 stroke-2" />
-                    </div>
-                  </div>
-
-                  {/* Subtle decorative elements */}
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-1/4 left-1/4 w-8 h-8 rounded-full bg-[#03a9a9] blur-md"></div>
-                    <div className="absolute bottom-1/3 right-1/3 w-10 h-10 rounded-full bg-[#03c9c9] blur-md"></div>
-                  </div>
+      {/* story */}
+      <div className="rounded-md md:rounded-2xl  overflow-hidden">
+        <div
+          ref={storiesContainerRef}
+          className="flex gap-3 md:gap-4 overflow-x-auto  scrollbar-hide p-2 md:px-0"
+        >
+          <div
+            key="add-story"
+            className="min-w-[140px] md:min-w-[170px] h-[160px] md:h-[170px] rounded-xl md:rounded-2xl bg-white border-2 border-white overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
+            onClick={() => {
+              setOpenFileUpload(true);
+            }}
+          >
+            {/* Image container with matching height */}
+            <div className="h-[80px] md:h-[100px] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative">
+              {/* Animated plus button with gradient */}
+              <div className="relative z-10">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-[#03a9a9] to-[#03c9c9] flex items-center justify-center text-white shadow-lg duration-300 group-hover:scale-110">
+                  <PlusIcon className="w-6 h-6 md:w-7 md:h-7 stroke-2" />
                 </div>
-
-                {/* Content area matching story cards */}
-                <div className="p-3 flex-1 flex flex-col items-center justify-center">
-                  <h3 className="font-semibold text-sm md:text-base text-gray-900 group-hover:text-[#03a9a9] transition-colors">
-                    Add Story
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1">Tap to create</p>
-                </div>
-
-                {/* Matching glow effect on hover */}
-                <div className="absolute inset-0 rounded-xl md:rounded-2xl pointer-events-none transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(3,169,169,0.3)] group-hover:bg-[#03a9a9]/5"></div>
               </div>
-              {stories?.map((story) => (
-                <div
-                  key={story.id}
-                  className="min-w-[140px] md:min-w-[180px] h-[180px] md:h-[200px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
-                  onClick={() => {
-                    setViewingStory(story);
-                    setCurrentStoryItemIndex(0);
-                    setViewStory(true);
-                    setStoryProgress(0);
-                  }}
-                >
-                  {/* Image container with modern overlay */}
-                  <div className="h-[100px] md:h-[120px] relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/30 z-10"></div>
-                    <img
-                      src={story?.items[0]?.image}
-                      alt={story.username}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
 
-                    {/* Avatar with modern ring */}
-                    <div className="absolute top-3 left-3 z-10">
-                      <div className={`p-0.5 rounded-full shadow-md`}>
-                        <Avatar
-                          className={`w-7 h-7 md:w-8 md:h-8 ring-2 bg-white ${
-                            story.isViewedByUser
-                              ? " ring-gray-200"
-                              : " ring-primary"
-                          } `}
-                        >
-                          <AvatarImage
-                            src={story.avatar}
-                            alt={story.username}
-                            className="object-cover"
-                          />
-                          <AvatarFallback className="text-primary bg-white font-medium">
-                            {story?.username &&
-                              story?.username?.slice(0, 1)?.toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                      </div>
-                    </div>
-
-                    {/* Item count badge */}
-                    {story.items.length > 1 && (
-                      <div className="absolute bottom-3 right-3 z-20 bg-[#03a9a9] text-gray-900 text-xs font-semibold px-2 py-1 rounded-full shadow-sm backdrop-blur-sm bg-opacity-90">
-                        {story.items.length}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content with modern typography */}
-                  <div className="p-3 flex-1 flex flex-col justify-between">
-                    <h3 className="text-sm line-clamp-2 text-gray-900 group-hover:text-[#03a9a9] transition-colors">
-                      {story?.caption}
-                    </h3>
-                    <div className="flex justify-between items-end">
-                      <p className="text-xs text-gray-500 font-medium">
-                        @{story.username}
-                      </p>
-                      <div className="text-[10px] text-[#03a9a9] font-bold uppercase tracking-wide">
-                        View Story
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Modern glow effect on hover */}
-                  <div className="absolute inset-0 rounded-xl md:rounded-2xl pointer-events-none transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(3,169,169,0.3)] group-hover:bg-[#03a9a9]/5"></div>
-                </div>
-              ))}
+              {/* Subtle decorative elements */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-1/4 left-1/4 w-8 h-8 rounded-full bg-[#03a9a9] blur-md"></div>
+                <div className="absolute bottom-1/3 right-1/3 w-10 h-10 rounded-full bg-[#03c9c9] blur-md"></div>
+              </div>
             </div>
-            {isLoadingStories ? <Spinner /> : null}
+
+            {/* Content area matching story cards */}
+            <div className="p-3 flex-1 flex flex-col items-center justify-center">
+              <h3 className="font-semibold text-sm md:text-base text-gray-900 group-hover:text-[#03a9a9] transition-colors">
+                Add Story
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">Tap to create</p>
+            </div>
+
+            {/* Matching glow effect on hover */}
+            <div className="absolute inset-0 rounded-xl md:rounded-2xl pointer-events-none transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(3,169,169,0.3)] group-hover:bg-[#03a9a9]/5"></div>
           </div>
 
-          {/* header */}
-          <div className="flex justify-between items-center px-1 md:px-10">
-            <h2 className="font-medium text-lg text-gray-800 flex items-center gap-2">
-              Your Feed
-            </h2>
-            <Button
-              onClick={() => setOpen(true)}
-              className="text-white flex items-center gap-2 rounded-sm px-5 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 bg-primary"
+          {stories?.map((story) => (
+            <div
+              key={story.id}
+              className="min-w-[120px] md:min-w-[170px] h-[160px] md:h-[170px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
+              onClick={() => {
+                setViewingStory(story);
+                setCurrentStoryItemIndex(0);
+                setViewStory(true);
+                setStoryProgress(0);
+              }}
             >
-              <ImageIcon className="w-4 h-4" />
-              <span>Create Post</span>
-            </Button>
-          </div>
+              {/* Image container with modern overlay */}
+              <div className="h-[80px] md:h-[100px] relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/30 z-10"></div>
+                <img
+                  src={story?.items[0]?.image}
+                  alt={story.username}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
 
-          {/* post card */}
-          <div className="space-y-6 max-w-[600px] mx-auto">
+                {/* Avatar with modern ring */}
+                <div className="absolute top-3 left-3 z-10">
+                  <div className={`p-0.5 rounded-full shadow-md`}>
+                    <Avatar
+                      className={`w-7 h-7 md:w-8 md:h-8 ring-2 bg-white ${
+                        story.isViewedByUser
+                          ? " ring-gray-200"
+                          : " ring-primary"
+                      } `}
+                    >
+                      <AvatarImage
+                        src={story.avatar}
+                        alt={story.username}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="text-primary bg-white font-medium">
+                        {story?.username &&
+                          story?.username?.slice(0, 1)?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </div>
+
+                {/* Item count badge */}
+                {story.items.length > 1 && (
+                  <div className="absolute bottom-3 right-3 z-20 bg-[#03a9a9] text-gray-900 text-xs font-semibold px-2 py-1 rounded-full shadow-sm backdrop-blur-sm bg-opacity-90">
+                    {story.items.length}
+                  </div>
+                )}
+              </div>
+
+              {/* Content with modern typography */}
+              <div className="p-3 flex-1 flex flex-col justify-between">
+                <h3 className="text-sm line-clamp-2 text-gray-900 group-hover:text-[#03a9a9] transition-colors">
+                  {story?.caption}
+                </h3>
+                <div className="flex justify-between items-end">
+                  <p className="text-xs text-gray-500 font-medium">
+                    @{story.username}
+                  </p>
+                  <div className="text-[10px] text-[#03a9a9] font-bold uppercase tracking-wide">
+                    View Story
+                  </div>
+                </div>
+              </div>
+
+              {/* Modern glow effect on hover */}
+              <div className="absolute inset-0 rounded-xl md:rounded-2xl pointer-events-none transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(3,169,169,0.3)] group-hover:bg-[#03a9a9]/5"></div>
+            </div>
+          ))}
+        </div>
+        {isLoadingStories ? <Spinner /> : null}
+      </div>
+
+      <div className="grid grid-cols-12 mx-auto gap-5 pr-1 md:px-4 py-2">
+        {/* left side */}
+        <div className="lg:col-span-3  hidden lg:block ">
+          <div className="sticky top-20  overflow-y-hidden bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4 ">
+            <h1 className="text-xl font-semibold my-2">Recently Applied</h1>
+            <div className="h-[80vh] pb-10 overflow-y-auto">
+              <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                  {isLoading
+                    ? ["1", "2", "3"].map((_, index) => (
+                        <RelatedJobSkeleton key={index} />
+                      ))
+                    : jobsToShow?.map((job) => (
+                        <RelatedJob key={job._id} job={job?.jobid} />
+                      ))}
+
+                  {!isLoading &&
+                    appliedJobs?.data &&
+                    appliedJobs?.data.length > 3 && (
+                      <Button
+                        className={`px-4 py-2 rounded-none w-full mx-6 bg-primary`}
+                        onClick={() => setShowAll((prev) => !prev)}
+                      >
+                        {showAll ? "Show Less" : "Explore More"}
+                      </Button>
+                    )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* post card */}
+        <div className="col-span-12 lg:col-span-6  space-y-8">
+          <div className="space-y-2 max-w-[600px] mx-auto">
+            <div className="flex items-center justify-end">
+              <Button
+                onClick={() => setOpen(true)}
+                className="text-white flex items-center gap-2 rounded-sm px-5 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 bg-primary"
+              >
+                <ImageIcon className="w-4 h-4" />
+                <span>Create Post</span>
+              </Button>
+            </div>
             {[...(allPosts ?? [])]
               // .reverse()
               .map((post, index) => {
@@ -1360,10 +1399,18 @@ function NormalHomePage() {
           </div>
         </div>
 
+        {/* left side */}
         <div className="lg:col-span-3  hidden lg:block">
           <div className="sticky  top-16 space-y-6">
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden ">
-              <div className="h-32 bg-gradient-to-br bg-[#03a9a9]  "></div>
+              <div className="h-32 bg-gradient-to-br bg-[#03a9a9]">
+                <CustomVideoPlayer
+                  otherUser={undefined}
+                  isOtherUser={false}
+                  fromChat={true}
+                  showUpload={false}
+                />
+              </div>
               <div className="px-5 pb-5 pt-0 -mt-10">
                 {/* Profile Header */}
                 <Avatar className="w-20 h-20 border-4 p-0.5 rounded-full bg-gradient-to-br from-[#03a9a9] to-[#03c9c9] shadow-md">

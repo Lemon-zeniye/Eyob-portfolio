@@ -355,7 +355,8 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
               </div>
             </div>
           ) : (
-            <div className="h-[400px] md:h-[600px] w-full max-w-[600px] mx-auto">
+            // <div className="h-[400px] md:h-[600px] w-full max-w-[600px] mx-auto">
+            <div className="h-[400px] md:h-[600px] w-full mx-auto">
               {currentImages.map((image, idx) => (
                 <motion.div
                   key={idx}

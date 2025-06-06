@@ -1,36 +1,31 @@
-import {
-  Briefcase,
-  Home,
-  LucideIcon,
-  MessageCircle,
-  Search,
-  Settings,
-} from "lucide-react";
-import logo from "../../assets/bevylogo.svg";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar/Navbar";
 import SidebarSm from "@/components/Sidebar/SidebarSm";
-import { useRole } from "@/Context/RoleContext";
+
+import { LuBriefcaseBusiness } from "react-icons/lu";
+
+import { LuMessageCircleMore } from "react-icons/lu";
+
+import { MdOutlineExplore } from "react-icons/md";
+import { IconType } from "react-icons/lib";
+import { HiOutlineHome } from "react-icons/hi2";
 
 export interface Route {
   id: number;
-  icon: LucideIcon;
+  icon: IconType;
   name: string;
   path: string;
 }
 
 const routes: Route[] = [
-  { id: 1, icon: Home, name: "Feed", path: "/" },
-  { id: 2, icon: MessageCircle, name: "Chat", path: "/chat" },
-  { id: 3, icon: Briefcase, name: "Jobs", path: "/jobs" },
-  { id: 4, icon: Search, name: "Explore", path: "/explore" },
-  { id: 5, icon: Settings, name: "Settings", path: "/settings" },
+  { id: 1, icon: HiOutlineHome, name: "Feed", path: "/" },
+  { id: 2, icon: LuBriefcaseBusiness, name: "Jobs", path: "/jobs" },
+  { id: 3, icon: LuMessageCircleMore, name: "Chat", path: "/chat" },
+  { id: 4, icon: MdOutlineExplore, name: "Explore", path: "/explore" },
 ];
 
 const Sidebar = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { mode } = useRole();
 
   const handleSelected = (path: string) => {
     navigate(path);
@@ -38,7 +33,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="w-full flex sm-phone:flex-col sm-phone:justify-between md:flex-row bg-[#f5f5f5] min-h-screen scroll-smooth">
-      <div className="bg-white hidden h-screen fixed w-20 border-r md:flex flex-col justify-between py-5 items-center">
+      {/* <div className="bg-white hidden h-screen fixed w-20 border-r md:flex flex-col justify-between py-5 items-center">
         <div className="flex flex-col gap-10">
           <img src={logo} className="w-8 h-auto" alt="Logo" />
           <div className="flex flex-col items-center justify-between h-[30vh]">
@@ -80,9 +75,9 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
             <Settings size={22} />
           </Link>
         </div>
-      </div>
+      </div> */}
 
-      <div className="flex flex-col gap-3 md:pl-24 sm-phone:pl-3 w-full">
+      <div className="flex flex-col gap-3 sm-phone:pl-3 w-full">
         <Navbar />
         {children}
       </div>

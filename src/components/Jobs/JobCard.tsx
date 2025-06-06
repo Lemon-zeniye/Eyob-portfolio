@@ -1,6 +1,5 @@
 import { Job } from "@/Types/job.type";
 import { Button } from "../ui/button";
-import googleLogo from "../../assets/icons8-google-48.png";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "react-query";
 import { applyJob } from "@/Api/job.api";
@@ -8,20 +7,12 @@ import { tos } from "@/lib/utils";
 import { Spinner } from "../ui/Spinner";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { useRole } from "@/Context/RoleContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 const JobCard = ({ job }: { job: Job }) => {
   const navigate = useNavigate();
   // Fill in dummy data for missing fields
-  const jobData = {
-    jobTitle: job.jobTitle,
-    company: job.company,
-    jobLocation: job.jobLocation,
-    employmentType: job.employmentType,
-    jobDescription: job.jobDescription,
-    skills: job.skills?.length ? job.skills.join(", ") : "",
-    appliedCount: 5,
-    capacity: 10,
-    jobLocationType: job.locationType,
-  };
+
   const { mode } = useRole();
 
   const { mutate, isLoading } = useMutation({
@@ -42,30 +33,43 @@ const JobCard = ({ job }: { job: Job }) => {
           onClick={() => navigate(`/jobs/${job._id}`)}
           className="flex-none px-2"
         >
-          <img src={googleLogo} />
+          <Avatar>
+            <AvatarImage
+              src={undefined}
+              alt={job.company}
+              className={`w-16 h-16 rounded-full object-cover border-2 border-primary/20`}
+            />
+            <AvatarFallback
+              className={`${
+                mode === "formal" ? "bg-primary/30" : "bg-primary2/30"
+              } `}
+            >
+              {job?.company?.slice(0, 1)}{" "}
+            </AvatarFallback>
+          </Avatar>
         </div>
         <div onClick={() => navigate(`/jobs/${job._id}`)} className="flex-1">
           <div className="mb-3 space-y-2">
             <h3 className="text-xl font-semibold text-gray-900">
-              {jobData.jobTitle}
+              {job.jobTitle}
             </h3>
             <div className="flex items-center gap-1">
               <span className="text-base text-[#7C8493]">
-                {jobData.company}
+                {job?.jobIndustry}
               </span>
               <span className="text-sm text-gray-500">•</span>
               <span className="text-base text-gray-500">
-                {jobData.jobLocation}
+                {job?.jobLocation}
               </span>
             </div>
           </div>
           <div className="mb-4 flex flex-wrap gap-2 text-[0.8rem]">
             <span className="rounded-full px-3 py-1.5 border border-white bg-[#EFFAF7]  text-[#56CDAD]  font-medium">
-              {jobData.employmentType || "Marketing"}
+              {job?.employmentType}
             </span>
             <div className="h-8 border-l"></div>
             <span className="rounded-full px-3 py-1.5 border-2 border-[#FFB836] bg-white text-[#FFB836]  font-medium">
-              {jobData.jobLocationType}
+              {job?.employmentMode}
             </span>
             {/* <span className="rounded-full px-3 py-1.5 border-2 border-primary bg-white text-primary  font-medium">
               {jobData.degree}
@@ -97,15 +101,26 @@ const JobCard = ({ job }: { job: Job }) => {
                   mode === "formal" ? "bg-primary/40 " : "bg-primary2/40"
                 }`}
                 style={{
-                  width: `${(jobData.appliedCount / jobData.capacity) * 100}%`,
+                  width: job?.numberOfOpenings
+                    ? `${
+                        (Math.floor(job.numberOfOpenings * 0.7) /
+                          job.numberOfOpenings) *
+                        100
+                      }%`
+                    : "0%",
                 }}
               ></div>
             </div>
           </div>
 
           <p className="text-sm text-gray-500 mt-1 ">
-            <span className="font-bold">{jobData.appliedCount} applied</span> of{" "}
-            {jobData.capacity} capacity
+            <span className="font-bold">
+              {job?.numberOfOpenings
+                ? Math.floor(job.numberOfOpenings * 0.7)
+                : 0}{" "}
+              applied
+            </span>{" "}
+            of {job?.numberOfOpenings} capacity
           </p>
         </div>
       </div>

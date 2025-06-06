@@ -1,17 +1,14 @@
 import { Job } from "@/Types/job.type";
 import { FC } from "react";
-import googleLogo from "../../assets/icons8-google-48.png";
 import { useRole } from "@/Context/RoleContext";
 import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Props {
   job: Job;
 }
 
 const JobCardTwo: FC<Props> = ({ job }) => {
-  // Dummy data
-  const applied = 5;
-  const capacity = 10;
   const { mode } = useRole();
   const navigate = useNavigate();
   return (
@@ -21,11 +18,20 @@ const JobCardTwo: FC<Props> = ({ job }) => {
     >
       {/* Top Row */}
       <div className="flex justify-between items-start">
-        <img
-          src={googleLogo}
-          alt="Company"
-          className="w-10 h-10 object-cover"
-        />
+        <Avatar>
+          <AvatarImage
+            src={undefined}
+            alt={job.company}
+            className={`w-16 h-16 rounded-full object-cover border-2 border-primary/20`}
+          />
+          <AvatarFallback
+            className={`${
+              mode === "formal" ? "bg-primary/30" : "bg-primary2/30"
+            } `}
+          >
+            {job?.company?.slice(0, 1)}{" "}
+          </AvatarFallback>
+        </Avatar>
         <span
           className={` border-white text-sm px-3 py-1 font-medium rounded-full ${
             mode === "formal"
@@ -33,7 +39,7 @@ const JobCardTwo: FC<Props> = ({ job }) => {
               : "bg-primary2/10  text-primary2/70 "
           } `}
         >
-          {job.employmentType || "Full-Time"}
+          {job?.employmentMode}
         </span>
       </div>
 
@@ -42,7 +48,7 @@ const JobCardTwo: FC<Props> = ({ job }) => {
 
       {/* Company and Location */}
       <p className="text-sm text-gray-500">
-        {job.company} &nbsp;•&nbsp; {job.jobLocation}
+        {job?.jobIndustry} &nbsp;•&nbsp; {job.jobLocation}
       </p>
 
       {/* Tags */}
@@ -55,23 +61,34 @@ const JobCardTwo: FC<Props> = ({ job }) => {
         </span>
       </div>
 
-      {/* Progress */}
       <div className="mt-4 space-y-1">
-        <div className="w-full bg-gray-200  h-1.5">
-          <div
-            className={`h-1.5 ${
-              mode === "formal" ? "bg-primary/40 " : "bg-primary2/40"
-            }`}
-            style={{ width: `${(applied / capacity) * 100}%` }}
-          />
+        {/* Progress Bar */}
+        <div className="w-full ">
+          <div className="w-full bg-gray-200 h-1.5">
+            <div
+              className={`h-1.5 ${
+                mode === "formal" ? "bg-primary/40 " : "bg-primary2/40"
+              }`}
+              style={{
+                width: job?.numberOfOpenings
+                  ? `${
+                      (Math.floor(job.numberOfOpenings * 0.7) /
+                        job.numberOfOpenings) *
+                      100
+                    }%`
+                  : "0%",
+              }}
+            ></div>
+          </div>
         </div>
 
-        <div className="flex gap-1 text-sm mb-1">
-          <span className="font-semibold text-gray-700">
-            {applied} applied{" "}
-          </span>
-          <span className="text-gray-400">of {capacity} capacity</span>
-        </div>
+        <p className="text-sm text-gray-500 mt-1 ">
+          <span className="font-bold">
+            {job?.numberOfOpenings ? Math.floor(job.numberOfOpenings * 0.7) : 0}{" "}
+            applied
+          </span>{" "}
+          of {job?.numberOfOpenings} capacity
+        </p>
       </div>
     </div>
   );

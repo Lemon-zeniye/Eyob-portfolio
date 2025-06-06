@@ -24,10 +24,12 @@ const CustomVideoPlayer = ({
   otherUser,
   isOtherUser,
   fromChat = false,
+  showUpload = true,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
   fromChat?: boolean;
+  showUpload?: boolean;
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -173,7 +175,7 @@ const CustomVideoPlayer = ({
   return (
     <>
       <div
-        className="relative w-full max-w-[1350px] bg-[#D9D9D9] rounded-lg overflow-hidden border border-[#BFBFBF]/30 group"
+        className="relative w-full max-w-[1350px] bg-[#D9D9D9]  rounded-lg overflow-hidden border border-[#BFBFBF]/30 group"
         onMouseEnter={() => setShowControls(true)}
         onMouseLeave={() => setShowControls(false)}
       >
@@ -214,7 +216,7 @@ const CustomVideoPlayer = ({
           >
             {isMuted ? <FaVolumeMute size={18} /> : <FaVolumeUp size={18} />}
           </button>
-          {!otherUser && (
+          {!otherUser && showUpload && (
             <button
               onClick={() => setOpen(true)}
               className={`text-[#767676] bg-white p-2 rounded-full hover:text-white transition-all shadow-sm ${
@@ -242,7 +244,7 @@ const CustomVideoPlayer = ({
             <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[94%] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-2xl border border-[#BFBFBF] focus:outline-none">
               <div className="flex items-center justify-between mb-6">
                 <Dialog.Title className="text-2xl font-bold">
-                  Upload Video
+                  Upload Video M
                 </Dialog.Title>
                 <Dialog.Close asChild>
                   <button className="text-[#767676] hover:text-[#05A9A9] transition-colors p-1">
@@ -253,7 +255,7 @@ const CustomVideoPlayer = ({
 
               {videoURL ? (
                 <div className="w-full space-y-6">
-                  <div className="relative w-full h-[450px] bg-[#BFBFBF] rounded-lg overflow-hidden border border-[#767676]/30">
+                  <div className="relative w-full h-[370px] bg-[#BFBFBF] rounded-lg overflow-hidden border border-[#767676]/30">
                     <video
                       src={videoURL}
                       controls

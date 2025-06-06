@@ -11,7 +11,7 @@ import { Spinner } from "../ui/Spinner";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { useRole } from "@/Context/RoleContext";
 
-const RelatedJobSkeleton = () => {
+export const RelatedJobSkeleton = () => {
   return (
     <div className="p-4 border w-80 animate-pulse space-y-4">
       <div className="flex items-center justify-between">
@@ -31,7 +31,7 @@ const RelatedJobSkeleton = () => {
   );
 };
 
-const RelatedJob = ({ job }: { job: Job }) => {
+export const RelatedJob = ({ job }: { job: Job }) => {
   const { mode } = useRole();
   const navigate = useNavigate();
   return (

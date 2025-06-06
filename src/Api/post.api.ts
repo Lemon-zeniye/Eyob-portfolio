@@ -56,7 +56,7 @@ export const getUserStories = async (): Promise<StoryRes> => {
 
 export const getAllUserStories = async (
   page: number = 1,
-  limit: number = 10
+  limit: number = 20
 ): Promise<StoryRes> => {
   const response = await axios.get<any>(`/user/getAllUserStories`, {
     params: { page, limit },

@@ -46,6 +46,11 @@ import { tos, transformInfiniteStories } from "@/lib/utils";
 import { PostCom } from "@/Types/post.type";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { Input } from "@/components/ui/input";
+import { getAppliedJobs } from "@/Api/job.api";
+import { RelatedJobSkeleton } from "@/components/Jobs/JobDetailNew";
+import { useRole } from "@/Context/RoleContext";
+import { RelatedJob } from "@/components/Jobs/RelatedJob";
+import CustomVideoPlayer from "@/components/Video/Video";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -97,6 +102,9 @@ function SocialHomePage() {
   const profileImage = Cookies.get("profilePic");
   const [caption, setCaption] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
+  const [showAll, setShowAll] = useState(false);
+
+  const { mode } = useRole();
 
   const [viewingStory, setViewingStory] = useState<null | {
     id: number;
@@ -157,6 +165,15 @@ function SocialHomePage() {
   //     },
   //     enabled: !!expandedPost,
   //   });
+
+  const { data: appliedJobs } = useQuery({
+    queryKey: ["appliedJobs"],
+    queryFn: getAppliedJobs,
+  });
+
+  const jobsToShow = showAll
+    ? appliedJobs?.data?.slice()?.reverse()
+    : appliedJobs?.data?.slice()?.reverse()?.slice(0, 3);
 
   const { data: userData } = useQuery({
     queryKey: ["userProfile"],
@@ -419,103 +436,124 @@ function SocialHomePage() {
   return (
     // <div className="min-h-screen bg-gradient-to-b from-[#f8fdfd] to-white">
     <div className="min-h-screen">
-      <div className="grid grid-cols-12 mx-auto gap-5 pr-1 md:px-4 py-2">
-        <div className="col-span-12 lg:col-span-9  space-y-8">
-          {/* story */}
-          <div className="bg-white rounded-2xl shadow-lg p-2 md:p-6 overflow-hidden border border-[#e6f7f7]">
-            <h2 className="font-medium text-lg mb-5 text-gray-800 flex items-center gap-2">
-              <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
-              Stories
-            </h2>
-            <div
-              className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide"
-              ref={storiesContainerRef}
-            >
+      <div className="rounded-2xl scrollbar-hide  overflow-hidden">
+        <div
+          className="flex gap-5 overflow-x-auto  scrollbar-hide"
+          ref={storiesContainerRef}
+        >
+          <div
+            key="add-story"
+            className="flex flex-col items-center cursor-pointer group"
+            onClick={() => {
+              setOpenFileUpload(true);
+            }}
+          >
+            <div className="relative mb-2">
               <div
-                key="add-story"
-                className="flex flex-col items-center cursor-pointer group"
-                onClick={() => {
-                  setOpenFileUpload(true);
+                className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center bg-gray-50 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105"
+                style={{
+                  background: "linear-gradient(135deg, #FFA500, #ffffff)",
                 }}
               >
-                <div className="relative mb-2">
-                  <div
-                    className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center bg-gray-50 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105"
-                    style={{
-                      background: "linear-gradient(135deg, #FFA500, #ffffff)",
-                    }}
-                  >
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-md"
-                      style={{
-                        background: "#FFA500",
-                      }}
-                    >
-                      <PlusIcon className="w-5 h-5" />
-                    </div>
-                  </div>
-                </div>
-                <span className="text-xs font-medium text-gray-600">Add</span>
-              </div>
-
-              {stories?.map((story) => (
                 <div
-                  key={story.id}
-                  className="flex flex-col items-center cursor-pointer group"
-                  onClick={() => {
-                    setViewingStory(story);
-                    setCurrentStoryItemIndex(0);
-                    setViewStory(true);
-                    setStoryProgress(0);
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-md"
+                  style={{
+                    background: "#FFA500",
                   }}
                 >
-                  <div className="relative mb-2">
-                    <div
-                      className={`w-16 h-16  md:w-20 md:h-20 rounded-full p-0.5 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105 ${
-                        story.isViewedByUser
-                          ? "bg-gray-300"
-                          : "bg-gradient-to-br from-[#FFA500] via-[#fac970] to-[#f2cf8f]"
-                      }`}
-                    >
-                      <div className="w-full h-full rounded-full border-2 border-white overflow-hidden">
-                        <img
-                          src={story?.items[0]?.image}
-                          alt={story?.username}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <span className="text-xs font-medium text-gray-600 truncate max-w-[80px] text-center">
-                    {viewingStory?.username
-                      ? viewingStory?.username[0]?.toUpperCase()
-                      : ""}
-                  </span>
+                  <PlusIcon className="w-5 h-5" />
                 </div>
-              ))}
+              </div>
             </div>
+            <span className="text-xs font-medium text-gray-600">Add</span>
           </div>
 
-          {/* post header */}
-          <div className="flex justify-between items-center px-1 md:px-10">
-            <h2 className="font-medium text-lg text-gray-800 flex items-center gap-2">
-              <span className="inline-block w-1.5 h-5 rounded-full bg-gradient-to-b from-primary2 to-primary2/50"></span>
-              Your Feed
-            </h2>
-            <Button
-              onClick={() => setOpen(true)}
-              className="text-white flex items-center gap-2 rounded-full px-5 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-              style={{
-                background: "linear-gradient(135deg, #FFA500, #f2cf8f)",
+          {stories?.map((story) => (
+            <div
+              key={story.id}
+              className="flex flex-col items-center cursor-pointer group"
+              onClick={() => {
+                setViewingStory(story);
+                setCurrentStoryItemIndex(0);
+                setViewStory(true);
+                setStoryProgress(0);
               }}
             >
-              <ImageIcon className="w-4 h-4" />
-              <span>Create Post</span>
-            </Button>
-          </div>
+              <div className="relative mb-1">
+                <div
+                  className={`w-14 h-14  md:w-16 md:h-16 rounded-full p-0.5 shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105 ${
+                    story.isViewedByUser
+                      ? "bg-gray-300"
+                      : "bg-gradient-to-br from-[#FFA500] via-[#fac970] to-[#f2cf8f]"
+                  }`}
+                >
+                  <div className="w-full h-full rounded-full border-2 border-white overflow-hidden">
+                    <img
+                      src={story?.items[0]?.image}
+                      alt={story?.username}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+              <span className="text-xs font-medium text-gray-600 truncate max-w-[60px] text-center">
+                {story?.username}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="grid grid-cols-12 mx-auto gap-5 pr-1 md:px-4 py-2">
+        {/* left side */}
+        <div className="lg:col-span-3  hidden lg:block ">
+          <div className="sticky top-20  overflow-y-hidden bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4 ">
+            <h1 className="text-xl font-semibold my-2">Recently Applied</h1>
+            <div className="h-[80vh] pb-10 overflow-y-auto">
+              <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                  {isLoading
+                    ? ["1", "2", "3"].map((_, index) => (
+                        <RelatedJobSkeleton key={index} />
+                      ))
+                    : jobsToShow?.map((job) => (
+                        <RelatedJob key={job._id} job={job?.jobid} />
+                      ))}
 
-          {/* post card */}
+                  {!isLoading &&
+                    appliedJobs?.data &&
+                    appliedJobs?.data.length > 3 && (
+                      <Button
+                        className={`px-4 py-2 rounded-none w-full mx-6 ${
+                          mode === "formal"
+                            ? "bg-primary "
+                            : "bg-primary2 hover:bg-primary2/70"
+                        }`}
+                        onClick={() => setShowAll((prev) => !prev)}
+                      >
+                        {showAll ? "Show Less" : "Explore More"}
+                      </Button>
+                    )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* post card */}
+        <div className="col-span-12 lg:col-span-6  space-y-8">
           <div className="space-y-6 max-w-xl mx-auto my-10">
+            <div className="w-full flex justify-end">
+              <Button
+                onClick={() => setOpen(true)}
+                className="text-white flex items-center gap-2 rounded-full px-5 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                style={{
+                  background: "linear-gradient(135deg, #FFA500, #f2cf8f)",
+                }}
+              >
+                <ImageIcon className="w-4 h-4" />
+                <span>Create Post</span>
+              </Button>
+            </div>
             <div className="space-y-6">
               {[...(allPosts ?? [])]
                 // .reverse()
@@ -527,7 +565,7 @@ function SocialHomePage() {
                       key={postId}
                       className="rounded-t-2xl overflow-hidden "
                     >
-                      <div className="w-full  ">
+                      <div className="w-full ">
                         <PostGalleryTwo
                           key={post._id}
                           post={post}
@@ -601,13 +639,20 @@ function SocialHomePage() {
           <div className="sticky top-16  overflow-y-hidden">
             <div className="bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4">
               <div
-                className="h-28 rounded-t-md"
+                className="h-32 rounded-t-md"
                 style={{
                   background:
                     "linear-gradient(135deg, #FFA500, #fac970, #f2cf8f)",
                 }}
-              ></div>
-              <div className="px-5 pb-5 pt-0 -mt-14">
+              >
+                <CustomVideoPlayer
+                  otherUser={undefined}
+                  isOtherUser={false}
+                  fromChat={true}
+                  showUpload={false}
+                />
+              </div>
+              <div className="px-5 pb-5 pt-0 -mt-8">
                 <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
                   <AvatarImage
                     className="object-cover"

@@ -5,6 +5,7 @@ import { getUserPicture } from "@/Api/profile.api";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { IoIosArrowDown } from "react-icons/io";
 
 const UserDropdown = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const UserDropdown = () => {
     <div className="relative group inline-block">
       {/* Trigger */}
 
-      <div>
+      <div className="flex flex-col items-center">
         <Avatar className="w-10 h-10 border border-primary rounded-full cursor-pointer">
           <AvatarImage
             src={profileImage || "/placeholder.svg"}
@@ -45,6 +46,7 @@ const UserDropdown = () => {
             {Cookies.get("userName")?.charAt(0) || "U"}
           </AvatarFallback>
         </Avatar>
+        <IoIosArrowDown />
       </div>
 
       {/* Dropdown on Hover */}
@@ -69,6 +71,28 @@ const UserDropdown = () => {
               />
             </svg>
             View Profile
+          </Link>
+
+          <div className="border-t border-gray-100 my-1"></div>
+          <Link
+            to="/settings"
+            className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-150 flex items-center gap-2 hover:translate-x-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11.983 13.917a2.002 2.002 0 110-3.834 2.002 2.002 0 010 3.834zM19.428 15.341a8.03 8.03 0 001.096-2.341 1.001 1.001 0 00-.285-1.01l-1.518-1.31a6.07 6.07 0 00.007-1.358l1.511-1.31a1 1 0 00.28-1.011 8.002 8.002 0 00-1.095-2.34 1 1 0 00-1.004-.484l-1.893.271a6.061 6.061 0 00-1.175-.681l-.285-1.907a1 1 0 00-.992-.83h-2.9a1 1 0 00-.993.83l-.285 1.907a6.058 6.058 0 00-1.175.681l-1.893-.271a1 1 0 00-1.004.484 8.008 8.008 0 00-1.095 2.34 1 1 0 00.28 1.011l1.511 1.31a6.07 6.07 0 00.007 1.358l-1.518 1.31a1 1 0 00-.285 1.01 8.03 8.03 0 001.096 2.341 1 1 0 001.004.484l1.893-.271c.365.266.76.489 1.175.681l.285 1.907a1 1 0 00.993.83h2.9a1 1 0 00.992-.83l.285-1.907a6.061 6.061 0 001.175-.681l1.893.271a1 1 0 001.004-.484z"
+              />
+            </svg>
+            Settings
           </Link>
 
           <div className="border-t border-gray-100 my-1"></div>
