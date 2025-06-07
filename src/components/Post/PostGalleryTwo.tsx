@@ -982,7 +982,7 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
                         )}`
                       }
                       alt={post.postTitle || "Post"}
-                      className="w-full h-full object-cover "
+                      className="w-full h-full object-contain "
                     />
                   </motion.div>
                 ))}
@@ -1034,10 +1034,10 @@ const PostGalleryTwo: React.FC<PostCardProps> = ({ post, index }) => {
               </div>
 
               {/* Top Gradient Shadow (Small) */}
-              <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
+              {/* <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" /> */}
 
               {/* Bottom Gradient Shadow (Small) */}
-              <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t rounded-b-xl md:rounded-b-3xl from-black/50 to-transparent pointer-events-none" />
+              {/* <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t rounded-b-xl md:rounded-b-3xl from-black/50 to-transparent pointer-events-none" /> */}
             </div>
           </Dialog.Content>
         </Dialog.Portal>

@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Cookies from "js-cookie";
-import { getUserFullProfile, getUserProfile } from "@/Api/profile.api";
+// import { getUserFullProfile, getUserProfile } from "@/Api/profile.api";
 import { Spinner } from "@/components/ui/Spinner";
 import PostGalleryTwo from "@/components/Post/PostGalleryTwo";
 import { tos, transformInfiniteStories } from "@/lib/utils";
@@ -50,7 +50,7 @@ import { getAppliedJobs } from "@/Api/job.api";
 import { RelatedJobSkeleton } from "@/components/Jobs/JobDetailNew";
 import { useRole } from "@/Context/RoleContext";
 import { RelatedJob } from "@/components/Jobs/RelatedJob";
-import CustomVideoPlayer from "@/components/Video/Video";
+// import CustomVideoPlayer from "@/components/Video/Video";
 
 type StoryFile = File & {
   preview?: string; // For object URL preview
@@ -99,7 +99,7 @@ function SocialHomePage() {
   const [selectedFile, setSelectedFile] = useState<StoryFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const profileImage = Cookies.get("profilePic");
+  // const profileImage = Cookies.get("profilePic");
   const [caption, setCaption] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
   const [showAll, setShowAll] = useState(false);
@@ -175,20 +175,20 @@ function SocialHomePage() {
     ? appliedJobs?.data?.slice()?.reverse()
     : appliedJobs?.data?.slice()?.reverse()?.slice(0, 3);
 
-  const { data: userData } = useQuery({
-    queryKey: ["userProfile"],
-    queryFn: getUserProfile,
-  });
+  // const { data: userData } = useQuery({
+  //   queryKey: ["userProfile"],
+  //   queryFn: getUserProfile,
+  // });
 
-  const { data: userFullProfile } = useQuery({
-    queryKey: ["getUserFullProfile", userId],
-    queryFn: () => {
-      if (userId) {
-        return getUserFullProfile(userId);
-      }
-    },
-    enabled: !!userId,
-  });
+  // const { data: userFullProfile } = useQuery({
+  //   queryKey: ["getUserFullProfile", userId],
+  //   queryFn: () => {
+  //     if (userId) {
+  //       return getUserFullProfile(userId);
+  //     }
+  //   },
+  //   enabled: !!userId,
+  // });
 
   const { mutate: addUserStory, isLoading: storyLoading } = useMutation({
     mutationFn: addStory,
@@ -504,44 +504,9 @@ function SocialHomePage() {
         </div>
       </div>
       <div className="grid grid-cols-12 mx-auto gap-5 pr-1 md:px-4 py-2">
-        {/* left side */}
-        <div className="lg:col-span-3  hidden lg:block ">
-          <div className="sticky top-20  overflow-y-hidden bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4 ">
-            <h1 className="text-xl font-semibold my-2">Recently Applied</h1>
-            <div className="h-[80vh] pb-10 overflow-y-auto">
-              <div className="flex flex-col gap-y-2 md:items-center justify-between">
-                <div className="flex flex-col gap-y-2 md:items-center justify-between">
-                  {isLoading
-                    ? ["1", "2", "3"].map((_, index) => (
-                        <RelatedJobSkeleton key={index} />
-                      ))
-                    : jobsToShow?.map((job) => (
-                        <RelatedJob key={job._id} job={job?.jobid} />
-                      ))}
-
-                  {!isLoading &&
-                    appliedJobs?.data &&
-                    appliedJobs?.data.length > 3 && (
-                      <Button
-                        className={`px-4 py-2 rounded-none w-full mx-6 ${
-                          mode === "formal"
-                            ? "bg-primary "
-                            : "bg-primary2 hover:bg-primary2/70"
-                        }`}
-                        onClick={() => setShowAll((prev) => !prev)}
-                      >
-                        {showAll ? "Show Less" : "Explore More"}
-                      </Button>
-                    )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* post card */}
-        <div className="col-span-12 lg:col-span-6  space-y-8">
-          <div className="space-y-6 max-w-xl mx-auto my-10">
+        <div className="col-span-12 lg:col-span-9   space-y-8">
+          <div className="space-y-2 max-w-xl mx-auto my-4">
             <div className="w-full flex justify-end">
               <Button
                 onClick={() => setOpen(true)}
@@ -634,8 +599,43 @@ function SocialHomePage() {
           </div>
         </div>
 
+        {/* the right side */}
+        <div className="lg:col-span-3  hidden lg:block ">
+          <div className="sticky top-20  overflow-y-hidden bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4 ">
+            <h1 className="text-xl font-semibold my-2">Recently Applied</h1>
+            <div className="h-[80vh] pb-10 overflow-y-auto">
+              <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                  {isLoading
+                    ? ["1", "2", "3"].map((_, index) => (
+                        <RelatedJobSkeleton key={index} />
+                      ))
+                    : jobsToShow?.map((job) => (
+                        <RelatedJob key={job._id} job={job?.jobid} />
+                      ))}
+
+                  {!isLoading &&
+                    appliedJobs?.data &&
+                    appliedJobs?.data.length > 3 && (
+                      <Button
+                        className={`px-4 py-2 rounded-none w-full mx-6 ${
+                          mode === "formal"
+                            ? "bg-primary "
+                            : "bg-primary2 hover:bg-primary2/70"
+                        }`}
+                        onClick={() => setShowAll((prev) => !prev)}
+                      >
+                        {showAll ? "Show Less" : "Explore More"}
+                      </Button>
+                    )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* right side */}
-        <div className="lg:col-span-3  hidden lg:block">
+        {/* <div className="lg:col-span-3  hidden lg:block">
           <div className="sticky top-16  overflow-y-hidden">
             <div className="bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4">
               <div
@@ -681,7 +681,7 @@ function SocialHomePage() {
                 </p>
 
                 <div className="h-[60vh] pb-10 overflow-y-auto">
-                  {/* <div className="flex justify-between mt-5 text-center border-y border-[#e6f7f7] py-4">
+                  <div className="flex justify-between mt-5 text-center border-y border-[#e6f7f7] py-4">
                     <div>
                       <p className="font-medium text-gray-800">248</p>
                       <p className="text-xs text-gray-500">Posts</p>
@@ -694,7 +694,7 @@ function SocialHomePage() {
                       <p className="font-medium text-gray-800">526</p>
                       <p className="text-xs text-gray-500">Following</p>
                     </div>
-                  </div> */}
+                  </div>
 
                   <p className="text-gray-600 text-sm mt-4">
                     {(userData?.data && userData?.data?.bio) ||
@@ -802,7 +802,7 @@ function SocialHomePage() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <Dialog.Root open={open} onOpenChange={setOpen}>

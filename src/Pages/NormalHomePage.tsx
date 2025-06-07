@@ -60,8 +60,8 @@ import PostGallery from "@/components/Post/PostGallery";
 import Cookies from "js-cookie";
 import {
   deletePost,
-  getUserFullProfile,
-  getUserProfile,
+  // getUserFullProfile,
+  // getUserProfile,
 } from "@/Api/profile.api";
 import { FaEllipsisH, FaTrash } from "react-icons/fa";
 import { Spinner } from "@/components/ui/Spinner";
@@ -76,7 +76,7 @@ import ReadMoreText from "@/components/ui/ReadMoreText";
 import { Input } from "@/components/ui/input";
 import { RelatedJobSkeleton } from "@/components/Jobs/JobDetailNew";
 import { getAppliedJobs } from "@/Api/job.api";
-import CustomVideoPlayer from "@/components/Video/Video";
+// import CustomVideoPlayer from "@/components/Video/Video";
 import { RelatedJob } from "@/components/Jobs/RelatedJob";
 
 type StoryFile = File & {
@@ -123,7 +123,7 @@ function NormalHomePage() {
 
   const navigate = useNavigate();
 
-  const profileImage = Cookies.get("profilePic");
+  // const profileImage = Cookies.get("profilePic");
   const { data, isLoading, isError, isFetching } = useQuery(
     ["getAllPostsWithComments", page, limit, "formal"],
     () => getAllPostsWithComments(page, limit, "formal"),
@@ -273,20 +273,20 @@ function NormalHomePage() {
     }));
   };
 
-  const { data: userData } = useQuery({
-    queryKey: ["userProfile"],
-    queryFn: getUserProfile,
-  });
+  // const { data: userData } = useQuery({
+  //   queryKey: ["userProfile"],
+  //   queryFn: getUserProfile,
+  // });
 
-  const { data: userFullProfile } = useQuery({
-    queryKey: ["getUserFullProfile", userId],
-    queryFn: () => {
-      if (userId) {
-        return getUserFullProfile(userId);
-      }
-    },
-    enabled: !!userId,
-  });
+  // const { data: userFullProfile } = useQuery({
+  //   queryKey: ["getUserFullProfile", userId],
+  //   queryFn: () => {
+  //     if (userId) {
+  //       return getUserFullProfile(userId);
+  //     }
+  //   },
+  //   enabled: !!userId,
+  // });
 
   const { data: appliedJobs } = useQuery({
     queryKey: ["appliedJobs"],
@@ -775,7 +775,7 @@ function NormalHomePage() {
           {stories?.map((story) => (
             <div
               key={story.id}
-              className="min-w-[120px] md:min-w-[170px] h-[160px] md:h-[170px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
+              className="min-w-[160px] md:min-w-[170px] h-[160px] md:h-[170px] rounded-xl md:rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group"
               onClick={() => {
                 setViewingStory(story);
                 setCurrentStoryItemIndex(0);
@@ -847,39 +847,8 @@ function NormalHomePage() {
       </div>
 
       <div className="grid grid-cols-12 mx-auto gap-5 pr-1 md:px-4 py-2">
-        {/* left side */}
-        <div className="lg:col-span-3  hidden lg:block ">
-          <div className="sticky top-20  overflow-y-hidden bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4 ">
-            <h1 className="text-xl font-semibold my-2">Recently Applied</h1>
-            <div className="h-[80vh] pb-10 overflow-y-auto">
-              <div className="flex flex-col gap-y-2 md:items-center justify-between">
-                <div className="flex flex-col gap-y-2 md:items-center justify-between">
-                  {isLoading
-                    ? ["1", "2", "3"].map((_, index) => (
-                        <RelatedJobSkeleton key={index} />
-                      ))
-                    : jobsToShow?.map((job) => (
-                        <RelatedJob key={job._id} job={job?.jobid} />
-                      ))}
-
-                  {!isLoading &&
-                    appliedJobs?.data &&
-                    appliedJobs?.data.length > 3 && (
-                      <Button
-                        className={`px-4 py-2 rounded-none w-full mx-6 bg-primary`}
-                        onClick={() => setShowAll((prev) => !prev)}
-                      >
-                        {showAll ? "Show Less" : "Explore More"}
-                      </Button>
-                    )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* post card */}
-        <div className="col-span-12 lg:col-span-6  space-y-8">
+        <div className="col-span-12 lg:col-span-9  space-y-8">
           <div className="space-y-2 max-w-[600px] mx-auto">
             <div className="flex items-center justify-end">
               <Button
@@ -1399,8 +1368,39 @@ function NormalHomePage() {
           </div>
         </div>
 
+        {/* new right side */}
+        <div className="lg:col-span-3  hidden lg:block ">
+          <div className="sticky top-20  overflow-y-hidden bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4 ">
+            <h1 className="text-xl font-semibold my-2">Recently Applied</h1>
+            <div className="h-[80vh] pb-10 overflow-y-auto">
+              <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                <div className="flex flex-col gap-y-2 md:items-center justify-between">
+                  {isLoading
+                    ? ["1", "2", "3"].map((_, index) => (
+                        <RelatedJobSkeleton key={index} />
+                      ))
+                    : jobsToShow?.map((job) => (
+                        <RelatedJob key={job._id} job={job?.jobid} />
+                      ))}
+
+                  {!isLoading &&
+                    appliedJobs?.data &&
+                    appliedJobs?.data.length > 3 && (
+                      <Button
+                        className={`px-4 py-2 rounded-none w-full mx-6 bg-primary`}
+                        onClick={() => setShowAll((prev) => !prev)}
+                      >
+                        {showAll ? "Show Less" : "Explore More"}
+                      </Button>
+                    )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* left side */}
-        <div className="lg:col-span-3  hidden lg:block">
+        {/* <div className="lg:col-span-3  hidden lg:block">
           <div className="sticky  top-16 space-y-6">
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden ">
               <div className="h-32 bg-gradient-to-br bg-[#03a9a9]">
@@ -1412,7 +1412,6 @@ function NormalHomePage() {
                 />
               </div>
               <div className="px-5 pb-5 pt-0 -mt-10">
-                {/* Profile Header */}
                 <Avatar className="w-20 h-20 border-4 p-0.5 rounded-full bg-gradient-to-br from-[#03a9a9] to-[#03c9c9] shadow-md">
                   <AvatarImage
                     src={profileImage}
@@ -1435,8 +1434,7 @@ function NormalHomePage() {
                     "No position specified"}
                 </p>
                 <div className="h-[60vh] overflow-y-auto pb-10">
-                  {/* Stats */}
-                  {/* <div className="flex justify-between mt-4 text-center border-y py-3">
+                  <div className="flex justify-between mt-4 text-center border-y py-3">
                     <div>
                       <p className="font-bold">248</p>
                       <p className="text-xs text-gray-500">Posts</p>
@@ -1449,15 +1447,13 @@ function NormalHomePage() {
                       <p className="font-bold">526</p>
                       <p className="text-xs text-gray-500">Following</p>
                     </div>
-                  </div> */}
+                  </div>
 
-                  {/* Bio */}
                   <p className="text-gray-600 text-sm mt-3">
                     {(userData?.data && userData?.data.bio) ||
                       "No bio available"}
                   </p>
 
-                  {/* Current Role (if available) */}
                   {userFullProfile?.data.experience?.find(
                     (exp) => exp.workingAt
                   ) && (
@@ -1482,7 +1478,6 @@ function NormalHomePage() {
                     </div>
                   )}
 
-                  {/* Education Summary */}
                   {userFullProfile?.data.education &&
                     userFullProfile?.data.education?.length > 0 && (
                       <div className="mt-4">
@@ -1503,7 +1498,6 @@ function NormalHomePage() {
                       </div>
                     )}
 
-                  {/* Skills Cloud */}
                   {userFullProfile?.data.skills &&
                     userFullProfile?.data.skills?.length > 0 && (
                       <div className="mt-4">
@@ -1523,7 +1517,6 @@ function NormalHomePage() {
                       </div>
                     )}
 
-                  {/* Organizations */}
                   {userFullProfile?.data.organization &&
                     userFullProfile?.data.organization?.length > 0 && (
                       <div className="mt-4">
@@ -1547,14 +1540,10 @@ function NormalHomePage() {
                       </div>
                     )}
                 </div>
-
-                {/* <Button className="w-full mt-6 bg-[#05A9A9] hover:bg-[#048484]">
-                  Edit Profile
-                </Button> */}
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <Dialog.Root open={open} onOpenChange={setOpen}>
