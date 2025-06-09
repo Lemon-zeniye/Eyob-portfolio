@@ -256,10 +256,21 @@ export interface UserData {
   skills: UserSkill[];
   organization: Organization[];
   certification: Certificate[];
+  profile: Profile[];
   id: string;
   location: string;
   position: string;
   bio: string;
+}
+
+interface Profile {
+  _id: string;
+  userid: string;
+  position?: string; // Optional field
+  location?: string; // Optional field
+  bio?: string; // Optional field
+  createdAt: string;
+  __v: number;
 }
 
 export interface UserFullProfileRes {

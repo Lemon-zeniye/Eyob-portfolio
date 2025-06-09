@@ -18,7 +18,7 @@ import { Spinner } from "../ui/Spinner";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Upload, X } from "lucide-react";
 import CustomVideoPlayer from "../Video/Video";
-import { UserData, UserInfo, UserProfile } from "@/Types/profile.type";
+import { UserData, UserInfo } from "@/Types/profile.type";
 import { formatImageUrl, getUserFromToken, tos } from "@/lib/utils";
 import OrganizationCard from "./OrganizationCard";
 import { Button } from "../ui/button";
@@ -31,16 +31,15 @@ import DocumentationCard from "./DocumentationCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfileTab } from "../Profile/ProfileTab";
 import { Following } from "@/Types/post.type";
+import ReadMoreText from "../ui/ReadMoreText";
 
 const ProfileCard = ({
   otherUser,
   isOtherUser,
-  userProfile,
   myFollowers,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
-  userProfile?: UserProfile | undefined;
   myFollowers?: Following[] | undefined;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -193,7 +192,15 @@ const ProfileCard = ({
               >
                 <AvatarImage src={profileImage} alt="Profile" />
                 <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-xl md:text-2xl">
-                  {userInfo?.name?.charAt(0) || "U"}
+                  {isOtherUser
+                    ? otherUser?.name
+                        ?.split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                    : userInfo?.name
+                        ?.split(" ")
+                        .map((n) => n[0])
+                        .join("")}
                 </AvatarFallback>
               </Avatar>
               <div className="absolute z-20 -bottom-0 left-1/2 transform -translate-x-1/2">
@@ -274,20 +281,27 @@ const ProfileCard = ({
           <div className="w-full px-2 flex flex-row justify-between items-center">
             <div className="flex flex-col gap-1">
               <p className="text-2xl font-bold">
-                {otherUser?.name ?? userInfo?.name}
+                {isOtherUser ? otherUser?.name : userInfo?.name}
               </p>
               <p className="font-extralight">
-                {userProfile?.position ??
-                  userData?.data?.position ??
-                  "No Position specified"}
+                {(isOtherUser
+                  ? otherUser?.profile[0]?.position
+                  : userData?.data?.position) || "No Position specified"}
               </p>
               <p className="font-extralight">
-                {userProfile?.location ??
-                  userData?.data?.location ??
-                  "No Location specified"}
+                {(isOtherUser
+                  ? otherUser?.profile[0]?.location
+                  : userData?.data?.location) || "No Location specified"}
               </p>
               <p className="md:text-base font-extralight">
-                {userProfile?.bio ?? userData?.data?.bio ?? "No bio yet"}
+                <ReadMoreText
+                  text={
+                    (isOtherUser
+                      ? otherUser?.profile[0]?.bio
+                      : userData?.data?.bio) || "No bio yet"
+                  }
+                  length={300}
+                />
               </p>
             </div>
           </div>

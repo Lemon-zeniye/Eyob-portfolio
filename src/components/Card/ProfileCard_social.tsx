@@ -28,7 +28,7 @@ import {
   uploadUserPicture,
 } from "@/Api/profile.api";
 import { formatImageUrl, getUserFromToken, tos } from "@/lib/utils";
-import type { UserData, UserInfo, UserProfile } from "@/Types/profile.type";
+import type { UserData, UserInfo } from "@/Types/profile.type";
 
 import ActivityNew from "../Profile/ActivityNew";
 import ExperienceCard from "./ExperienceCard";
@@ -44,16 +44,15 @@ import DocumentationCard from "./DocumentationCard";
 import { useRole } from "@/Context/RoleContext";
 import { ProfileTab } from "../Profile/ProfileTab";
 import { Following } from "@/Types/post.type";
+import ReadMoreText from "../ui/ReadMoreText";
 
 const ProfileCard = ({
   otherUser,
   isOtherUser,
-  userProfile,
   myFollowers,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
-  userProfile?: UserProfile | undefined;
   myFollowers?: Following[] | undefined;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -193,8 +192,6 @@ const ProfileCard = ({
     }
   };
 
-  console.log("33333333", userProfile);
-
   return (
     <div className="w-full max-w-4xl mx-auto">
       <Card className="overflow-hidden border-none shadow-lg rounded-3xl bg-gradient-to-br from-white to-gray-50">
@@ -215,7 +212,15 @@ const ProfileCard = ({
                 >
                   <AvatarImage src={profileImage} alt="Profile" />
                   <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-xl md:text-2xl">
-                    {userInfo?.name?.charAt(0) || "U"}
+                    {isOtherUser
+                      ? otherUser?.name
+                          ?.split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                      : userInfo?.name
+                          ?.split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                   </AvatarFallback>
                 </Avatar>
                 <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -236,12 +241,17 @@ const ProfileCard = ({
 
                       <div className="flex flex-col items-center gap-4">
                         <Avatar className="w-36 h-36 border-4 border-white shadow-lg">
-                          <AvatarImage
-                            src={profileImage || "/placeholder.svg"}
-                            alt="Preview"
-                          />
+                          <AvatarImage src={profileImage} alt="Preview" />
                           <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-2xl">
-                            {userInfo?.name?.charAt(0) || "U"}
+                            {isOtherUser
+                              ? otherUser?.name
+                                  ?.split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                              : userInfo?.name
+                                  ?.split(" ")
+                                  .map((n) => n[0])
+                                  .join("")}
                           </AvatarFallback>
                         </Avatar>
 
@@ -311,23 +321,31 @@ const ProfileCard = ({
 
           <div className="mt-16 md:mt-20 px-6 text-center">
             <h2 className="text-2xl font-bold">
-              {otherUser?.name ?? userInfo?.name}
+              {isOtherUser ? otherUser?.name : userInfo?.name}
             </h2>
 
             <div className="flex flex-col gap-1">
               <p className="font-extralight">
-                {userProfile?.position ??
-                  userData?.data?.position ??
-                  "No Position specified"}
+                {(isOtherUser
+                  ? otherUser?.profile[0]?.position
+                  : userData?.data?.position) || "No Position specified"}
               </p>
               <p className="font-extralight">
-                {userProfile?.location ??
-                  userData?.data?.location ??
-                  "No Location specified"}
+                {(isOtherUser
+                  ? otherUser?.profile[0]?.location
+                  : userData?.data?.location) || "No Location specified"}
               </p>
               <p className="md:text-base font-extralight">
-                {userProfile?.bio ?? userData?.data?.bio ?? "No bio yet"}
+                <ReadMoreText
+                  text={
+                    (isOtherUser
+                      ? otherUser?.profile[0]?.bio
+                      : userData?.data?.bio) || "No bio yet"
+                  }
+                  length={300}
+                />
               </p>
+              <p>sldfk</p>
             </div>
 
             <div className="flex justify-center gap-4 mt-6">
