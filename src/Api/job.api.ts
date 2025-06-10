@@ -4,7 +4,9 @@ import {
   JobStaticsRes,
   SingleJobResponse,
 } from "@/Types/job.type";
-import axios from "./axios";
+import axios, { axiosInstanceTwo } from "./axios";
+import { JobSearchResponse, SingleResponse } from "@/Types/sampleJob.type";
+import { AppliedFilters } from "@/Pages/SampleJob";
 
 export const getJobs = async (
   filters: Record<string, string> = {},
@@ -73,5 +75,37 @@ export const getAllApplicantsOfaJob = async (
   id: string
 ): Promise<AppliedJobsResponse> => {
   const response = await axios.get<any>(`/job/getApplicantsOfGivenJob/${id}`);
+  return response.data;
+};
+
+export const fetchJobs = async (
+  filters: AppliedFilters,
+  page: number = 1,
+  numPages: number = 1
+): Promise<JobSearchResponse> => {
+  const params = {
+    page,
+    num_pages: numPages,
+    query: filters.job_titles || "developer",
+    ...(filters.date_posted && { date_posted: filters.date_posted }),
+    ...(filters.remote && { work_from_home: filters.remote }),
+    ...(filters.employment_types && {
+      employment_types: Array.isArray(filters.employment_types)
+        ? filters.employment_types.join(",")
+        : filters.employment_types,
+    }),
+    ...(filters.job_requirements && {
+      job_requirements: Array.isArray(filters.job_requirements)
+        ? filters.job_requirements.join(",")
+        : filters.job_requirements,
+    }),
+  };
+
+  const response = await axiosInstanceTwo.get("/search", { params });
+  return response.data;
+};
+
+export const fetchJobDetail = async (id: string): Promise<SingleResponse> => {
+  const response = await axiosInstanceTwo.get<any>(`job-details?job_id=${id}`);
   return response.data;
 };

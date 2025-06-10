@@ -5,6 +5,8 @@ const axiosInstance = axios.create({
   baseURL: "https://awema.co/api",
 });
 
+const RapidAPI = import.meta.env.VITE_RapidAPI;
+
 // Only attach the request interceptor to add the token
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -80,3 +82,11 @@ export const getAxiosSuccessMessage = <T>(response: T): string => {
 };
 
 export default axiosInstance;
+
+export const axiosInstanceTwo = axios.create({
+  baseURL: "https://jsearch.p.rapidapi.com",
+  headers: {
+    "X-RapidAPI-Key": RapidAPI, // 🔁 replace with your key
+    "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
+  },
+});
