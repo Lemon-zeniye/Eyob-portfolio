@@ -18,6 +18,7 @@ import { CiCircleRemove } from "react-icons/ci";
 import { IoBusinessOutline } from "react-icons/io5";
 import JobCardSampleTwo from "@/components/Jobs/JobCardSampleTwo";
 import MobileFilter from "@/components/Jobs/MobileFiltter";
+import { useIsMobile } from "@/hooks/use-isMobile";
 
 interface FilterOptions {
   job_titles?: string;
@@ -48,6 +49,7 @@ function SampleJob() {
     employment_types: "",
     query: "",
   });
+  const isMobile = useIsMobile();
 
   const filterValues: FilterCategory[] = [
     {
@@ -85,6 +87,12 @@ function SampleJob() {
       ],
     },
   ];
+
+  useEffect(() => {
+    if (isMobile) {
+      setGridOne(false);
+    }
+  }, [isMobile]);
 
   const {
     data,
@@ -347,33 +355,13 @@ function SampleJob() {
           </div>
         </div>
         <div className="col-span-6 md:col-span-5 mr-2 md:pr-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex flex-col md:flex-row justify-between flex-1 w-full items-start md:items-center py-2 pr-0 md:pr-4 border-b border-gray-200">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-1">
+            <div className="flex flex-col md:flex-row justify-between flex-1 w-full items-start md:items-center py-1 md:py-2 pr-0 md:pr-4 border-b border-gray-200">
               <div>
-                <h2 className="font-bold text-2xl mr-2">All Jobs</h2>
+                <h2 className="font-semibold text-xl  md:font-bold md:text-2xl mr-2">
+                  All Jobs
+                </h2>
                 {/* <span className="text-gray-600">Showing 73 results</span> */}
-              </div>
-
-              <div className="flex items-center justify-between gap-4">
-                {/* <div className="hidden md:flex items-center mt-2 md:mt-0">
-                          <span className="mr-2">Sort by:</span>
-                          <span className="font-semibold mr-1">Most relevant</span>
-                          <FiChevronDown />
-                        </div> */}
-                <div className="hidden md:flex items-center mt-2 md:mt-0">
-                  {/* <button
-                    type="button"
-                    className={clsx(
-                      "font-medium transition-colors duration-200",
-                      mode === "formal"
-                        ? "text-primary hover:text-primary/70"
-                        : "text-primary2 hover:text-primary2/70"
-                    )}
-                    onClick={() => navigate("/jobs/applied-jobs")}
-                  >
-                    Applied Jobs
-                  </button> */}
-                </div>
               </div>
             </div>
 

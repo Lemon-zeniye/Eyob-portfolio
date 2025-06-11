@@ -52,11 +52,11 @@ const JobCardSampleTwo: FC<Props> = ({ job }) => {
       </p>
 
       {/* Tags */}
-      <div className="flex gap-2 mt-3">
-        <span className="text-sm font-medium border border-[#FFB836] bg-white text-[#FFB836]  sm px-3 py-1.5 rounded-full">
-          {job?.job_is_remote ? "Remote" : "On-Site"}
-        </span>
-        <div className="inline-flex flex-wrap justify-start items-center gap-2">
+      <div className="flex items-start gap-2 mt-3">
+        <div className="inline-flex flex-1 flex-wrap justify-start items-center gap-2">
+          <span className="text-sm flex-shrink-0 font-medium border border-[#FFB836] bg-white text-[#FFB836]  sm px-3 py-1.5 rounded-full">
+            {job?.job_is_remote ? "Remote" : "On-Site"}
+          </span>
           {Array.isArray(job?.job_employment_types)
             ? job.job_employment_types.map((type, index) => (
                 <span
