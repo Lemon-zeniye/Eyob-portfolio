@@ -21,6 +21,11 @@ export const signupWithOtp = async (payload: any): Promise<any> => {
   return response.data;
 };
 
+export const verifyOTP = async (payload: any): Promise<any> => {
+  const response = await axios.post<any>("/user/verifyOTP", payload);
+  return response.data;
+};
+
 // export interface GetTokenInterface {
 //   link: string;
 //   token: string;
