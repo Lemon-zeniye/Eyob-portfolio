@@ -331,3 +331,33 @@ export const jobIndustrys = [
   },
   { label: "Aerospace & Defense", value: "aerospace-defense" },
 ];
+
+export const statusColors = {
+  pending: {
+    bg: "bg-[#FFB836]",
+    text: "text-white",
+    border: "border-[#FFB836]",
+  },
+  short_list: {
+    bg: "bg-[#05A9A9]",
+    text: "text-white",
+    border: "border-[#05A9A9]",
+  },
+  accepted: {
+    bg: "bg-[#56CDAD]",
+    text: "text-white",
+    border: "border-[#56CDAD]",
+  },
+  declined: {
+    bg: "bg-red-100",
+    text: "text-red-800",
+    border: "border border-red-800",
+  },
+};
+
+export const statusValue = {
+  pending: "Pending",
+  short_list: "Short Listed",
+  accepted: "Accepted",
+  declined: "Declined",
+};

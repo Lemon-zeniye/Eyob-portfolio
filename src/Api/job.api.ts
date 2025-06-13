@@ -109,3 +109,27 @@ export const fetchJobDetail = async (id: string): Promise<SingleResponse> => {
   const response = await axiosInstanceTwo.get<any>(`job-details?job_id=${id}`);
   return response.data;
 };
+
+export const JobApplicationToShortList = async (payload: any): Promise<any> => {
+  const response = await axios.patch<any>(
+    `/job/changeJobApplicationToShortList`,
+    payload
+  );
+  return response.data;
+};
+
+export const JobApplicationToDeclined = async (payload: any): Promise<any> => {
+  const response = await axios.patch<any>(
+    `/job/changeJobApplicationToDeclined`,
+    payload
+  );
+  return response.data;
+};
+
+export const JobApplicationToAccepted = async (payload: any): Promise<any> => {
+  const response = await axios.patch<any>(
+    `/job/changeJobApplicationToAccepted`,
+    payload
+  );
+  return response.data;
+};

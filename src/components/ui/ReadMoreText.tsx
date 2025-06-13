@@ -20,10 +20,14 @@ const ReadMoreText: React.FC<ReadMoreTextProps> = ({
   const toggle = () => setExpanded(!expanded);
 
   return (
-    <span>
+    <span className="w-[90%] break-all whitespace-pre-wrap overflow-hidden">
       {expanded || !isLong ? text : truncateText(text, length)}
       {isLong && (
-        <button type="button" onClick={toggle} className={buttonClassName}>
+        <button
+          type="button"
+          onClick={toggle}
+          className={`font-semibold ${buttonClassName}`}
+        >
           {expanded ? " Read less" : " Read more"}
         </button>
       )}

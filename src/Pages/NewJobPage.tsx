@@ -74,7 +74,6 @@ function NewJobPage() {
   const { mode } = useRole();
 
   const applyFilters = () => {
-    console.log("333333333", selectedValues);
     const filters = Object.entries(selectedValues).reduce(
       (acc: { [key: string]: string }, [key, value]) => {
         if (value !== "" && value !== null) {
@@ -129,7 +128,7 @@ function NewJobPage() {
     isLoading,
     error,
   } = useInfiniteQuery(
-    ["jobs", selectedFilter],
+    ["internalJobs", selectedFilter],
     ({ pageParam = 1 }) => getJobs(selectedFilter, pageParam, 5),
     {
       getNextPageParam: (lastPage, allPages) => {

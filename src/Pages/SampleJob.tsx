@@ -102,7 +102,7 @@ function SampleJob() {
     isLoading,
     error,
   } = useInfiniteQuery(
-    ["jobs", selectedFilter],
+    ["externalJobs", selectedFilter],
     ({ pageParam = 1 }) => fetchJobs(selectedFilter, pageParam),
     {
       getNextPageParam: (lastPage, allPages) => {

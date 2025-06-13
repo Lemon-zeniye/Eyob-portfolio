@@ -8,6 +8,7 @@ import Tabs from "../Tabs/TabsLine";
 import ShareCompanyProfile from "../Profile/ShareCompanyProfile";
 import CustomVideoPlayer from "../Video/Video";
 import { formatImageUrl } from "@/lib/utils";
+import ReadMoreText from "../ui/ReadMoreText";
 
 const UserProfile = ({
   id,
@@ -88,10 +89,15 @@ const UserProfile = ({
                 {userFullProfile?.data.name}
               </h1>
               <p className="text-primary font-medium">
-                {userFullProfile?.data.position}
+                {userFullProfile?.data?.profile[0]?.position}
               </p>
-              <p className="text-gray-600">{userFullProfile?.data.location}</p>
-              <p className="text-gray-700 mt-2">{userFullProfile?.data.bio}</p>
+              <p className="text-gray-600">
+                {userFullProfile?.data?.profile[0]?.location}
+              </p>
+              <ReadMoreText
+                text={userFullProfile?.data?.profile[0]?.bio}
+                length={100}
+              />
             </div>
 
             {/* Education Section */}

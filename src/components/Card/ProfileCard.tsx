@@ -190,7 +190,11 @@ const ProfileCard = ({
                 className="w-24 h-24 md:w-32 md:h-32 border-4 border-white shadow-xl cursor-pointer hover:opacity-90 transition"
                 onClick={() => !otherUser && setOpen(true)}
               >
-                <AvatarImage src={profileImage} alt="Profile" />
+                <AvatarImage
+                  src={profileImage}
+                  alt="Profile"
+                  className="object-cover"
+                />
                 <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-xl md:text-2xl">
                   {isOtherUser
                     ? otherUser?.name
