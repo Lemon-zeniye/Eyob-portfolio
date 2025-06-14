@@ -66,7 +66,7 @@ function AddOrganization({
   const { mutate: update, isLoading: isUpdating } = useMutation({
     mutationFn: updateUserOrganization,
     onSuccess: () => {
-      tos.success("Organization added Successfully");
+      tos.success("Organization updated Successfully");
 
       onSuccess();
       queryClient.invalidateQueries("organization");

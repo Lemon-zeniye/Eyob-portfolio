@@ -144,12 +144,12 @@ const Jobs = () => {
         <p className=" sm:text-base md:text-xl font-bold">
           Recommended For You
         </p>
-        <div className="flex flex-row sm-phone:gap-2">
-          <div className="sm-phone:hidden sm:flex">
+        <div className="flex flex-row gap-2">
+          <div className="hidden sm:flex">
             <SearchBar search={search} setSearch={setSearch} />
           </div>
 
-          <div className="lg:hidden sm:flex sm-phone:hidden ">
+          <div className="lg:hidden sm:flex hidden ">
             <JobsFilterSm
               filterValues={filterValues}
               selectedValues={selectedValues}
@@ -157,15 +157,15 @@ const Jobs = () => {
             />
           </div>
           <AppliedButton
-            classname=" sm:hidden sm-phone:flex "
+            classname=" sm:hidden flex "
             onClick={() => navigate("/applied-jobs")}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="flex sm-phone:flex-row sm-phone:justify-between sm:items-end sm:justify-end">
-          <div className="flex flex-row sm-phone:items-end justify-end w-full sm:hidden sm-phone:gap-2">
+        <div className="flex flex-row justify-between sm:items-end sm:justify-end">
+          <div className="flex flex-row items-end justify-end w-full sm:hidden gap-2">
             <SearchBar search={search} setSearch={setSearch} />
             <JobsFilterSm
               filterValues={filterValues}
@@ -174,13 +174,13 @@ const Jobs = () => {
             />
           </div>
           <AppliedButton
-            classname=" sm:flex sm-phone:hidden lg:hidden"
+            classname=" sm:flex hidden lg:hidden"
             onClick={() => navigate("/applied-jobs")}
           />
         </div>
 
         <div className="flex flex-row justify-between w-full gap-6">
-          <div className=" sm-phone:hidden lg:flex flex-col gap-7 w-1/5">
+          <div className=" hidden lg:flex flex-col gap-7 w-1/5">
             <div className="flex flex-col gap-3 w-full">
               <h1 className="text-lg font-semibold underline">Quick Filters</h1>
 

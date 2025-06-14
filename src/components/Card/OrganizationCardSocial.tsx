@@ -48,7 +48,7 @@
 //               animate={{ x: 0, opacity: 1 }}
 //               exit={{ x: "-100%", opacity: 0 }}
 //               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-//               className="grid sm-phone:grid-cols-1 lg:grid-cols-2 sm-phone:gap-8 lg:gap-6 px-2"
+//               className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-6 px-2"
 //             >
 //               {organizations?.data?.length === 0 && (
 //                 <div className="col-span-2 flex flex-col items-center justify-center py-10 text-center">

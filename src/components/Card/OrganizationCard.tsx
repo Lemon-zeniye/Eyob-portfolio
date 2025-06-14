@@ -67,7 +67,7 @@ const OrganizationCard = ({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween", ease: "easeInOut" }}
-              className="grid sm-phone:grid-cols-1 lg:grid-cols-2 sm-phone:gap-8 lg:gap-10 px-2"
+              className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-10"
             >
               {displayData &&
                 (mode === "formal"
@@ -100,6 +100,7 @@ const OrganizationCard = ({
                         type="Org"
                         category={item.organizationType}
                         orgEmail={item.email}
+                        orgLogo={item.path}
                         showIcon={!otherUserOrganization}
                         onClick={(id: string) => {
                           const org = displayData?.find(

@@ -17,7 +17,7 @@ import {
   deleteOrganization,
   deleteUserSkill,
 } from "@/Api/profile.api";
-import { tos } from "@/lib/utils";
+import { formatImageUrl, tos } from "@/lib/utils";
 import { TbBriefcase2 } from "react-icons/tb";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { LuGraduationCap } from "react-icons/lu";
@@ -38,6 +38,7 @@ interface ExpAndEduCardProps {
   type: "Edu" | "Exp" | "Ski" | "Org";
   orgEmail?: string;
   showIcon: boolean;
+  orgLogo?: string;
   onClick?: (id: string) => void;
 }
 
@@ -56,6 +57,7 @@ const ExpAndEduCardSocial = ({
   type,
   orgEmail,
   showIcon,
+  orgLogo,
   onClick,
 }: ExpAndEduCardProps) => {
   const [showMenu, setShowMenu] = useState(false);
@@ -146,11 +148,18 @@ const ExpAndEduCardSocial = ({
 
       <div className="flex gap-4 items-start">
         {/* Icon container */}
-        <div
-          className={`p-3 rounded-lg bg-gradient-to-br ${colorMap[type]} text-white`}
-        >
-          {iconMap[type]}
-        </div>
+        {type === "Org" && orgLogo ? (
+          <img
+            className="w-12 h-12 rounded-sm object-cover"
+            src={formatImageUrl(orgLogo)}
+          />
+        ) : (
+          <div
+            className={`p-3 rounded-lg bg-gradient-to-br ${colorMap[type]} text-white`}
+          >
+            {iconMap[type]}
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1">

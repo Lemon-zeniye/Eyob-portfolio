@@ -65,7 +65,7 @@ const JobsDetail = ({
             {selectedJob.jobTitle}
           </SheetDescription>
         </SheetHeader>
-        <div className="w-full flex sm-phone:flex-col md:flex-row justify-between gap-10">
+        <div className="w-full flex flex-col md:flex-row justify-between gap-10">
           <div className="lg:w-3/4 md:w-1/2 flex flex-col gap-4">
             <SheetDescription className="text-base">
               {selectedJob.jobDescription}

@@ -148,8 +148,8 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
   return (
     <div className="sticky top-0 z-10 border-b py-3 px-2">
-      <div className="md:flex flex-row gap-6 sm-phone:hidden">{Buttons}</div>
-      <div className="sm-phone:flex md:hidden">
+      <div className="md:flex flex-row gap-6 hidden">{Buttons}</div>
+      <div className="flex md:hidden">
         <ToolbarDropdown
           classname="flex flex-row gap-6"
           button={<LetterText className="text-primary" />}

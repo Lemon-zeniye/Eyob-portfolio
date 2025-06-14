@@ -17,12 +17,15 @@ function Explore() {
   const navigate = useNavigate();
   const userId = Cookies.get("userId");
 
-  const filteredUsers = activeUsers?.data?.filter(
-    (user: ActiveUsers) =>
-      user._id !== userId &&
-      (user.name.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredUsers = activeUsers?.data
+    ?.filter(
+      (user: ActiveUsers) =>
+        user._id !== userId &&
+        (user.name.toLowerCase().includes(search.toLowerCase()) ||
+          user.email.toLowerCase().includes(search.toLowerCase()))
+    )
+    ?.reverse();
+
   const handleClick = (userId: string, userName: string) => {
     // Replace spaces with underscores
     const formattedUserName = userName.replace(/\s+/g, "_");

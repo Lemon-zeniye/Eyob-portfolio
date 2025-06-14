@@ -29,7 +29,7 @@ const Profile = () => {
   });
 
   return (
-    <div className="w-full pr-5 flex flex-col">
+    <div className="w-full flex flex-col mb-10">
       <AnimatePresence mode="wait">
         <motion.div
           key={`${role}-${mode}`} // This ensures animation triggers when either role or mode changes

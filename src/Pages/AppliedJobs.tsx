@@ -17,8 +17,8 @@ const AppliedJobs = () => {
 
   return (
     <div className="flex flex-col gap-6 pr-5">
-      <div className="flex sm-phone:flex-col sm:flex-row justify-between sm-phone:gap-8">
-        <div className="flex flex-row gap-4 sm-phone:justify-center sm-phone:items-center ">
+      <div className="flex flex-col sm:flex-row justify-between gap-8">
+        <div className="flex flex-row gap-4 justify-center items-center ">
           <SearchBar search="" setSearch={() => {}} />
           {/* <Button>
             <div className="flex flex-row gap-2">

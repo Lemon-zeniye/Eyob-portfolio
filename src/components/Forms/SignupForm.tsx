@@ -78,7 +78,7 @@ const SignupForm = () => {
   return (
     <ScrollArea.Root className="w-full h-screen ">
       <ScrollArea.Viewport className="w-full h-full">
-        <div className="mx-auto flex flex-col gap-4 md:w-1/2 sm-phone:w-full">
+        <div className="mx-auto flex flex-col gap-4 md:w-1/2 w-full">
           <div className="flex flex-col gap-2">
             <p className="text-h2 font-bold">Sign Up</p>
             <p className="text-md text-neutral-500 dark:text-neutral-400">
@@ -120,7 +120,7 @@ const SignupForm = () => {
                   className="flex flex-col gap-2"
                   onSubmit={methods.handleSubmit(onSubmit)}
                 >
-                  <div className="flex lg:flex-col sm-phone:flex-col gap-2r space-y-3 mb-3 w-full">
+                  <div className="flex lg:flex-col flex-col gap-2r space-y-3 mb-3 w-full">
                     <FormField
                       control={methods.control}
                       rules={{

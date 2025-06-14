@@ -53,7 +53,7 @@ const Tabs: FC<TabsProps> = ({
                 className={
                   activeTab === index
                     ? activeTabClass(variant)
-                    : tabClass(variant) + `sm:text-base sm-phone:text-xs`
+                    : tabClass(variant) + `sm:text-base text-xs`
                 }
               >
                 {tab}

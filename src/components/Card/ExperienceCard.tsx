@@ -93,7 +93,7 @@ const ExperienceCard = ({
       {!otherUserExperience && (
         <div className="flex items-center justify-between">
           {open ? (
-            <h1 className="text-lg py-2 items-center font-semibold">
+            <h1 className="hidden md:block text-lg py-2 items-center font-semibold">
               Add Experience
             </h1>
           ) : (
@@ -146,7 +146,7 @@ const ExperienceCard = ({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween", ease: "easeInOut" }}
-              className="grid sm-phone:grid-cols-1 lg:grid-cols-2 sm-phone:gap-8 lg:gap-10 px-2"
+              className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-10  mb-10"
             >
               {displayData && mode === "formal"
                 ? displayData.map((item) => (

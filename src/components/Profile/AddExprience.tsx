@@ -22,6 +22,8 @@ import { Spinner } from "../ui/Spinner";
 import { tos } from "@/lib/utils";
 import { Textarea } from "../ui/textarea";
 import { UserExperience } from "../Types";
+import { getAxiosErrorMessage } from "@/Api/axios";
+import { MdOutlineCancel } from "react-icons/md";
 
 function AddExprience({
   onSuccess,
@@ -52,7 +54,11 @@ function AddExprience({
     onSuccess: () => {
       onSuccess();
       queryClient.invalidateQueries("experiences");
-      tos.success("Success");
+      tos.success("Experience added successfully");
+    },
+    onError: (err) => {
+      const mes = getAxiosErrorMessage(err);
+      tos.error(mes);
     },
   });
   const { mutate: update, isLoading: isUpdating } = useMutation({
@@ -60,7 +66,11 @@ function AddExprience({
     onSuccess: () => {
       onSuccess();
       queryClient.invalidateQueries({ queryKey: ["experiences"] });
-      tos.success("Success");
+      tos.success("Experience updated successfully");
+    },
+    onError: (err) => {
+      const mes = getAxiosErrorMessage(err);
+      tos.error(mes);
     },
   });
   const onSubmit = (data: any) => {
@@ -294,7 +304,7 @@ function AddExprience({
               }}
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>End Date</FormLabel>
+                  <FormLabel>Start Date</FormLabel>
                   <FormControl>
                     <Popover.Root>
                       <Popover.Trigger asChild>
@@ -305,7 +315,16 @@ function AddExprience({
                           {field.value
                             ? format(field.value, "PPP")
                             : "Start Date"}
-                          <CalendarIcon className="w-4 h-4 text-gray-600" />
+                          {field.value ? (
+                            <MdOutlineCancel
+                              className="w-4 h-4 text-gray-600 cursor-pointer"
+                              onClick={() =>
+                                form.setValue("startDate", undefined)
+                              }
+                            />
+                          ) : (
+                            <CalendarIcon className="w-4 h-4 text-gray-600" />
+                          )}
                         </button>
                       </Popover.Trigger>
 
@@ -336,7 +355,13 @@ function AddExprience({
               control={form.control}
               name="endDate"
               rules={{
-                required: "Required",
+                validate: (value) => {
+                  const isWorking = form.getValues("workingAt");
+                  if (!isWorking && !value) {
+                    return "End date is required if not currently working.";
+                  }
+                  return true;
+                },
               }}
               render={({ field }) => (
                 <FormItem className="w-full">
@@ -352,7 +377,16 @@ function AddExprience({
                           {field.value
                             ? format(field.value, "PPP")
                             : "End Date"}
-                          <CalendarIcon className="w-4 h-4 text-gray-600" />
+                          {field.value ? (
+                            <MdOutlineCancel
+                              className="w-4 h-4 text-gray-600 cursor-pointer"
+                              onClick={() =>
+                                form.setValue("endDate", undefined)
+                              }
+                            />
+                          ) : (
+                            <CalendarIcon className="w-4 h-4 text-gray-600" />
+                          )}
                         </button>
                       </Popover.Trigger>
 

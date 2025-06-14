@@ -126,7 +126,7 @@ const CompanyProfileCard = () => {
 
   return (
     <EmptyCard
-      cardClassname="lg:w-3/4 pb-10 sm-phone:bg-transparent sm-phone:border-none sm:border sm:bg-white sm-phone:w-full overflow-y-scroll "
+      cardClassname="lg:w-3/4 pb-10 bg-transparent border-none sm:border sm:bg-white w-full overflow-y-scroll "
       contentClassname="space-y-4"
     >
       <div className="flex flex-col gap-20">
@@ -214,7 +214,7 @@ const CompanyProfileCard = () => {
           </Dialog.Root>
         </div>
 
-        <div className="w-full sm-phone:px-0 sm:px-12 flex flex-col">
+        <div className="w-full px-0 sm:px-12 flex flex-col">
           <div className="w-full px-2 flex flex-row justify-between items-center">
             <div className="flex flex-col gap-2">
               <p className="text-2xl font-bold">{companyProfile?.data?.name}</p>
@@ -228,7 +228,7 @@ const CompanyProfileCard = () => {
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-6 w-full sm-phone:px-0 sm:px-12 ">
+      <div className="flex items-center gap-6 w-full px-0 sm:px-12 ">
         <Button
           className="border-primary text-primary hover:text-primary"
           variant="outline"
@@ -246,7 +246,7 @@ const CompanyProfileCard = () => {
         </Button> */}
       </div>
 
-      <div className="flex flex-row sm-phone:bg-white sm-phone:border sm:border-none sm:bg-none justify-between sm-phone:px-0 sm:px-12 min-h-[40vh]">
+      <div className="flex flex-row bg-white border sm:border-none sm:bg-none justify-between px-0 sm:px-12 min-h-[40vh]">
         <Tabs tabs={["About", "Activity", "Employees"]}>
           <AboutCard />
           <ActivityNew />

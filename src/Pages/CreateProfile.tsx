@@ -454,7 +454,7 @@ function CreateProfile() {
                   </Button>
                 </div>
 
-                {/* <div className="flex lg:flex-col sm-phone:flex-col gap-4r w-full">
+                {/* <div className="flex lg:flex-col flex-col gap-4r w-full">
                   <FormField
                     control={methods.control}
                     name="password"

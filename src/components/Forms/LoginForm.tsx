@@ -121,8 +121,7 @@ const LoginForm = () => {
         <p className="text-h2 font-bold">Login</p>
         <p className="text-md text-neutral-500 dark:text-neutral-400">
           If you are already a member you can login with{" "}
-          <br className="sm-phone:hidden lg:flex" /> your email address and
-          password.
+          <br className="hidden lg:flex" /> your email address and password.
         </p>
         <Separator />
       </div>
@@ -131,7 +130,7 @@ const LoginForm = () => {
           className="flex flex-col gap-5"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
-          <div className="flex lg:flex-col sm-phone:flex-col gap-4r w-full">
+          <div className="flex lg:flex-col flex-col gap-4r w-full">
             <FormField
               control={methods.control}
               name="email"

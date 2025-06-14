@@ -46,7 +46,7 @@
 //           <ActivityCard
 //             key={item._id}
 //             onclick={() => editBtn(item._id)}
-//             classname=" sm-phone:w-full lg:w-[45%]"
+//             classname=" w-full lg:w-[45%]"
 //             postContent={item.postContent}
 //             postDate={ConvertToDate(item.postDate)}
 //             postTitle={item.postTitle}

@@ -361,9 +361,16 @@ export const statusColors = {
 };
 
 export const statusValue = {
+  applied: "Reviewing",
   pending: "Shortlisted",
   short_list: "Interview",
   accepted: "Accepted",
   declined: "Rejected",
-  applied: "Reviewing",
 };
+/*
+  onError: (err) => {
+      const mes = getAxiosErrorMessage(err);
+      tos.error(mes);
+    },
+
+*/

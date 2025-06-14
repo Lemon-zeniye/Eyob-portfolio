@@ -3,7 +3,11 @@ import { FaFile, FaPause } from "react-icons/fa";
 import { FaPlay } from "react-icons/fa6";
 import { FaVolumeMute } from "react-icons/fa";
 import { FaVolumeUp } from "react-icons/fa";
-import { MdOutlineUpload } from "react-icons/md";
+import {
+  MdFullscreen,
+  MdFullscreenExit,
+  MdOutlineUpload,
+} from "react-icons/md";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useMutation, useQuery } from "react-query";
 import { Upload, X } from "lucide-react";
@@ -170,6 +174,24 @@ const CustomVideoPlayer = ({
     }
   };
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullScreen = () => {
+    const videoEl = videoRef.current;
+
+    if (!document.fullscreenElement) {
+      if (videoEl?.requestFullscreen) {
+        videoEl.requestFullscreen();
+        setIsFullscreen(true);
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    }
+  };
+
   const openFileDialog = () => fileInputRef.current?.click();
 
   return (
@@ -226,6 +248,20 @@ const CustomVideoPlayer = ({
               <MdOutlineUpload size={18} />
             </button>
           )}
+        </div>
+        <div className="absolute bottom-4 right-4 flex space-x-2">
+          <button
+            onClick={toggleFullScreen}
+            className={`text-[#767676] bg-white p-2 rounded-full hover:text-white transition-all shadow-sm ${
+              mode === "formal" ? "hover:bg-primary" : "hover:bg-primary2"
+            }`}
+          >
+            {isFullscreen ? (
+              <MdFullscreenExit size={18} />
+            ) : (
+              <MdFullscreen size={18} />
+            )}
+          </button>
         </div>
       </div>
 
