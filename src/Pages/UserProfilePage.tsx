@@ -27,7 +27,7 @@ function UserProfilePage() {
   });
 
   return (
-    <div className="w-full pr-5 flex flex-col">
+    <div className="w-full flex flex-col">
       <AnimatePresence mode="wait">
         <motion.div
           key={`${mode}`} // This ensures animation triggers when either role or mode changes
