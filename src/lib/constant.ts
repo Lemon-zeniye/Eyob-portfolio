@@ -353,11 +353,17 @@ export const statusColors = {
     text: "text-red-800",
     border: "border border-red-800",
   },
+  applied: {
+    bg: "bg-gray-200",
+    text: "text-black",
+    border: "border-gray-100",
+  },
 };
 
 export const statusValue = {
-  pending: "Pending",
-  short_list: "Short Listed",
+  pending: "Shortlisted",
+  short_list: "Interview",
   accepted: "Accepted",
-  declined: "Declined",
+  declined: "Rejected",
+  applied: "Reviewing",
 };

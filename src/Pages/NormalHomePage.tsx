@@ -1370,18 +1370,24 @@ function NormalHomePage() {
 
         {/* new right side */}
         <div className="lg:col-span-3  hidden lg:block ">
-          <div className="sticky top-20  overflow-y-hidden bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4 ">
+          <div className="sticky top-20 overflow-y-hidden bg-white rounded-2xl shadow-lg border border-[#e6f7f7] p-4">
             <h1 className="text-xl font-semibold my-2">Recently Applied</h1>
-            <div className="h-[80vh] pb-10 overflow-y-auto">
+            <div className="min-h-[10vh] max-h-[80vh] pb-10 overflow-y-auto">
               <div className="flex flex-col gap-y-2 md:items-center justify-between">
                 <div className="flex flex-col gap-y-2 md:items-center justify-between">
-                  {isLoading
-                    ? ["1", "2", "3"].map((_, index) => (
-                        <RelatedJobSkeleton key={index} />
-                      ))
-                    : jobsToShow?.map((job) => (
-                        <RelatedJob key={job._id} job={job?.jobid} />
-                      ))}
+                  {isLoading ? (
+                    ["1", "2", "3"].map((_, index) => (
+                      <RelatedJobSkeleton key={index} />
+                    ))
+                  ) : jobsToShow && jobsToShow?.length > 0 ? (
+                    jobsToShow.map((job) => (
+                      <RelatedJob key={job._id} job={job?.jobid} />
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-center my-4">
+                      You haven’t applied to any jobs yet.
+                    </p>
+                  )}
 
                   {!isLoading &&
                     appliedJobs?.data &&

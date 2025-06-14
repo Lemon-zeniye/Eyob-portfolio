@@ -133,3 +133,11 @@ export const JobApplicationToAccepted = async (payload: any): Promise<any> => {
   );
   return response.data;
 };
+
+export const JobApplicationToPending = async (payload: any): Promise<any> => {
+  const response = await axios.patch<any>(
+    `/job/changeJobApplicationToPending`,
+    payload
+  );
+  return response.data;
+};

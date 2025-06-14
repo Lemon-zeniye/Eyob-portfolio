@@ -50,10 +50,12 @@ const ProfileCard = ({
   otherUser,
   isOtherUser,
   myFollowers,
+  userOpenToWork,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
   myFollowers?: Following[] | undefined;
+  userOpenToWork?: boolean;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
@@ -311,14 +313,26 @@ const ProfileCard = ({
                     </Dialog.Content>
                   </Dialog.Portal>
                 </Dialog.Root>
-                <div
-                  className={`py-1 w-[9rem] text-center rounded-full px-4 z-20 text-white absolute left-1/2 -bottom-1/3  md:-bottom-1/4  -translate-x-1/2 -translate-y-1/2  ${
-                    mode === "formal" ? "bg-primary" : "bg-primary2"
-                  }
+                {isOtherUser && otherUser?.openToWork ? (
+                  <div
+                    className={`py-1 w-[9rem] text-center rounded-full px-4 z-20 text-white absolute left-1/2 -bottom-1/3  md:-bottom-1/4  -translate-x-1/2 -translate-y-1/2  ${
+                      mode === "formal" ? "bg-primary" : "bg-primary2"
+                    }
                `}
-                >
-                  Open To work
-                </div>
+                  >
+                    Open To work
+                  </div>
+                ) : null}
+                {!isOtherUser && userOpenToWork ? (
+                  <div
+                    className={`py-1 w-[9rem] text-center rounded-full px-4 z-20 text-white absolute left-1/2 -bottom-1/3  md:-bottom-1/4  -translate-x-1/2 -translate-y-1/2  ${
+                      mode === "formal" ? "bg-primary" : "bg-primary2"
+                    }
+               `}
+                  >
+                    Open To work
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>

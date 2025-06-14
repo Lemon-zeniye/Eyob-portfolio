@@ -2,6 +2,7 @@ import {
   getAllApplicantsOfaJob,
   JobApplicationToAccepted,
   JobApplicationToDeclined,
+  JobApplicationToPending,
   JobApplicationToShortList,
 } from "@/Api/job.api";
 import { toMonthDayYear, tos } from "@/lib/utils";
@@ -91,6 +92,7 @@ function ApplicantsList() {
     onSuccess: () => {
       tos.success("Status Updated Successfully");
       queryClient.invalidateQueries(["fetchAllApplicants", id]);
+      setOpenStatus(false);
     },
     onError: (error) => {
       const msg = getAxiosErrorMessage(error);
@@ -103,6 +105,7 @@ function ApplicantsList() {
     onSuccess: () => {
       tos.success("Status Updated Successfully");
       queryClient.invalidateQueries(["fetchAllApplicants", id]);
+      setOpenStatus(false);
     },
     onError: (error) => {
       const msg = getAxiosErrorMessage(error);
@@ -115,6 +118,20 @@ function ApplicantsList() {
     onSuccess: () => {
       tos.success("Status Updated Successfully");
       queryClient.invalidateQueries(["fetchAllApplicants", id]);
+      setOpenStatus(false);
+    },
+    onError: (error) => {
+      const msg = getAxiosErrorMessage(error);
+      tos.error(msg);
+    },
+  });
+
+  const { mutate: pending, isLoading: isPLoading } = useMutation({
+    mutationFn: JobApplicationToPending,
+    onSuccess: () => {
+      tos.success("Status Updated Successfully");
+      queryClient.invalidateQueries(["fetchAllApplicants", id]);
+      setOpenStatus(false);
     },
     onError: (error) => {
       const msg = getAxiosErrorMessage(error);
@@ -142,6 +159,12 @@ function ApplicantsList() {
           ids: selectedIds,
           appStatus: selectedStatus,
         });
+      } else if (selectedStatus === "pending") {
+        pending({
+          jobid: id,
+          ids: selectedIds,
+          appStatus: selectedStatus,
+        });
       }
     } else {
       tos.error("Please Select a Status");
@@ -149,7 +172,8 @@ function ApplicantsList() {
   };
 
   const statusOptions = [
-    { value: "short_list", label: "Shortlist" },
+    { value: "pending", label: "Shortlisted" },
+    { value: "short_list", label: "Passed for Interview" },
     { value: "accepted", label: "Accepted" },
     { value: "declined", label: "Declined" },
   ];
@@ -162,6 +186,18 @@ function ApplicantsList() {
 
   return (
     <div className="overflow-x-auto ">
+      <div className="my-1 flex items-center justify-center">
+        {selectedIds && selectedIds?.length > 0 && (
+          <button
+            className={`mb-1 px-2 py-1 text-white cursor-pointer ${
+              mode === "formal" ? "bg-primary" : "bg-primary2"
+            } `}
+            onClick={() => setOpenStatus(true)}
+          >
+            Change Status
+          </button>
+        )}
+      </div>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50 border">
           <tr className="">
@@ -201,18 +237,6 @@ function ApplicantsList() {
             </th>
           </tr>
         </thead>
-        <div className="my-2">
-          {selectedIds && selectedIds?.length > 0 && (
-            <button
-              className={`mb-1 px-2 py-1 text-white cursor-pointer ${
-                mode === "formal" ? "bg-primary" : "bg-primary2"
-              } `}
-              onClick={() => setOpenStatus(true)}
-            >
-              Change Status
-            </button>
-          )}
-        </div>
         {isLoading ? (
           <TableSkeleton />
         ) : (
@@ -345,7 +369,11 @@ function ApplicantsList() {
                 } `}
                 onClick={() => changeStatus()}
               >
-                {isALoading || isDLoading || isSLoading ? <Spinner /> : "Save"}
+                {isALoading || isDLoading || isSLoading || isPLoading ? (
+                  <Spinner />
+                ) : (
+                  "Save"
+                )}
               </Button>
             </div>
           </Dialog.Content>

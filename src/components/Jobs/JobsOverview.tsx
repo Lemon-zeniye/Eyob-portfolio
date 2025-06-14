@@ -18,13 +18,13 @@ const StatCard: React.FC<StatCardProps> = ({
   bgColor,
   iconColor,
 }) => (
-  <div className="bg-white rounded-lg shadow p-4 flex items-center">
-    <div className={`${bgColor} p-3 rounded-full mr-4`}>
-      <div className={iconColor}>{icon}</div>
+  <div className="bg-white rounded-xl shadow-lg p-6 flex items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+    <div className={`${bgColor} p-3 rounded-lg mr-4 flex-shrink-0`}>
+      <div className={`${iconColor} h-6 w-6`}>{icon}</div>
     </div>
     <div>
-      <p className="text-2xl font-bold">{value ?? 0}</p>
-      <p className="text-sm text-gray-500">{label}</p>
+      <p className="text-3xl font-bold text-gray-800">{value ?? 0}</p>
+      <p className="text-sm text-gray-600 mt-1">{label}</p>
     </div>
   </div>
 );
@@ -36,23 +36,23 @@ const JobsOverview: React.FC = () => {
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 px-4 sm:px-0">
       <StatCard
-        icon={<Briefcase className="h-6 w-6" />}
+        icon={<Briefcase className="h-full w-full" />}
         value={data?.data.pending}
         label="Jobs posted"
         bgColor="bg-green-100"
         iconColor="text-green-600"
       />
       <StatCard
-        icon={<Users className="h-6 w-6" />}
+        icon={<Users className="h-full w-full" />}
         value={data?.data.declined}
         label="Applicants"
         bgColor="bg-blue-100"
         iconColor="text-blue-600"
       />
       <StatCard
-        icon={<CheckCircle className="h-6 w-6" />}
+        icon={<CheckCircle className="h-full w-full" />}
         value={data?.data.accepted}
         label="Hired"
         bgColor="bg-purple-100"

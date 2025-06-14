@@ -77,7 +77,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div> */}
 
-      <div className="flex flex-col gap-3 sm-phone:pl-3 w-full">
+      <div className="flex flex-col gap-3 sm-phone:px-1 w-full">
         <Navbar />
         {children}
       </div>

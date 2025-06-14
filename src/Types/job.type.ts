@@ -40,7 +40,7 @@ export interface JobApplication {
   jobid: Job;
   jobTitle: string;
   company: string;
-  appStatus: "pending" | "short_list" | "accepted" | "declined";
+  appStatus: "pending" | "short_list" | "accepted" | "declined" | "applied";
   applicationDate: string;
   __v: number;
 }

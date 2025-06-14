@@ -49,10 +49,15 @@ const Navbar = () => {
   ];
 
   return (
-    <div className="flex flex-row sticky top-0 z-[20] bg-[#F5F5F5] justify-between items-center pr-5 py-2">
-      <div className="flex gap-2">
+    <div className="flex flex-row sticky top-0 z-[20] bg-[#F5F5F5] justify-between items-center pr-1 md:pr-5 py-2">
+      <div
+        className="flex items-center flex-row md:flex-col justify-end px-1 md:px-4 gap-x-1"
+        onClick={() => navigate("/")}
+      >
         <img src={logo} className="w-6 h-6" alt="Logo" />
-        <span className="font-semibold">Awema</span>
+        <span className="font-semibold hover:text-gray-700 cursor-pointer">
+          Awema
+        </span>
       </div>
       <div className="hidden md:flex  items-center justify-between ">
         {routes.slice(0, 4).map((route) => {

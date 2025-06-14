@@ -250,6 +250,7 @@ export interface UserData {
   name: string;
   email: string;
   pictures: UserFile[];
+  openToWork: boolean;
   videos: UserFile[];
   education: UserEducation[];
   experience: UserExperience[];

@@ -424,3 +424,8 @@ export const fetchSingleProfile = async (
   const response = await axios.get(`/userProfile/fetchSingle/${id}`);
   return response.data;
 };
+
+export const updateOpenToWork = async (): Promise<any> => {
+  const response = await axios.post("/user/updateOpenToWork");
+  return response.data;
+};

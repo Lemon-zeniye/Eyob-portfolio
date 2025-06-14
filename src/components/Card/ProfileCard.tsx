@@ -37,10 +37,12 @@ const ProfileCard = ({
   otherUser,
   isOtherUser,
   myFollowers,
+  userOpenToWork,
 }: {
   otherUser: UserData | undefined;
   isOtherUser: boolean;
   myFollowers?: Following[] | undefined;
+  userOpenToWork?: boolean;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
@@ -208,9 +210,16 @@ const ProfileCard = ({
                 </AvatarFallback>
               </Avatar>
               <div className="absolute z-20 -bottom-0 left-1/2 transform -translate-x-1/2">
-                <div className="bg-primary py-1 rounded-full px-4 text-white whitespace-nowrap text-xs sm:text-sm md:text-base">
-                  Open To work
-                </div>
+                {isOtherUser && otherUser?.openToWork && (
+                  <div className="bg-primary py-1 rounded-full px-4 text-white whitespace-nowrap text-xs sm:text-sm md:text-base">
+                    Open To work
+                  </div>
+                )}
+                {!isOtherUser && userOpenToWork && (
+                  <div className="bg-primary py-1 rounded-full px-4 text-white whitespace-nowrap text-xs sm:text-sm md:text-base">
+                    Open To work
+                  </div>
+                )}
               </div>
             </div>
           </div>
