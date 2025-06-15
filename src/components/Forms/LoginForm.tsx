@@ -20,7 +20,7 @@ import { Spinner } from "../ui/Spinner";
 // import { jwtDecode } from "jwt-decode";
 // import axiosInstance from "@/Api/axios";
 import { useRole } from "@/Context/RoleContext";
-import { getUserFromToken, tos } from "@/lib/utils";
+import { tos } from "@/lib/utils";
 
 // interface GooglePayload {
 //   name: string;
@@ -93,16 +93,9 @@ const LoginForm = () => {
         Cookies.set("refreshToken", refreshToken);
         Cookies.set("mode", "formal");
         authLogin(accessToken, refreshToken);
-        const userInfo = getUserFromToken(accessToken);
-        if (userInfo?.role && userInfo?.id) {
-          setRole(userInfo.role);
-          Cookies.set("role", userInfo.role);
-          Cookies.set("userId", userInfo.id);
-          userInfo?.name && Cookies.set("userName", userInfo.name);
-        } else {
-          setRole("user");
-          Cookies.set("role", "user");
-        }
+
+        setRole("user");
+        Cookies.set("role", "user");
         navigate("/");
         tos.success("Successfully logged in!");
       } else {

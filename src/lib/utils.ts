@@ -1,11 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { jwtDecode } from "jwt-decode";
-import { JwtPayload, UserInfo } from "@/Types/profile.type";
 import { toast } from "sonner";
-import { Role } from "@/Types/auth.type";
 import { format, isToday, isYesterday } from "date-fns";
-import { Story, StoryApiResponse } from "@/Types/post.type";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -37,26 +33,6 @@ export const ConvertToDate = (date: string): string => {
     .padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 
   return formattedDate;
-};
-
-export const getUserFromToken = (token: string | null): UserInfo | null => {
-  if (!token) return null;
-
-  try {
-    const decoded = jwtDecode<JwtPayload>(token);
-    const aud = decoded.aud || [];
-
-    return {
-      id: aud.find((item): item is { _id: string } => !!item?._id)?._id,
-      name: aud.find((item): item is { name: string } => !!item?.name)?.name,
-      role: aud.find((item): item is { role: Role } => !!item?.role)?.role,
-      iat: decoded.iat,
-      exp: decoded.exp,
-    };
-  } catch (error) {
-    console.error("Token decoding failed:", error);
-    return null;
-  }
 };
 
 type DateParts = {
@@ -227,53 +203,7 @@ export const formatImageUrl = (
   return `${baseUrl}/${path.replace("public/", "")}`;
 };
 
-export const transformStories = (apiStories: StoryApiResponse[]): Story[] => {
-  return apiStories.map((story, index) => ({
-    id: index + 1,
-    username: story?.user?.name, // adjust as needed
-    _id: story._id,
-    likes: story.likes,
-    userId: story.user._id,
-    isViewedByUser: story.isViewedByUser ?? false,
-    views: story.views,
-
-    isLikedByUser: story.isViewedByUser ?? false,
-
-    // title: `Story ${index + 1}`,
-    avatar: formatImageUrl(story?.userPicturePath), // default or fetch from user data
-    items: [
-      {
-        id: `story-${story._id}`,
-        image: formatImageUrl(story.path),
-      },
-    ],
-  }));
-};
-
 // Transform the infinite query data
-
-export const transformInfiniteStories = (
-  apiStories: StoryApiResponse[]
-): Story[] => {
-  return apiStories.map((story, index) => ({
-    id: index + 1,
-    username: story?.user?.name,
-    _id: story._id,
-    likes: story.likes,
-    userId: story.user._id,
-    isViewedByUser: story.isViewedByUser,
-    views: story.views,
-    isLikedByUser: story.isLikedByUser,
-    avatar: formatImageUrl(story?.userPicturePath),
-    caption: story?.caption,
-    items: [
-      {
-        id: `story-${story._id}`,
-        image: formatImageUrl(story.path),
-      },
-    ],
-  }));
-};
 
 export function truncateText(text: string, length = 30): string {
   return text.length > length ? text.slice(0, length) + "..." : text;

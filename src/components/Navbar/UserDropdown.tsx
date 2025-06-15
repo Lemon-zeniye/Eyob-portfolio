@@ -1,7 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/Context/AuthContext";
-import { useQuery } from "react-query";
-import { getUserPicture } from "@/Api/profile.api";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,22 +12,7 @@ const UserDropdown = () => {
     logout();
     navigate("/login");
   };
-  const [profileImage, setprofileImage] = useState<string>("");
-
-  const {} = useQuery({
-    queryKey: ["userPicture"],
-    queryFn: getUserPicture,
-    onSuccess: (res) => {
-      if (res && res?.data) {
-        const newImageUrl = `https://awema.co/${res?.data.path.replace(
-          "public/",
-          ""
-        )}`;
-        Cookies.set("profilePic", newImageUrl);
-        setprofileImage(newImageUrl);
-      }
-    },
-  });
+  const [profileImage] = useState<string>("");
 
   return (
     <div className="relative group inline-block">

@@ -1,5 +1,4 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import NotificationDropdown from "./NotificationDropdown";
 import UserDropdown from "./UserDropdown";
 import SocialModeToggle from "./SocialModeToggle";
 
@@ -98,7 +97,6 @@ const Navbar = () => {
 
       <div className="flex flex-row gap-4 items-center">
         <SocialModeToggle />
-        <NotificationDropdown />
         <UserDropdown />
       </div>
     </div>
