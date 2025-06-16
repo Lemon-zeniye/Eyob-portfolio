@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosInstance = axios.create({
-  baseURL: "http://147.79.100.108:7000/api",
+  baseURL: "https://db.takilo.com/api",
 });
 
 // Only attach the request interceptor to add the token

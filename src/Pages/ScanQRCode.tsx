@@ -4,6 +4,7 @@ import { useMutation } from "react-query";
 // import { getAxiosErrorMessage } from "@/Api/axios";
 // import { tos } from "@/lib/utils";
 import { scan } from "@/Api/scan";
+import scanSound from "../assets/store-scanner-beep-90395.mp3";
 
 interface ScanResult {
   data: string;
@@ -20,7 +21,7 @@ const ScanQRCode = () => {
   const { mutate: sendToBackend, isLoading } = useMutation({
     mutationFn: scan,
     onSuccess: (res) => {
-      setScanResult({ data: "Your Ticket is Valid", timestamp: new Date() });
+      setScanResult({ data: "Successfully Checked In", timestamp: new Date() });
       setCameraActive(false);
       console.log("Backend response:", res);
     },
@@ -128,7 +129,7 @@ const ScanQRCode = () => {
                   paused={false}
                   scanDelay={500}
                   allowMultiple={false}
-                  sound="/success-beep.mp3" // Provide path to a sound file or false to disable
+                  sound={scanSound}
                   styles={{
                     container: {
                       position: "relative",
