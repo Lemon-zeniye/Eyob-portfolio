@@ -71,11 +71,9 @@ const ScanQRCode = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            QR Code Scanner
-          </h1>
-          <p className="text-gray-600 mb-6">Scan a QR code to process</p>
-
+          <p className="text-gray-600 mb-6">
+            Scan attendee QR code to check in
+          </p>
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               <p>{error}</p>
