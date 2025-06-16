@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 type AuthContextType = {
   isAuthenticated: boolean;
   accessToken: string | null;
-  login: (accessToken: string, refreshToken: string) => void;
+  login: (accessToken: string) => void;
   logout: () => void;
 };
 
@@ -16,9 +16,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const login = (accessToken: string, refreshToken: string) => {
+  const login = (accessToken: string) => {
     Cookies.set("accessToken", accessToken);
-    Cookies.set("refreshToken", refreshToken);
     setAccessToken(accessToken);
     setIsAuthenticated(true);
   };

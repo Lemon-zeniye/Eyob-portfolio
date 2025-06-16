@@ -1,8 +1,6 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import UserDropdown from "./UserDropdown";
-import SocialModeToggle from "./SocialModeToggle";
 
-import logo from "../../assets/bevylogo.svg";
 import { useRole } from "@/Context/RoleContext";
 
 import { HiOutlineHome } from "react-icons/hi";
@@ -49,15 +47,7 @@ const Navbar = () => {
 
   return (
     <div className="flex flex-row sticky top-0 z-[20] bg-[#F5F5F5] justify-between items-center pr-1 md:pr-5 py-2">
-      <div
-        className="flex items-center flex-row md:flex-col justify-end px-1 md:px-4 gap-x-1"
-        onClick={() => navigate("/")}
-      >
-        <img src={logo} className="w-6 h-6" alt="Logo" />
-        <span className="font-semibold hover:text-gray-700 cursor-pointer">
-          Awema
-        </span>
-      </div>
+      <div></div>
       <div className="hidden md:flex  items-center justify-between ">
         {routes.slice(0, 4).map((route) => {
           const isHome = route.path === "/";
@@ -96,7 +86,6 @@ const Navbar = () => {
       </div>
 
       <div className="flex flex-row gap-4 items-center">
-        <SocialModeToggle />
         <UserDropdown />
       </div>
     </div>

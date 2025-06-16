@@ -13,9 +13,10 @@ import { useNavigate } from "react-router-dom";
 // import goggle from "../../assets/icons8-google-48.png";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { useMutation } from "react-query";
-import { getAxiosErrorMessage, signupWithOtp } from "@/Api/auth.api";
+import { signup } from "@/Api/auth.api";
 import { Spinner } from "../ui/Spinner";
 import { tos } from "@/lib/utils";
+import { getAxiosErrorMessage } from "@/Api/axios";
 // import * as Select from "@radix-ui/react-select";
 // import { ChevronDownIcon } from "lucide-react";
 // import { useState } from "react";
@@ -23,7 +24,7 @@ import { tos } from "@/lib/utils";
 const SignupForm = () => {
   const methods = useForm({
     defaultValues: {
-      fullName: "",
+      username: "",
       // email: "",
       password: "",
       confirmPassword: "",
@@ -35,9 +36,9 @@ const SignupForm = () => {
   // const [otp, setOtp] = useState("");
 
   const { mutate, isLoading } = useMutation({
-    mutationFn: signupWithOtp,
+    mutationFn: signup,
     onSuccess: () => {
-      // setOtpSent(true);
+      navigate("/");
     },
     onError: (error: any) => {
       const message = getAxiosErrorMessage(error);
@@ -73,8 +74,7 @@ const SignupForm = () => {
 
   const onSubmit = (data: any) => {
     const payload = {
-      name: data.fullName,
-      email: data.email,
+      username: data.username,
       password: data.password,
       role: data.role,
     };
@@ -82,7 +82,7 @@ const SignupForm = () => {
   };
 
   return (
-    <ScrollArea.Root className="w-full h-screen ">
+    <ScrollArea.Root className="w-full h-screen">
       <ScrollArea.Viewport className="w-full h-full">
         <div className="mx-auto flex flex-col gap-4 md:w-1/2 w-full">
           <div className="flex flex-col gap-2">
@@ -130,25 +130,26 @@ const SignupForm = () => {
                   <FormField
                     control={methods.control}
                     rules={{
-                      required: "Full Name is required",
+                      required: "Username is required",
                       // pattern: {
                       //   value: /^[A-Za-z\s]+$/,
-                      //   message: "Full Name can only contain letters and spaces",
+                      //   message: "Username can only contain letters and spaces",
                       // },
                       minLength: {
                         value: 3,
-                        message: "Full Name must be at least 3 characters",
+                        message: "Username must be at least 3 characters",
                       },
                     }}
-                    name="fullName"
+                    name="username"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel>Full Name</FormLabel>
+                        <FormLabel>Username</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter your Full Name"
+                            placeholder="Enter your Username"
                             {...field}
                             type="text"
+                            className="!outline-none"
                           />
                         </FormControl>
                         <FormMessage />

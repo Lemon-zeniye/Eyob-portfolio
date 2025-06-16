@@ -56,7 +56,7 @@ const UserDropdown = () => {
             View Profile
           </Link>
 
-          <div className="border-t border-gray-100 my-1"></div>
+          {/* <div className="border-t border-gray-100 my-1"></div>
           <Link
             to="/settings"
             className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-150 flex items-center gap-2 hover:translate-x-1"
@@ -76,7 +76,7 @@ const UserDropdown = () => {
               />
             </svg>
             Settings
-          </Link>
+          </Link> */}
 
           <div className="border-t border-gray-100 my-1"></div>
 

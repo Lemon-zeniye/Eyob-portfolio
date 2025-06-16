@@ -1,30 +1,25 @@
 import React from "react";
-import { QRCodeSVG } from "qrcode.react"; // Changed import
-// import { useDownloadQRCode } from "../hooks/useDownloadQRCode";
-
-interface UserData {
-  id: string;
-  username: string;
-  ticket_type: string;
-  email: string;
-  role: string;
-  no_people: number;
-  is_active: boolean;
-}
+import { QRCodeSVG } from "qrcode.react";
+import { useRole } from "@/Context/RoleContext";
 
 const GenerateQRCode: React.FC = () => {
-  const user: UserData = {
-    id: "684ec051d418628cf64503be",
-    username: "w5myccv7",
-    ticket_type: "Single Day Access",
-    email: "hagosamanuel80@gmail.com",
-    role: "user",
-    no_people: 1,
-    is_active: true,
-  };
+  const { user, role } = useRole();
 
+  console.log("55555555555", role);
   const qrRef = React.useRef<HTMLDivElement>(null);
-  //   const { downloadQRCode } = useDownloadQRCode();
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="p-8 bg-white rounded-lg border border-gray-200 shadow-sm text-center">
+          <p className="text-lg text-gray-600">No user data available</p>
+          <p className="text-sm text-gray-500">
+            Please log in to generate QR code
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const qrData = JSON.stringify({
     userId: user.id,
@@ -34,13 +29,12 @@ const GenerateQRCode: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Rest of your component remains the same */}
+    <div className="min-h-screen bg-gradient-to-br flex items-center justify-center from-indigo-50 to-blue-100 py-12 px-0 sm:px-6 lg:px-8">
       <div
         ref={qrRef}
-        className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm"
+        className="p-4 bg-white w-fit rounded-lg border border-gray-200 shadow-sm"
       >
-        <QRCodeSVG // Changed component name
+        <QRCodeSVG
           value={qrData}
           size={200}
           level="H"
@@ -55,7 +49,6 @@ const GenerateQRCode: React.FC = () => {
           }}
         />
       </div>
-      {/* Rest of your component remains the same */}
     </div>
   );
 };

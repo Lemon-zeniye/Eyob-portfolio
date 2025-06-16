@@ -1,14 +1,14 @@
-import { useNavigate } from "react-router-dom";
-import Navbar from "@/components/Navbar/Navbar";
-import SidebarSm from "@/components/Sidebar/SidebarSm";
+// import { useNavigate } from "react-router-dom";
+// import Navbar from "@/components/Navbar/Navbar";
+// import SidebarSm from "@/components/Sidebar/SidebarSm";
 
-import { LuBriefcaseBusiness } from "react-icons/lu";
+// import { LuBriefcaseBusiness } from "react-icons/lu";
 
-import { LuMessageCircleMore } from "react-icons/lu";
+// import { LuMessageCircleMore } from "react-icons/lu";
 
-import { MdOutlineExplore } from "react-icons/md";
+// import { MdOutlineExplore } from "react-icons/md";
 import { IconType } from "react-icons/lib";
-import { HiOutlineHome } from "react-icons/hi2";
+// import { HiOutlineHome } from "react-icons/hi2";
 
 export interface Route {
   id: number;
@@ -17,19 +17,19 @@ export interface Route {
   path: string;
 }
 
-const routes: Route[] = [
-  { id: 1, icon: HiOutlineHome, name: "Feed", path: "/" },
-  { id: 2, icon: LuBriefcaseBusiness, name: "Jobs", path: "/jobs" },
-  { id: 3, icon: LuMessageCircleMore, name: "Chat", path: "/chat" },
-  { id: 4, icon: MdOutlineExplore, name: "Explore", path: "/explore" },
-];
+// const routes: Route[] = [
+//   { id: 1, icon: HiOutlineHome, name: "Feed", path: "/" },
+//   { id: 2, icon: LuBriefcaseBusiness, name: "Jobs", path: "/jobs" },
+//   { id: 3, icon: LuMessageCircleMore, name: "Chat", path: "/chat" },
+//   { id: 4, icon: MdOutlineExplore, name: "Explore", path: "/explore" },
+// ];
 
 const Sidebar = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const handleSelected = (path: string) => {
-    navigate(path);
-  };
+  // const handleSelected = (path: string) => {
+  //   navigate(path);
+  // };
 
   return (
     <div className="w-full flex flex-col justify-between md:flex-row bg-[#f5f5f5] min-h-screen scroll-smooth">
@@ -78,13 +78,13 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
       </div> */}
 
       <div className="flex flex-col gap-3 px-1 w-full">
-        <Navbar />
+        {/* <Navbar /> */}
         {children}
       </div>
 
-      <div className="w-full fixed bottom-0 z-50 md:hidden">
+      {/* <div className="w-full fixed bottom-0 z-50 md:hidden">
         <SidebarSm routes={routes} handleSelected={handleSelected} />
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -13,7 +13,7 @@ import { Separator } from "../ui/separator";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/Context/AuthContext";
 import { useMutation } from "react-query";
-import { getAxiosErrorMessage, login } from "@/Api/auth.api";
+import { login } from "@/Api/auth.api";
 import Cookies from "js-cookie";
 import { Spinner } from "../ui/Spinner";
 // import { GoogleLogin } from "@react-oauth/google";
@@ -21,6 +21,7 @@ import { Spinner } from "../ui/Spinner";
 // import axiosInstance from "@/Api/axios";
 import { useRole } from "@/Context/RoleContext";
 import { tos } from "@/lib/utils";
+import { getAxiosErrorMessage } from "@/Api/axios";
 
 // interface GooglePayload {
 //   name: string;
@@ -30,7 +31,7 @@ import { tos } from "@/lib/utils";
 
 const LoginForm = () => {
   const { login: authLogin } = useAuth();
-  const { setRole } = useRole();
+  const { setRole, setUser } = useRole();
   const methods = useForm({
     defaultValues: {
       username: "",
@@ -86,16 +87,13 @@ const LoginForm = () => {
   const { mutate, isLoading } = useMutation({
     mutationFn: login,
     onSuccess: (response) => {
-      const accessToken = response?.accessToken;
-      const refreshToken = response?.refreshToken;
-      if (accessToken && refreshToken) {
+      const accessToken = response?.token;
+      if (accessToken) {
         Cookies.set("accessToken", accessToken);
-        Cookies.set("refreshToken", refreshToken);
-        Cookies.set("mode", "formal");
-        authLogin(accessToken, refreshToken);
-
-        setRole("user");
-        Cookies.set("role", "user");
+        authLogin(accessToken);
+        setRole(response?.user.role);
+        setUser(response?.user);
+        Cookies.set("role", response?.user.role);
         navigate("/");
         tos.success("Successfully logged in!");
       } else {
@@ -109,18 +107,18 @@ const LoginForm = () => {
   });
 
   return (
-    <div className="flex flex-col gap-8r lg:w-1/2 ">
+    <div className="flex flex-col gap-y-8r  lg:w-1/2 ">
       <div className="flex flex-col gap-2r">
         <p className="text-h2 font-bold">Login</p>
-        {/* <p className="text-md text-neutral-500 dark:text-neutral-400">
-          If you are already a member you can login with{" "}
-          <br className="hidden lg:flex" /> your email address and password.
-        </p> */}
+        <p className="text-md text-neutral-500 dark:text-neutral-400">
+          Please log in using the username and password sent to your email.
+          <br className="hidden lg:flex" />
+        </p>
         <Separator />
       </div>
       <FormProvider {...methods}>
         <form
-          className="flex flex-col gap-5"
+          className="flex flex-col w-full gap-y-5"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <div className="flex lg:flex-col flex-col gap-4r w-full">
@@ -141,6 +139,7 @@ const LoginForm = () => {
                       required
                       type="text"
                       placeholder="Enter your username"
+                      className="w-full"
                       {...field}
                     />
                   </FormControl>
@@ -166,6 +165,7 @@ const LoginForm = () => {
                       placeholder="Enter your password"
                       {...field}
                       required
+                      className="w-full"
                     />
                   </FormControl>
                   <FormMessage />
@@ -195,7 +195,9 @@ const LoginForm = () => {
               )}
             />
           </div>
-          <Button type="submit">{isLoading ? <Spinner /> : "Log In"}</Button>
+          <Button className="w-full" type="submit">
+            {isLoading ? <Spinner /> : "Log In"}
+          </Button>
         </form>
         {/* <Button onClick={() => {}} variant={"outline"} type="button">
           <div className="flex flex-row gap-2 items-center justify-center">

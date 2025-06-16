@@ -1,5 +1,9 @@
 import { useState, useCallback } from "react";
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
+import { useMutation } from "react-query";
+// import { getAxiosErrorMessage } from "@/Api/axios";
+// import { tos } from "@/lib/utils";
+import { scan } from "@/Api/scan";
 
 interface ScanResult {
   data: string;
@@ -9,57 +13,34 @@ interface ScanResult {
 const ScanQRCode = () => {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+
   const [cameraActive, setCameraActive] = useState(true);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
-  const sendToBackend = useCallback(async (data: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Replace with your actual backend API call
-      const response = await fetch("https://your-api-endpoint.com/scan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ qrData: data }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send data to backend");
-      }
-
-      const result = await response.json();
-      setScanResult({ data, timestamp: new Date() });
-      setCameraActive(false); // Turn off camera after successful scan
-      console.log("Backend response:", result);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
-      console.error("Error sending QR data to backend:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const handleScan = useCallback(
-    (detectedCodes: IDetectedBarcode[]) => {
-      if (detectedCodes.length > 0) {
-        const firstCode = detectedCodes[0];
-        console.log("Scanned data:", firstCode.rawValue);
-        setScanResult({ data: "The ticket is Valid", timestamp: new Date() });
-
-        // sendToBackend(firstCode.rawValue);
-      }
+  const { mutate: sendToBackend, isLoading } = useMutation({
+    mutationFn: scan,
+    onSuccess: (res) => {
+      setScanResult({ data: "Your Ticket is Valid", timestamp: new Date() });
+      setCameraActive(false);
+      console.log("Backend response:", res);
     },
-    [sendToBackend]
-  );
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message;
+      setError(msg || error.message || "An unknown error occurred");
+      setCameraActive(false);
+      console.error("Error sending QR data to backend:", error);
+    },
+  });
 
+  const handleScan = (detectedCodes: IDetectedBarcode[]) => {
+    if (detectedCodes.length > 0) {
+      const firstCode = detectedCodes[0];
+      const parsedData = JSON.parse(firstCode.rawValue);
+
+      sendToBackend({ id: parsedData.userId });
+    }
+  };
   const handleError = useCallback((err: any) => {
-    console.error("QR Scanner error:", err);
     if (err.name === "NotAllowedError") {
       setError(
         "Camera permission was denied. Please allow camera access to scan QR codes."
@@ -107,7 +88,7 @@ const ScanQRCode = () => {
               ) : (
                 <button
                   onClick={resetScanner}
-                  className="mt-2 text-sm text-red-600 hover:text-red-800 font-medium"
+                  className="mt-2 py-2 px-4 rounded-md bg-red-700  text-sm text-white  font-medium"
                 >
                   Try again
                 </button>
@@ -161,34 +142,34 @@ const ScanQRCode = () => {
                     },
                   }}
                   components={{
-                    tracker: (detectedCodes, ctx) => {
-                      // Custom tracking visualization
-                      ctx.strokeStyle = "#FF3B30";
-                      ctx.lineWidth = 4;
-                      ctx.font = "14px Arial";
-                      ctx.fillStyle = "#FF3B30";
+                    // tracker: (detectedCodes, ctx) => {
+                    //   // Custom tracking visualization
+                    //   ctx.strokeStyle = "#FF3B30";
+                    //   ctx.lineWidth = 4;
+                    //   ctx.font = "14px Arial";
+                    //   ctx.fillStyle = "#FF3B30";
 
-                      detectedCodes.forEach((code) => {
-                        // Draw bounding box around detected code
-                        ctx.beginPath();
-                        ctx.moveTo(
-                          code.cornerPoints[0].x,
-                          code.cornerPoints[0].y
-                        );
-                        code.cornerPoints.forEach((point, idx) => {
-                          if (idx > 0) ctx.lineTo(point.x, point.y);
-                        });
-                        ctx.closePath();
-                        ctx.stroke();
+                    //   detectedCodes.forEach((code) => {
+                    //     // Draw bounding box around detected code
+                    //     ctx.beginPath();
+                    //     ctx.moveTo(
+                    //       code.cornerPoints[0].x,
+                    //       code.cornerPoints[0].y
+                    //     );
+                    //     code.cornerPoints.forEach((point, idx) => {
+                    //       if (idx > 0) ctx.lineTo(point.x, point.y);
+                    //     });
+                    //     ctx.closePath();
+                    //     ctx.stroke();
 
-                        // Draw code format text
-                        ctx.fillText(
-                          code.format,
-                          code.cornerPoints[0].x,
-                          code.cornerPoints[0].y - 5
-                        );
-                      });
-                    }, // Shows tracking UI for detected codes
+                    //     // Draw code format text
+                    //     ctx.fillText(
+                    //       code.format,
+                    //       code.cornerPoints[0].x,
+                    //       code.cornerPoints[0].y - 5
+                    //     );
+                    //   });
+                    // }, // Shows tracking UI for detected codes
                     onOff: true, // Shows camera on/off toggle
                     torch: true, // Shows torch/flashlight toggle (if available)
                     zoom: false, // Disables zoom controls (usually not needed for QR)

@@ -8,8 +8,6 @@ import { NotFoundPage } from "./Pages/NotFoundPage";
 import { UnauthorizedPage } from "./Pages/UnauthorizedPage";
 import { ErrorPage } from "./Pages/ErrorPage";
 import HomePage from "./Pages/HomePage";
-import ScanQRCode from "./Pages/ScanQRCode";
-import GeneratQRCode from "./Pages/GeneratQRCode";
 
 export const router = createBrowserRouter([
   {
@@ -23,34 +21,12 @@ export const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: "/scan",
-    element: <ScanQRCode />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: "/generate",
-    element: <GeneratQRCode />,
-    errorElement: <ErrorPage />,
-  },
-
-  {
     path: "/",
     element: <AppLayout />,
     errorElement: <ErrorPage />,
     children: [
       {
-        element: <PrivateRoute allowedRoles={["user"]} />,
-        errorElement: <ErrorPage />,
-        children: [
-          {
-            index: true,
-            element: <HomePage />,
-            errorElement: <ErrorPage />,
-          },
-        ],
-      },
-      {
-        element: <PrivateRoute allowedRoles={["admin"]} />,
+        element: <PrivateRoute allowedRoles={["user", "admin"]} />,
         errorElement: <ErrorPage />,
         children: [
           {
@@ -61,23 +37,12 @@ export const router = createBrowserRouter([
         ],
       },
       // {
-      //   element: <PrivateRoute allowedRoles={["user"]} />,
+      //   element: <PrivateRoute allowedRoles={["admin"]} />,
       //   errorElement: <ErrorPage />,
       //   children: [
       //     {
-      //       path: "jobs/applied-jobs",
-      //       element: <AppliedJobs />,
-      //       errorElement: <ErrorPage />,
-      //     },
-      //   ],
-      // },
-      // {
-      //   element: <PrivateRoute allowedRoles={["company"]} />,
-      //   errorElement: <ErrorPage />,
-      //   children: [
-      //     {
-      //       path: "jobs/add-job",
-      //       element: <AddJob />,
+      //       index: true,
+      //       element: <ScanQRCode />,
       //       errorElement: <ErrorPage />,
       //     },
       //   ],
