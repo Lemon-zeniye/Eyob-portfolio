@@ -33,7 +33,7 @@ const LoginForm = () => {
   const { setRole } = useRole();
   const methods = useForm({
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
       rememberMe: "",
     },
@@ -44,7 +44,7 @@ const LoginForm = () => {
 
   const onSubmit = (data: any) => {
     const payload = {
-      email: data.email,
+      username: data.username,
       password: data.password,
     };
     mutate(payload);
@@ -112,10 +112,10 @@ const LoginForm = () => {
     <div className="flex flex-col gap-8r lg:w-1/2 ">
       <div className="flex flex-col gap-2r">
         <p className="text-h2 font-bold">Login</p>
-        <p className="text-md text-neutral-500 dark:text-neutral-400">
+        {/* <p className="text-md text-neutral-500 dark:text-neutral-400">
           If you are already a member you can login with{" "}
           <br className="hidden lg:flex" /> your email address and password.
-        </p>
+        </p> */}
         <Separator />
       </div>
       <FormProvider {...methods}>
@@ -126,15 +126,21 @@ const LoginForm = () => {
           <div className="flex lg:flex-col flex-col gap-4r w-full">
             <FormField
               control={methods.control}
-              name="email"
+              name="username"
+              rules={{
+                minLength: {
+                  value: 3,
+                  message: "Username must be at least 3 characters long",
+                },
+              }}
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input
                       required
-                      type="email"
-                      placeholder="Enter your email"
+                      type="text"
+                      placeholder="Enter your username"
                       {...field}
                     />
                   </FormControl>
@@ -145,6 +151,12 @@ const LoginForm = () => {
             <FormField
               control={methods.control}
               name="password"
+              rules={{
+                minLength: {
+                  value: 8,
+                  message: "Password must be at least 8 characters long",
+                },
+              }}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Password</FormLabel>
@@ -197,7 +209,7 @@ const LoginForm = () => {
             console.log("Login Failed");
           }}
         /> */}
-        <div className="flex flex-row gap-0 items-center justify-center">
+        {/* <div className="flex flex-row gap-0 items-center justify-center">
           <p>Don't have an account?</p>
           <Button
             className="px-2 text-bold text-pretty text-primary"
@@ -206,7 +218,7 @@ const LoginForm = () => {
           >
             Sign Up here
           </Button>
-        </div>
+        </div> */}
       </FormProvider>
     </div>
   );

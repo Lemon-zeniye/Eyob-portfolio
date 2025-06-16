@@ -1,7 +1,7 @@
 import axios from "./axios";
 
 export const login = async (payload: any): Promise<any> => {
-  const response = await axios.post<any>("/auth/login", payload);
+  const response = await axios.post<any>("/login", payload);
   return response.data;
 };
 

@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosInstance = axios.create({
-  baseURL: "https://awema.co/api",
+  baseURL: "http://147.79.100.108:7000/api",
 });
 
 const RapidAPI = import.meta.env.VITE_RapidAPI;

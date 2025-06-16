@@ -39,7 +39,18 @@ export const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        element: <PrivateRoute allowedRoles={["user", "company"]} />,
+        element: <PrivateRoute allowedRoles={["user"]} />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <HomePage />,
+            errorElement: <ErrorPage />,
+          },
+        ],
+      },
+      {
+        element: <PrivateRoute allowedRoles={["admin"]} />,
         errorElement: <ErrorPage />,
         children: [
           {

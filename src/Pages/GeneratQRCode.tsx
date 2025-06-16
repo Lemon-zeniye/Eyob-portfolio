@@ -48,7 +48,7 @@ const GenerateQRCode: React.FC = () => {
           fgColor="#1e40af"
           bgColor="#ffffff"
           imageSettings={{
-            src: "https://cdn-icons-png.flaticon.com/512/217/217853.png",
+            src: "https://cdn-icons-png.flaticon.com/512/236/236831.png",
             height: 40,
             width: 40,
             excavate: true,
