@@ -1,13 +1,14 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/Context/AuthContext";
 import { useState } from "react";
-import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IoIosArrowDown } from "react-icons/io";
+import { useRole } from "@/Context/RoleContext";
 
 const UserDropdown = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { user } = useRole();
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -18,24 +19,29 @@ const UserDropdown = () => {
     <div className="relative group inline-block">
       {/* Trigger */}
 
-      <div className="flex flex-col items-center">
-        <Avatar className="w-10 h-10 border border-primary rounded-full cursor-pointer">
+      <div className="flex gap-2 items-center">
+        <Avatar className="w-8 h-8 border border-primary rounded-full cursor-pointer">
           <AvatarImage
             src={profileImage || "/placeholder.svg"}
             alt="Profile"
             className="object-cover"
           />
           <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-sm">
-            {Cookies.get("userName")?.charAt(0) || "U"}
+            {user?.username
+              ?.split(" ")
+              .slice(0, 2)
+              .map((word) => word[0])
+              .join("")
+              .toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>
-        <IoIosArrowDown />
+        <IoIosArrowDown size={11} />
       </div>
 
       {/* Dropdown on Hover */}
       <div className="absolute right-0 w-48 bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 origin-top-right z-50 backdrop-blur-sm bg-white/80">
         <div className="flex flex-col p-2 space-y-1">
-          <Link
+          {/* <Link
             to="/profile"
             className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-150 flex items-center gap-2 hover:translate-x-1"
           >
@@ -54,7 +60,7 @@ const UserDropdown = () => {
               />
             </svg>
             View Profile
-          </Link>
+          </Link> */}
 
           {/* <div className="border-t border-gray-100 my-1"></div>
           <Link

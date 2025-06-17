@@ -10,30 +10,25 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-// import goggle from "../../assets/icons8-google-48.png";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { useMutation } from "react-query";
 import { signup } from "@/Api/auth.api";
 import { Spinner } from "../ui/Spinner";
 import { tos } from "@/lib/utils";
 import { getAxiosErrorMessage } from "@/Api/axios";
-// import * as Select from "@radix-ui/react-select";
-// import { ChevronDownIcon } from "lucide-react";
-// import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 const SignupForm = () => {
   const methods = useForm({
     defaultValues: {
       username: "",
-      // email: "",
       password: "",
       confirmPassword: "",
       role: "admin",
     },
     mode: "onChange", // Validate on change
   });
-  // const [otpSent, setOtpSent] = useState(false);
-  // const [otp, setOtp] = useState("");
 
   const { mutate, isLoading } = useMutation({
     mutationFn: signup,
@@ -46,31 +41,9 @@ const SignupForm = () => {
     },
   });
 
-  // const { mutate: verifyotp, isLoading: isOTPLoading } = useMutation({
-  //   mutationFn: verifyOTP,
-  //   onSuccess: () => {
-  //     tos.success(
-  //       "Your email has been verified! Please log in using your email and password."
-  //     );
-  //     navigate("/login");
-  //   },
-  //   onError: (error: any) => {
-  //     const message = getAxiosErrorMessage(error);
-  //     tos.error(message);
-  //   },
-  // });
-
   const navigate = useNavigate();
-
-  // const handleOTPVerification = () => {
-  //   const email = methods.getValues("email");
-  //   if (email !== "" && otp !== "") {
-  //     verifyotp({
-  //       email: email,
-  //       otp: otp,
-  //     });
-  //   }
-  // };
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCPassword, setShowCPassword] = useState(false);
 
   const onSubmit = (data: any) => {
     const payload = {
@@ -184,27 +157,41 @@ const SignupForm = () => {
                     control={methods.control}
                     name="password"
                     rules={{
-                      required: "Password is required",
                       minLength: {
                         value: 8,
-                        message: "Password must be at least 8 characters",
+                        message: "Password must be at least 8 characters long",
                       },
                     }}
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="Enter your password"
-                            {...field}
-                          />
-                        </FormControl>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter your password"
+                              {...field}
+                              required
+                              className="w-full pr-10" // Add padding for the icon
+                            />
+                          </FormControl>
+                          <button
+                            type="button" // Important to prevent form submission
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <FormField
+                  {/* <FormField
                     control={methods.control}
                     name="confirmPassword"
                     rules={{
@@ -223,6 +210,45 @@ const SignupForm = () => {
                             {...field}
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  /> */}
+
+                  <FormField
+                    control={methods.control}
+                    name="confirmPassword"
+                    rules={{
+                      required: "Please confirm your password",
+                      validate: (value) =>
+                        value === methods.watch("password") ||
+                        "Passwords do not match",
+                    }}
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Confirm Password</FormLabel>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              type={showCPassword ? "text" : "password"}
+                              placeholder="Enter your password again"
+                              {...field}
+                              required
+                              className="w-full pr-10" // Add padding for the icon
+                            />
+                          </FormControl>
+                          <button
+                            type="button" // Important to prevent form submission
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            onClick={() => setShowCPassword(!showCPassword)}
+                          >
+                            {showCPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}

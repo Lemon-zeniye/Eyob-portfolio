@@ -7,6 +7,7 @@
 // import { LuMessageCircleMore } from "react-icons/lu";
 
 // import { MdOutlineExplore } from "react-icons/md";
+import Navbar from "@/components/Navbar/Navbar";
 import { IconType } from "react-icons/lib";
 // import { HiOutlineHome } from "react-icons/hi2";
 
@@ -78,7 +79,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
       </div> */}
 
       <div className="flex flex-col gap-3 px-1 w-full">
-        {/* <Navbar /> */}
+        <Navbar />
         {children}
       </div>
 

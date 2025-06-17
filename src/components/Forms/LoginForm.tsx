@@ -22,6 +22,8 @@ import { Spinner } from "../ui/Spinner";
 import { useRole } from "@/Context/RoleContext";
 import { tos } from "@/lib/utils";
 import { getAxiosErrorMessage } from "@/Api/axios";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 // interface GooglePayload {
 //   name: string;
@@ -32,6 +34,7 @@ import { getAxiosErrorMessage } from "@/Api/axios";
 const LoginForm = () => {
   const { login: authLogin } = useAuth();
   const { setRole, setUser } = useRole();
+  const [showPassword, setShowPassword] = useState(false);
   const methods = useForm({
     defaultValues: {
       username: "",
@@ -147,7 +150,7 @@ const LoginForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={methods.control}
               name="password"
               rules={{
@@ -168,6 +171,44 @@ const LoginForm = () => {
                       className="w-full"
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
+            <FormField
+              control={methods.control}
+              name="password"
+              rules={{
+                minLength: {
+                  value: 8,
+                  message: "Password must be at least 8 characters long",
+                },
+              }}
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Password</FormLabel>
+                  <div className="relative">
+                    <FormControl>
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        {...field}
+                        required
+                        className="w-full pr-10" // Add padding for the icon
+                      />
+                    </FormControl>
+                    <button
+                      type="button" // Important to prevent form submission
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

@@ -21,9 +21,8 @@ const ScanQRCode = () => {
   const { mutate: sendToBackend, isLoading } = useMutation({
     mutationFn: scan,
     onSuccess: (res) => {
-      setScanResult({ data: "Successfully Checked In", timestamp: new Date() });
+      setScanResult({ data: res?.ticket_type, timestamp: new Date() });
       setCameraActive(false);
-      console.log("Backend response:", res);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message;
@@ -68,7 +67,7 @@ const ScanQRCode = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-6">
           <p className="text-gray-600 mb-6">
@@ -98,10 +97,11 @@ const ScanQRCode = () => {
           {scanResult ? (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <h2 className="font-semibold text-green-800 mb-2">
-                Scan Successful!
+                Successfully Checked In
               </h2>
               <p className="text-gray-700 mb-2">
-                <span className="font-medium">Data:</span> {scanResult.data}
+                <span className="font-medium">Ticket Type</span>{" "}
+                {scanResult.data}
               </p>
               <p className="text-sm text-gray-500">
                 Scanned at: {scanResult.timestamp.toLocaleTimeString()}
