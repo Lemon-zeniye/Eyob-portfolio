@@ -68,64 +68,56 @@ const LoginForm = () => {
   });
 
   return (
-    <div className="flex flex-col w-full max-w-md mx-auto bg-transparent">
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-center gap-3">
-          <img src={logo} alt="Akilo" className="w-20 h-20" />
-          <div className="flex flex-col">
-            <p className="text-2xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent">
-              Akilo Consultancy
-              <br />
-              Corporation
-            </p>
-          </div>
-        </div>
-
-        <p className="text-base text-center px-2 leading-6 font-medium">
-          Provide Technology Solutions to Elevate Your Business. Born in Tigray!
-        </p>
-
-        <div className="px-2 mx-auto w-full">
-          <button className="bg-primary2 flex text-white items-center justify-center gap-2 w-full text-base py-2 rounded-lg hover:bg-primary2/70">
-            Visit Akio <MdArrowOutward className="text-lg" />
-          </button>
-        </div>
-
-        <div className="my-3 text-center">
-          <h2 className="text-lg font-semibold">Wa'ela Check in Ticket</h2>
-          <p className="text-xs text-gray-600">
-            Login to access your Ticket Qr Code
+    <div className="flex flex-col w-full mx-auto bg-transparent space-y-4">
+      {/* Header Section */}
+      <div className="flex items-center justify-center gap-3">
+        <img src={logo} alt="Akilo" className="w-20 h-20" />
+        <div className="flex flex-col">
+          <p className="text-2xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent">
+            Akilo Consultancy
+            <br />
+            Corporation
           </p>
         </div>
       </div>
 
+      <p className="text-xl text-center px-2 leading-7 font-medium">
+        Provide Technology Solutions to Elevate Your Business. Born in Tigray!
+      </p>
+
+      <button className="bg-primary2 text-white flex items-center justify-center gap-2 w-full text-lg py-2.5 rounded-xl hover:bg-primary2/70">
+        Visit Akio <MdArrowOutward className="text-xl" />
+      </button>
+
+      <div className="py-2 text-center">
+        <h2 className="text-xl">Wa'ela Check in Ticket</h2>
+        <p className="text-sm text-gray-600">
+          Login to access your Ticket Qr Code
+        </p>
+      </div>
+
+      {/* Login Form */}
       <FormProvider {...methods}>
         <form
-          className="flex flex-col w-full gap-4 px-1 mt-2"
+          className="flex flex-col w-full gap-y-4"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <FormField
             control={methods.control}
             name="username"
-            rules={{
-              minLength: {
-                value: 3,
-                message: "Username must be at least 3 characters long",
-              },
-            }}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm">Username</FormLabel>
+                <FormLabel>Username</FormLabel>
                 <FormControl>
                   <Input
                     required
                     type="text"
                     placeholder="Enter your username"
-                    className="w-full bg-white py-3 rounded-lg"
+                    className="w-full !bg-white !py-3.5 rounded-lg"
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="text-xs" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -133,15 +125,9 @@ const LoginForm = () => {
           <FormField
             control={methods.control}
             name="password"
-            rules={{
-              minLength: {
-                value: 8,
-                message: "Password must be at least 8 characters long",
-              },
-            }}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm">Password</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <div className="relative">
                   <FormControl>
                     <Input
@@ -149,7 +135,7 @@ const LoginForm = () => {
                       placeholder="Enter your password"
                       {...field}
                       required
-                      className="w-full pr-10 bg-white py-3 rounded-lg"
+                      className="w-full pr-10 !bg-white !py-3.5 rounded-lg"
                     />
                   </FormControl>
                   <button
@@ -158,13 +144,13 @@ const LoginForm = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-5 w-5" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-5 w-5" />
                     )}
                   </button>
                 </div>
-                <FormMessage className="text-xs" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -173,22 +159,22 @@ const LoginForm = () => {
             control={methods.control}
             name="rememberMe"
             render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center gap-2">
-                  <Checkbox {...field} id="terms" className="h-4 w-4" />
-                  <label
-                    htmlFor="terms"
-                    className="text-xs leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Remember me
-                  </label>
-                </div>
+              <FormItem className="flex items-center space-x-2">
+                <FormControl>
+                  <Checkbox {...field} id="terms" />
+                </FormControl>
+                <label
+                  htmlFor="terms"
+                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Remember me
+                </label>
               </FormItem>
             )}
           />
 
           <button
-            className="bg-primary2 text-white flex items-center justify-center gap-2 w-full text-base py-3 rounded-lg hover:bg-primary2/70 mt-2"
+            className="bg-primary2 text-white flex items-center justify-center gap-2 w-full text-lg py-3 rounded-xl hover:bg-primary2/70 mt-2"
             type="submit"
           >
             {isLoading ? <Spinner /> : "Login"}
