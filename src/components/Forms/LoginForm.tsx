@@ -67,6 +67,10 @@ const LoginForm = () => {
     },
   });
 
+  const handleClick = () => {
+    window.open("https://www.akilocorp.com/", "_blank");
+  };
+
   return (
     <div className="flex flex-col w-full mx-auto bg-transparent space-y-4 pt-10 px-4 max-h-screen">
       {/* Header Section */}
@@ -81,11 +85,14 @@ const LoginForm = () => {
         </div>
       </div>
 
-      <p className="text-xl text-center px-2 leading-7 font-medium">
+      <p className="text-xl text-center px-4 leading-7 font-medium">
         Provide Technology Solutions to Elevate Your Business. Born in Tigray!
       </p>
 
-      <button className="bg-primary2 text-white flex items-center justify-center gap-2 w-full text-lg py-2.5 rounded-xl hover:bg-primary2/70">
+      <button
+        className="bg-primary2 text-white flex items-center justify-center gap-2 w-full text-lg py-2 rounded-xl hover:bg-primary2/70"
+        onClick={handleClick}
+      >
         Visit Akilo <MdArrowOutward className="text-xl" />
       </button>
 
