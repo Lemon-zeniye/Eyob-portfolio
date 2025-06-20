@@ -46,7 +46,7 @@ const Navbar = () => {
   // ];
 
   return (
-    <div className="flex flex-row sticky top-0 z-[20] bg-[#F5F5F5] justify-between items-center pr-1 md:pr-5 py-2">
+    <div className="flex flex-row sticky top-0 bg-white z-[20] pt-2  justify-between items-center">
       <div></div>
       {/* <div className="hidden md:flex  items-center justify-between ">
         {routes.slice(0, 4).map((route) => {

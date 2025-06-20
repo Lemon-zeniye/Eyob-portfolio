@@ -5,6 +5,10 @@ import { useMutation } from "react-query";
 // import { tos } from "@/lib/utils";
 import { scan } from "@/Api/scan";
 import scanSound from "../assets/store-scanner-beep-90395.mp3";
+import logo from "../assets/logo.png";
+import { MdArrowOutward } from "react-icons/md";
+import checkSvg from "../assets/check.svg";
+import errorSvg from "../assets/error.svg";
 
 interface ScanResult {
   data: string;
@@ -66,15 +70,21 @@ const ScanQRCode = () => {
     setHasPermission(null);
   };
 
+  const handleClick = () => {
+    window.open("https://www.akilocorp.com/", "_blank");
+  };
+
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-6">
-          <p className="text-gray-600 mb-6">
-            Scan attendee QR code to check in
-          </p>
+    <div className="min-h-[calc(100vh-4rem)] px-2 mb-12 space-y-4">
+      <h1 className="text-lg text-center font-bold text-gray-800 mb-2">
+        Scan Ticket
+      </h1>
+      <p className="text-center  mb-4">Aim Your Camera at the QR-Code</p>
+      <div className="w-full max-w-md md:max-w-full  bg-white rounded-xl overflow-hidden">
+        <div className="flex items-center flex-col justify-center w-full">
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            <div className="mb-4 p-3 border shadow-lg text-red-700 rounded-xl flex items-center justify-center flex-col">
+              <img src={errorSvg} alt="error" className="w-44 h-44" />
               <p>{error}</p>
               {hasPermission === false ? (
                 <button
@@ -86,103 +96,72 @@ const ScanQRCode = () => {
               ) : (
                 <button
                   onClick={resetScanner}
-                  className="mt-2 py-2 px-4 rounded-md bg-red-700  text-sm text-white  font-medium"
+                  className="mt-4 py-2 px-10 bg-primary2 hover:bg-primary2/70 text-white font-medium rounded-full transition-colors"
                 >
-                  Try again
+                  Scan Another
                 </button>
               )}
             </div>
           )}
 
           {scanResult ? (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <h2 className="font-semibold text-green-800 mb-2">
-                Successfully Checked In
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center justify-center flex-col">
+              <img src={checkSvg} alt="error" className="w-44 h-44" />
+
+              <h2 className="font-semibold text-xl text-green-800 mb-2">
+                Ticket Recognized!
               </h2>
-              <p className="text-gray-700 mb-2">
-                <span className="font-medium">Ticket Type</span>{" "}
-                {scanResult.data}
-              </p>
-              <p className="text-sm text-gray-500">
-                Scanned at: {scanResult.timestamp.toLocaleTimeString()}
-              </p>
+              <div className="text-gray-700 mb-2">
+                <p className="font-medium text-lg">Ticket Type</p>
+                <p> {scanResult.data}</p>
+              </div>
               <button
                 onClick={resetScanner}
-                className="mt-4 w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                className="mt-4  py-2 px-10 bg-primary2 hover:bg-primary2/70 text-white font-medium rounded-full transition-colors"
               >
-                Scan Another QR Code
+                Scan Another
               </button>
             </div>
           ) : (
-            <div className="relative rounded-lg overflow-hidden border-2 border-gray-200 aspect-square">
-              {cameraActive ? (
-                <Scanner
-                  onScan={handleScan}
-                  onError={handleError}
-                  constraints={{
-                    facingMode: "environment",
-                    aspectRatio: 1,
-                  }}
-                  formats={["qr_code"]}
-                  paused={false}
-                  scanDelay={500}
-                  allowMultiple={false}
-                  sound={scanSound}
-                  styles={{
-                    container: {
-                      position: "relative",
-                      width: "100%",
-                      height: "100%",
-                    },
-                    video: {
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    },
-                  }}
-                  components={{
-                    // tracker: (detectedCodes, ctx) => {
-                    //   // Custom tracking visualization
-                    //   ctx.strokeStyle = "#FF3B30";
-                    //   ctx.lineWidth = 4;
-                    //   ctx.font = "14px Arial";
-                    //   ctx.fillStyle = "#FF3B30";
-
-                    //   detectedCodes.forEach((code) => {
-                    //     // Draw bounding box around detected code
-                    //     ctx.beginPath();
-                    //     ctx.moveTo(
-                    //       code.cornerPoints[0].x,
-                    //       code.cornerPoints[0].y
-                    //     );
-                    //     code.cornerPoints.forEach((point, idx) => {
-                    //       if (idx > 0) ctx.lineTo(point.x, point.y);
-                    //     });
-                    //     ctx.closePath();
-                    //     ctx.stroke();
-
-                    //     // Draw code format text
-                    //     ctx.fillText(
-                    //       code.format,
-                    //       code.cornerPoints[0].x,
-                    //       code.cornerPoints[0].y - 5
-                    //     );
-                    //   });
-                    // }, // Shows tracking UI for detected codes
-                    onOff: true, // Shows camera on/off toggle
-                    torch: true, // Shows torch/flashlight toggle (if available)
-                    zoom: false, // Disables zoom controls (usually not needed for QR)
-                    finder: true, // Shows finder/viewfinder overlay
-                  }}
-                >
-                  {/* Custom overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="border-4 border-white rounded-lg w-3/4 h-3/4 opacity-75"></div>
-                  </div>
-                </Scanner>
-              ) : (
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <p className="text-gray-500">Camera is off</p>
+            <div className="">
+              {cameraActive && (
+                <div className="relative rounded-lg overflow-hidden border-2 border-gray-200 aspect-square">
+                  <Scanner
+                    onScan={handleScan}
+                    onError={handleError}
+                    constraints={{
+                      facingMode: "environment",
+                      aspectRatio: 1,
+                    }}
+                    formats={["qr_code"]}
+                    paused={false}
+                    scanDelay={500}
+                    allowMultiple={false}
+                    sound={scanSound}
+                    styles={{
+                      container: {
+                        position: "relative",
+                        width: "100%",
+                        height: "100%",
+                      },
+                      video: {
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      },
+                    }}
+                    components={{
+                      onOff: true, // Shows camera on/off toggle
+                      torch: true, // Shows torch/flashlight toggle (if available)
+                      zoom: false, // Disables zoom controls (usually not needed for QR)
+                      finder: true, // Shows finder/viewfinder overlay
+                    }}
+                  >
+                    {/* Custom overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="border-4 border-white rounded-lg w-3/4 h-3/4 opacity-75"></div>
+                    </div>
+                  </Scanner>
                 </div>
               )}
             </div>
@@ -190,15 +169,47 @@ const ScanQRCode = () => {
 
           {isLoading && (
             <div className="mt-4 flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary2"></div>
             </div>
           )}
+        </div>
+      </div>
 
-          <div className="mt-6 text-center text-sm text-gray-500">
-            <p>Position the QR code within the frame to scan</p>
+      {/* Sponsor Section - Refined */}
+      <div className="mt-12 space-y-4 max-w-md mx-auto">
+        <h2 className="text-lg text-center font-medium tracking-wider underline">
+          Brought to you by
+        </h2>
+
+        <div
+          className="bg-white p-2 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+          onClick={handleClick}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <img
+              src={logo}
+              alt="Akilo Consultancy Corporation"
+              className="w-24 h-24 object-cover shrink-0"
+            />
+            <div className="text-left flex-1">
+              <p className="text-2xl font-bold text-gray-900 leading-tight">
+                Akilo Consultancy
+              </p>
+              <p className="text-2xl font-bold text-gray-900 leading-tight">
+                Corporation
+              </p>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* visit button */}
+      <button
+        className="bg-primary2 text-white flex items-center justify-center gap-2 w-full text-lg py-3 rounded-xl hover:bg-primary2/70 max-w-md mx-auto"
+        onClick={handleClick}
+      >
+        Visit Akilo <MdArrowOutward className="text-xl" />
+      </button>
     </div>
   );
 };

@@ -33,7 +33,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
   // };
 
   return (
-    <div className="w-full flex flex-col justify-between md:flex-row bg-[#f5f5f5] min-h-screen scroll-smooth">
+    <div className="w-full flex flex-col justify-between md:flex-row min-h-screen scroll-smooth">
       {/* <div className="bg-white hidden h-screen fixed w-20 border-r md:flex flex-col justify-between py-5 items-center">
         <div className="flex flex-col gap-10">
           <img src={logo} className="w-8 h-auto" alt="Logo" />

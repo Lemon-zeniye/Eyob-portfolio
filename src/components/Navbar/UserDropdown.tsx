@@ -20,13 +20,13 @@ const UserDropdown = () => {
       {/* Trigger */}
 
       <div className="flex gap-2 items-center">
-        <Avatar className="w-8 h-8 border border-primary rounded-full cursor-pointer">
+        <Avatar className="w-8 h-8 border border-primary2 rounded-full cursor-pointer">
           <AvatarImage
             src={profileImage || "/placeholder.svg"}
             alt="Profile"
             className="object-cover"
           />
-          <AvatarFallback className="bg-gradient-to-br from-[#05A9A9] to-[#4ecdc4] text-white text-sm">
+          <AvatarFallback className="bg-gradient-to-br from-primary2 to-primary2/70 text-white text-sm">
             {user?.username
               ?.split(" ")
               .slice(0, 2)
@@ -39,7 +39,7 @@ const UserDropdown = () => {
       </div>
 
       {/* Dropdown on Hover */}
-      <div className="absolute right-0 w-48 bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 origin-top-right z-50 backdrop-blur-sm bg-white/80">
+      <div className="absolute right-0 w-48 bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 origin-top-right z-50 backdrop-blur-sm">
         <div className="flex flex-col p-2 space-y-1">
           {/* <Link
             to="/profile"
@@ -84,7 +84,7 @@ const UserDropdown = () => {
             Settings
           </Link> */}
 
-          <div className="border-t border-gray-100 my-1"></div>
+          {/* <div className="border-t border-gray-100 my-1"></div> */}
 
           <button
             onClick={() => handleLogout()}

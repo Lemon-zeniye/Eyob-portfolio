@@ -68,7 +68,7 @@ const LoginForm = () => {
   });
 
   return (
-    <div className="flex flex-col w-full mx-auto bg-transparent space-y-4 p-4 max-h-screen">
+    <div className="flex flex-col w-full mx-auto bg-transparent space-y-4 pt-8 px-4 max-h-screen">
       {/* Header Section */}
       <div className="flex items-center justify-center gap-3">
         <img src={logo} alt="Akilo" className="w-20 h-20" />
@@ -86,7 +86,7 @@ const LoginForm = () => {
       </p>
 
       <button className="bg-primary2 text-white flex items-center justify-center gap-2 w-full text-lg py-2.5 rounded-xl hover:bg-primary2/70">
-        Visit Akio <MdArrowOutward className="text-xl" />
+        Visit Akilo <MdArrowOutward className="text-xl" />
       </button>
 
       <div className="py-2 text-center">
