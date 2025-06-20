@@ -122,7 +122,7 @@ const SignupForm = () => {
                             placeholder="Enter your Username"
                             {...field}
                             type="text"
-                            className="!outline-none"
+                            className="!outline-none rounded-none"
                           />
                         </FormControl>
                         <FormMessage />
@@ -172,7 +172,7 @@ const SignupForm = () => {
                               placeholder="Enter your password"
                               {...field}
                               required
-                              className="w-full pr-10" // Add padding for the icon
+                              className="w-full pr-10 rounded-none" // Add padding for the icon
                             />
                           </FormControl>
                           <button
@@ -234,7 +234,7 @@ const SignupForm = () => {
                               placeholder="Enter your password again"
                               {...field}
                               required
-                              className="w-full pr-10" // Add padding for the icon
+                              className="w-full pr-10 rounded-none" // Add padding for the icon
                             />
                           </FormControl>
                           <button
@@ -311,7 +311,10 @@ const SignupForm = () => {
                   /> */}
                 </div>
 
-                <Button type="submit" className="flex items-center gap-2 px-10">
+                <Button
+                  type="submit"
+                  className="flex items-center gap-2 px-10 bg-primary2 hover:bg-primary2"
+                >
                   {isLoading ? <Spinner /> : "Sign up"}
                 </Button>
               </form>
@@ -322,7 +325,7 @@ const SignupForm = () => {
           <div className="flex flex-row gap-0 items-center justify-center">
             <p>Already have an account?</p>
             <Button
-              className="px-2 text-bold text-pretty text-primary"
+              className="px-2 text-bold text-pretty text-primary2"
               variant={"link"}
               onClick={() => navigate("/login")}
             >

@@ -8,28 +8,19 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/Context/AuthContext";
 import { useMutation } from "react-query";
 import { login } from "@/Api/auth.api";
 import Cookies from "js-cookie";
 import { Spinner } from "../ui/Spinner";
-// import { GoogleLogin } from "@react-oauth/google";
-// import { jwtDecode } from "jwt-decode";
-// import axiosInstance from "@/Api/axios";
 import { useRole } from "@/Context/RoleContext";
 import { tos } from "@/lib/utils";
 import { getAxiosErrorMessage } from "@/Api/axios";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-
-// interface GooglePayload {
-//   name: string;
-//   email: string;
-//   sub: string; // This is the Google ID
-// }
+import logo from "../../assets/image2.png";
+import { MdArrowOutward } from "react-icons/md";
 
 const LoginForm = () => {
   const { login: authLogin } = useAuth();
@@ -54,39 +45,6 @@ const LoginForm = () => {
     mutate(payload);
   };
 
-  // const handleSuccess = async (credentialResponse: any) => {
-  //   const idToken = credentialResponse.credential;
-
-  //   // Decode the token to get user info
-  //   const decoded: GooglePayload = jwtDecode(idToken);
-
-  //   const payload = {
-  //     idToken,
-  //     name: decoded.name,
-  //     email: decoded.email,
-  //     googleId: decoded.sub,
-  //   };
-
-  //   try {
-  //     const response = await axiosInstance.post("/auth/verifyTokenId", payload);
-  //     const accessToken = response.data?.access_token;
-  //     const refreshToken = response.data?.refresh_token;
-  //     if (accessToken && refreshToken) {
-  //       Cookies.set("accessToken", accessToken);
-  //       Cookies.set("refreshToken", refreshToken);
-  //       authLogin(accessToken, refreshToken);
-
-  //       navigate("/");
-  //       tos.success("Successfully logged in!");
-  //     } else {
-  //       throw new Error("Login failed, tokens missing");
-  //     }
-  //   } catch (error) {
-  //     const mes = getAxiosErrorMessage(error);
-  //     tos.error(mes);
-  //   }
-  // };
-
   const { mutate, isLoading } = useMutation({
     mutationFn: login,
     onSuccess: (response) => {
@@ -110,18 +68,39 @@ const LoginForm = () => {
   });
 
   return (
-    <div className="flex flex-col gap-y-8r  lg:w-1/2 ">
+    <div className="flex flex-col   lg:w-1/2 ">
       <div className="flex flex-col gap-2r">
-        <p className="text-h2 font-bold">Login</p>
-        <p className="text-md text-neutral-500 dark:text-neutral-400">
-          Please log in using the username and password sent to your email.
+        <div className="flex items-center gap-3 px-4">
+          <img src={logo} alt="Akilo" className="w-24 h-24 shrink-0" />
+          <div className="flex flex-col">
+            <p className="text-2xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent">
+              Akilo Consultancy
+              <br />
+              Corporation
+            </p>
+          </div>
+        </div>
+        <p className="text-xl text-center px-2 md:px-3 leading-8 font-medium ">
+          Provide Technology Solutions to Elevate Your Business. Born in Tigray!
           <br className="hidden lg:flex" />
         </p>
-        <Separator />
+
+        <div className="px-2 md:px-8 mx-auto w-full">
+          <button className="bg-primary2 flex text-white items-center justify-center gap-3 w-full text-lg py-2.5 rounded-xl hover:bg-primary2/70">
+            Vsit Akio <MdArrowOutward className="text-xl" />
+          </button>
+        </div>
+        {/* <Separator /> */}
+        <div className="my-4 text-center">
+          <h2 className="text-xl">Wa'ela Check in Ticket</h2>
+          <p className="text-sm text-gray-600">
+            Login to access your Ticket Qr Code
+          </p>
+        </div>
       </div>
       <FormProvider {...methods}>
         <form
-          className="flex flex-col w-full gap-y-5"
+          className="flex flex-col w-full gap-y-5 px-2"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
           <div className="flex lg:flex-col flex-col gap-4r w-full">
@@ -142,7 +121,7 @@ const LoginForm = () => {
                       required
                       type="text"
                       placeholder="Enter your username"
-                      className="w-full"
+                      className="w-full !bg-white !py-4 rounded-none"
                       {...field}
                     />
                   </FormControl>
@@ -150,31 +129,6 @@ const LoginForm = () => {
                 </FormItem>
               )}
             />
-            {/* <FormField
-              control={methods.control}
-              name="password"
-              rules={{
-                minLength: {
-                  value: 8,
-                  message: "Password must be at least 8 characters long",
-                },
-              }}
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      {...field}
-                      required
-                      className="w-full"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
             <FormField
               control={methods.control}
               name="password"
@@ -194,7 +148,7 @@ const LoginForm = () => {
                         placeholder="Enter your password"
                         {...field}
                         required
-                        className="w-full pr-10" // Add padding for the icon
+                        className="w-full pr-10 !bg-[#fff] rounded-none" // Add padding for the icon
                       />
                     </FormControl>
                     <button
@@ -214,14 +168,14 @@ const LoginForm = () => {
               )}
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-center items-center w-full">
             <FormField
               control={methods.control}
               name="rememberMe"
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormControl>
-                    <div className="flex items-end justify-end gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <Checkbox {...field} id="terms" />
                       <label
                         htmlFor="terms"
@@ -236,32 +190,12 @@ const LoginForm = () => {
               )}
             />
           </div>
-          <Button className="w-full" type="submit">
-            {isLoading ? <Spinner /> : "Log In"}
-          </Button>
-        </form>
-        {/* <Button onClick={() => {}} variant={"outline"} type="button">
-          <div className="flex flex-row gap-2 items-center justify-center">
-            <img className="w-7 h-7" src={goggle} alt="googleIcon" />
-            <p>Sign In With Google</p>
+          <div className="flex items-center justify-center px-4">
+            <button className="bg-primary2 flex text-white  items-center justify-center gap-3 w-full text-lg py-2.5 rounded-xl hover:bg-primary2/70">
+              {isLoading ? <Spinner /> : "Login"}
+            </button>
           </div>
-        </Button> */}
-        {/* <GoogleLogin
-          onSuccess={handleSuccess}
-          onError={() => {
-            console.log("Login Failed");
-          }}
-        /> */}
-        {/* <div className="flex flex-row gap-0 items-center justify-center">
-          <p>Don't have an account?</p>
-          <Button
-            className="px-2 text-bold text-pretty text-primary"
-            variant={"link"}
-            onClick={() => navigate("/signup")}
-          >
-            Sign Up here
-          </Button>
-        </div> */}
+        </form>
       </FormProvider>
     </div>
   );
