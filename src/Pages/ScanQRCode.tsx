@@ -9,6 +9,7 @@ import logo from "../assets/logo.png";
 import { MdArrowOutward } from "react-icons/md";
 import checkSvg from "../assets/check.svg";
 import errorSvg from "../assets/error.svg";
+import { tos } from "@/lib/utils";
 
 interface ScanResult {
   data: string;
@@ -32,16 +33,25 @@ const ScanQRCode = () => {
       const msg = error?.response?.data?.message;
       setError(msg || error.message || "An unknown error occurred");
       setCameraActive(false);
-      console.error("Error sending QR data to backend:", error);
     },
   });
 
   const handleScan = (detectedCodes: IDetectedBarcode[]) => {
-    if (detectedCodes.length > 0) {
-      const firstCode = detectedCodes[0];
-      const parsedData = JSON.parse(firstCode.rawValue);
+    try {
+      if (detectedCodes.length > 0) {
+        const firstCode = detectedCodes[0];
+        const parsedData = JSON.parse(firstCode.rawValue);
 
-      sendToBackend({ id: parsedData.userId });
+        if (!parsedData.userId) {
+          tos.error("QR code doesn't contain userId");
+          return;
+        }
+
+        sendToBackend({ id: parsedData.userId });
+      }
+    } catch (error) {
+      setError("Unknown QR code");
+      setCameraActive(false);
     }
   };
   const handleError = useCallback((err: any) => {
