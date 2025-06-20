@@ -68,12 +68,12 @@ const LoginForm = () => {
   });
 
   return (
-    <div className="flex flex-col w-full mx-auto bg-transparent space-y-4 pt-8 px-4 max-h-screen">
+    <div className="flex flex-col w-full mx-auto bg-transparent space-y-4 pt-10 px-4 max-h-screen">
       {/* Header Section */}
       <div className="flex items-center justify-center gap-3">
-        <img src={logo} alt="Akilo" className="w-20 h-20" />
+        <img src={logo} alt="Akilo" className="w-24 h-24" />
         <div className="flex flex-col">
-          <p className="text-2xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent">
+          <p className="text-3xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent">
             Akilo Consultancy
             <br />
             Corporation

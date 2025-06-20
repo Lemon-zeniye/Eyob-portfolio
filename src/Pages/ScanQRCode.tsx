@@ -83,7 +83,7 @@ const ScanQRCode = () => {
       <div className="w-full max-w-md md:max-w-full  bg-white rounded-xl overflow-hidden">
         <div className="flex items-center flex-col justify-center w-full">
           {error && (
-            <div className="mb-4 p-3 border shadow-lg text-red-700 rounded-xl flex items-center justify-center flex-col">
+            <div className="mb-4 p-4 border px-14 shadow-lg text-red-700 rounded-xl flex items-center justify-center flex-col">
               <img src={errorSvg} alt="error" className="w-44 h-44" />
               <p>{error}</p>
               {hasPermission === false ? (
@@ -105,7 +105,7 @@ const ScanQRCode = () => {
           )}
 
           {scanResult ? (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center justify-center flex-col">
+            <div className="mb-6  p-4 px-14 bg-green-50 border border-green-200 rounded-xl flex items-center justify-center flex-col">
               <img src={checkSvg} alt="error" className="w-44 h-44" />
 
               <h2 className="font-semibold text-xl text-green-800 mb-2">
