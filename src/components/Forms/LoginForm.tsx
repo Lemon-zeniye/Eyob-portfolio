@@ -68,10 +68,10 @@ const LoginForm = () => {
   });
 
   return (
-    <div className="flex flex-col   lg:w-1/2 ">
-      <div className="flex flex-col gap-2r">
-        <div className="flex items-center gap-3 px-4">
-          <img src={logo} alt="Akilo" className="w-24 h-24 shrink-0" />
+    <div className="flex flex-col w-full max-w-md mx-auto bg-transparent">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-center gap-3">
+          <img src={logo} alt="Akilo" className="w-20 h-20" />
           <div className="flex flex-col">
             <p className="text-2xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent">
               Akilo Consultancy
@@ -80,121 +80,119 @@ const LoginForm = () => {
             </p>
           </div>
         </div>
-        <p className="text-xl text-center px-2 md:px-3 leading-8 font-medium ">
+
+        <p className="text-base text-center px-2 leading-6 font-medium">
           Provide Technology Solutions to Elevate Your Business. Born in Tigray!
-          <br className="hidden lg:flex" />
         </p>
 
-        <div className="px-2 md:px-8 mx-auto w-full">
-          <button className="bg-primary2 flex text-white items-center justify-center gap-3 w-full text-lg py-2.5 rounded-xl hover:bg-primary2/70">
-            Vsit Akio <MdArrowOutward className="text-xl" />
+        <div className="px-2 mx-auto w-full">
+          <button className="bg-primary2 flex text-white items-center justify-center gap-2 w-full text-base py-2 rounded-lg hover:bg-primary2/70">
+            Visit Akio <MdArrowOutward className="text-lg" />
           </button>
         </div>
-        {/* <Separator /> */}
-        <div className="my-4 text-center">
-          <h2 className="text-xl">Wa'ela Check in Ticket</h2>
-          <p className="text-sm text-gray-600">
+
+        <div className="my-3 text-center">
+          <h2 className="text-lg font-semibold">Wa'ela Check in Ticket</h2>
+          <p className="text-xs text-gray-600">
             Login to access your Ticket Qr Code
           </p>
         </div>
       </div>
+
       <FormProvider {...methods}>
         <form
-          className="flex flex-col w-full gap-y-5 px-2"
+          className="flex flex-col w-full gap-4 px-1 mt-2"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
-          <div className="flex lg:flex-col flex-col gap-4r w-full">
-            <FormField
-              control={methods.control}
-              name="username"
-              rules={{
-                minLength: {
-                  value: 3,
-                  message: "Username must be at least 3 characters long",
-                },
-              }}
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Username</FormLabel>
+          <FormField
+            control={methods.control}
+            name="username"
+            rules={{
+              minLength: {
+                value: 3,
+                message: "Username must be at least 3 characters long",
+              },
+            }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm">Username</FormLabel>
+                <FormControl>
+                  <Input
+                    required
+                    type="text"
+                    placeholder="Enter your username"
+                    className="w-full bg-white py-3 rounded-lg"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={methods.control}
+            name="password"
+            rules={{
+              minLength: {
+                value: 8,
+                message: "Password must be at least 8 characters long",
+              },
+            }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm">Password</FormLabel>
+                <div className="relative">
                   <FormControl>
                     <Input
-                      required
-                      type="text"
-                      placeholder="Enter your username"
-                      className="w-full !bg-white !py-4 rounded-none"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
                       {...field}
+                      required
+                      className="w-full pr-10 bg-white py-3 rounded-lg"
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={methods.control}
-              name="password"
-              rules={{
-                minLength: {
-                  value: 8,
-                  message: "Password must be at least 8 characters long",
-                },
-              }}
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Password</FormLabel>
-                  <div className="relative">
-                    <FormControl>
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        {...field}
-                        required
-                        className="w-full pr-10 !bg-[#fff] rounded-none" // Add padding for the icon
-                      />
-                    </FormControl>
-                    <button
-                      type="button" // Important to prevent form submission
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="flex justify-center items-center w-full">
-            <FormField
-              control={methods.control}
-              name="rememberMe"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormControl>
-                    <div className="flex items-center justify-center gap-2">
-                      <Checkbox {...field} id="terms" />
-                      <label
-                        htmlFor="terms"
-                        className="text-sm  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Remember me
-                      </label>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="flex items-center justify-center px-4">
-            <button className="bg-primary2 flex text-white  items-center justify-center gap-3 w-full text-lg py-2.5 rounded-xl hover:bg-primary2/70">
-              {isLoading ? <Spinner /> : "Login"}
-            </button>
-          </div>
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={methods.control}
+            name="rememberMe"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center gap-2">
+                  <Checkbox {...field} id="terms" className="h-4 w-4" />
+                  <label
+                    htmlFor="terms"
+                    className="text-xs leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Remember me
+                  </label>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <button
+            className="bg-primary2 text-white flex items-center justify-center gap-2 w-full text-base py-3 rounded-lg hover:bg-primary2/70 mt-2"
+            type="submit"
+          >
+            {isLoading ? <Spinner /> : "Login"}
+          </button>
         </form>
       </FormProvider>
     </div>
