@@ -68,7 +68,7 @@ const LoginForm = () => {
   });
 
   return (
-    <div className="flex flex-col w-full mx-auto bg-transparent space-y-4">
+    <div className="flex flex-col w-full mx-auto bg-transparent space-y-4 p-4 max-h-screen">
       {/* Header Section */}
       <div className="flex items-center justify-center gap-3">
         <img src={logo} alt="Akilo" className="w-20 h-20" />

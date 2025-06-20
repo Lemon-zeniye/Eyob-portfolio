@@ -7,7 +7,7 @@ import bgImage from "../../assets/bg.png";
 const Login: React.FC = () => {
   return (
     <div
-      className="flex flex-col max-h-screen bg-cover bg-center bg-no-repeat p-4"
+      className="flex flex-col min-h-screen bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
       <LoginForm />
