@@ -125,7 +125,7 @@ const ScanQRCode = () => {
           ) : (
             <div className="">
               {cameraActive && (
-                <div className="relative rounded-lg overflow-hidden border-2 border-gray-200 aspect-square">
+                <div className="relative rounded-lg overflow-hidden border-2 border-gray-200 aspect-square max-w-[300px]">
                   <Scanner
                     onScan={handleScan}
                     onError={handleError}

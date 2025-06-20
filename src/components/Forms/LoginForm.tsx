@@ -72,9 +72,9 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex flex-col w-full mx-auto bg-transparent space-y-4 pt-6  max-h-screen">
+    <div className="flex flex-col w-full md:w-[26rem] bg-transparent space-y-4 pt-6  max-h-screen">
       {/* Header Section */}
-      <div className="flex items-center justify-center gap-3">
+      <div className="flex lg:hidden items-center justify-center gap-3">
         <img src={logo} alt="Akilo" className="w-24 h-24" />
         <div className="flex flex-col">
           <p className="text-3xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent leading-10">
@@ -85,13 +85,13 @@ const LoginForm = () => {
         </div>
       </div>
 
-      <div className="px-4">
-        <p className="text-xl text-center px-4  font-medium leading-9">
+      <div className="px-4 lg:space-y-8">
+        <p className="text-xl text-center px-4  font-medium leading-9 md:hidden">
           Provide Technology Solutions to Elevate Your Business. Born in Tigray!
         </p>
 
         <button
-          className="bg-primary2 my-1 text-white flex items-center justify-center gap-2 w-full text-lg py-2 rounded-xl hover:bg-primary2/70"
+          className="bg-primary2 my-1 text-white flex items-center justify-center gap-2 w-full text-lg py-2 rounded-xl hover:bg-primary2/70 lg:hidden"
           onClick={handleClick}
         >
           Visit Akilo <MdArrowOutward className="text-xl" />
