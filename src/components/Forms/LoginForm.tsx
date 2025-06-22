@@ -39,7 +39,7 @@ const LoginForm = () => {
 
   const onSubmit = (data: any) => {
     const payload = {
-      username: data.username,
+      identifier: data.username,
       password: data.password,
     };
     mutate(payload);
@@ -115,12 +115,12 @@ const LoginForm = () => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Username / Email</FormLabel>
                   <FormControl>
                     <Input
                       required
                       type="text"
-                      placeholder="Enter your username"
+                      placeholder="Enter your username / email"
                       className="w-full !bg-white !py-3.5 rounded-lg"
                       {...field}
                     />
