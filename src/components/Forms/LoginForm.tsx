@@ -102,7 +102,6 @@ const LoginForm = () => {
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      required
                       type="text"
                       placeholder="Enter your email"
                       className="w-full !bg-white !py-3.5 rounded-lg"
@@ -133,7 +132,6 @@ const LoginForm = () => {
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
                         {...field}
-                        required
                         className="w-full pr-10 !bg-white !py-3.5 rounded-lg"
                       />
                     </FormControl>
