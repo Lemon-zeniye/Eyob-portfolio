@@ -73,32 +73,9 @@ const LoginForm = () => {
 
   return (
     <div className="flex flex-col w-full md:w-[26rem] bg-transparent space-y-4 pt-6  max-h-screen">
-      {/* Header Section */}
-      <div className="flex lg:hidden items-center justify-center gap-3">
-        <img src={logo} alt="Akilo" className="w-24 h-24" />
-        <div className="flex flex-col">
-          <p className="text-3xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent leading-10">
-            Akilo Consultancy
-            <br />
-            Corporation
-          </p>
-        </div>
-      </div>
-
-      <div className="px-4 lg:space-y-8">
-        <p className="text-xl text-center px-4  font-medium leading-9 md:hidden">
-          Provide Technology Solutions to Elevate Your Business. Born in Tigray!
-        </p>
-
-        <button
-          className="bg-primary2 my-1 text-white flex items-center justify-center gap-2 w-full text-lg py-2 rounded-xl hover:bg-primary2/70 lg:hidden"
-          onClick={handleClick}
-        >
-          Visit Akilo <MdArrowOutward className="text-xl" />
-        </button>
-
+      <div className="px-4 lg:space-y-8 my-6">
         <div className="py-2 text-center">
-          <h2 className="text-2xl">Wa'ela Check in Ticket</h2>
+          <h2 className="text-2xl font-medium">Wa'ela Check in Ticket</h2>
           <p className="text-sm text-gray-600">
             Login to access your Ticket Qr Code
           </p>
@@ -203,9 +180,61 @@ const LoginForm = () => {
             </button>
           </form>
         </FormProvider>
+
+        {/* Header Section */}
+      </div>
+
+      <div className="pb-4 flex flex-col items-center justify-center gap-2 space-y-2 lg:hidden">
+        <p className="text-xs underline text-gray-600 font-semibold">
+          POWERED BY
+        </p>
+        <div className="flex items-center gap-2">
+          <img
+            src={logo}
+            alt="Akilo Consultancy"
+            className="w-12 h-12 object-contain"
+          />
+          <p className="text-xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent leading-10">
+            Akilo Consultancy Corporation
+          </p>
+        </div>
+        <p className="text-lg text-center px-4  font-medium md:hidden">
+          Provide Technology Solutions to Elevate Your Business. Born in{" "}
+          <span className="font-medium text-primary2 underline">Tigray!</span>
+        </p>
+        <button
+          className="border-2 border-primary2 mx-auto mt-2 text-primary2 flex items-center justify-center gap-2 text-lg py-2 w-[90%] rounded-xl hover:bg-primary2/10 lg:hidden"
+          onClick={handleClick}
+        >
+          Visit Akilo <MdArrowOutward className="text-xl" />
+        </button>
       </div>
     </div>
   );
 };
 
 export default LoginForm;
+
+{
+  /* <div className="flex lg:hidden items-center justify-center gap-3">
+        <img src={logo} alt="Akilo" className="w-24 h-24" />
+        <div className="flex flex-col">
+          <p className="text-3xl font-bold bg-gradient-to-br from-black to-primary2 bg-clip-text text-transparent leading-10">
+            Akilo Consultancy
+            <br />
+            Corporation
+          </p>
+        </div>
+      </div>
+
+      <p className="text-xl text-center px-4  font-medium leading-9 md:hidden">
+        Provide Technology Solutions to Elevate Your Business. Born in Tigray!
+      </p>
+
+      <button
+        className="bg-primary2 my-1 text-white flex items-center justify-center gap-2 w-full text-lg py-2 rounded-xl hover:bg-primary2/70 lg:hidden"
+        onClick={handleClick}
+      >
+        Visit Akilo <MdArrowOutward className="text-xl" />
+      </button> */
+}
