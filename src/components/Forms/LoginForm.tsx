@@ -113,14 +113,21 @@ const LoginForm = () => {
             <FormField
               control={methods.control}
               name="username"
+              rules={{
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Please enter a valid email address",
+                },
+              }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username / Email</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       required
                       type="text"
-                      placeholder="Enter your username / email"
+                      placeholder="Enter your email"
                       className="w-full !bg-white !py-3.5 rounded-lg"
                       {...field}
                     />
@@ -133,6 +140,13 @@ const LoginForm = () => {
             <FormField
               control={methods.control}
               name="password"
+              rules={{
+                required: "Password is required",
+                minLength: {
+                  value: 8,
+                  message: "Password must be at least 8 characters long",
+                },
+              }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
