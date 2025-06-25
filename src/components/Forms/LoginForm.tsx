@@ -92,10 +92,10 @@ const LoginForm = () => {
               name="username"
               rules={{
                 required: "Email is required",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Please enter a valid email address",
-                },
+                // pattern: {
+                //   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                //   message: "Please enter a valid email address",
+                // },
               }}
               render={({ field }) => (
                 <FormItem>
