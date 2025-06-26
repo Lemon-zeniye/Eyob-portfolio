@@ -39,7 +39,7 @@ const LoginForm = () => {
 
   const onSubmit = (data: any) => {
     const payload = {
-      identifier: data.username,
+      identifier: data.username?.toLowerCase(),
       password: data.password,
     };
     mutate(payload);
