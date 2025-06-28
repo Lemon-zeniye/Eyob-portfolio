@@ -69,10 +69,10 @@ const GenerateQRCode: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-4">
                 <div className="flex sm:flex-col gap-y-0 gap-x-2 sm:gap-2 items-start sm:items-start">
                   <Label className="block text-sm font-medium text-primary2/80 whitespace-nowrap">
-                    User Name
+                    Email
                   </Label>
                   <div className="text-gray-900 font-medium break-all">
-                    {user.username}
+                    {user.email}
                   </div>
                 </div>
 
