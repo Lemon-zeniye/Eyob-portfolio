@@ -6,6 +6,7 @@ import img1 from "../assets/img1.png";
 import img2 from "../assets/img2.png";
 import img3 from "../assets/img3.png";
 import { MdArrowOutward } from "react-icons/md";
+import { Label } from "@radix-ui/react-label";
 
 const GenerateQRCode: React.FC = () => {
   const { user } = useRole();
@@ -64,6 +65,38 @@ const GenerateQRCode: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-800 mb-2 lg:text-3xl lg:mb-4">
               Your E-Ticket
             </h1>
+            <div className="px-6 py-3 bg-white rounded-xl border  shadow-sm lg:p-8  my-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-4">
+                <div className="flex sm:flex-col gap-y-0 gap-x-2 sm:gap-2 items-start sm:items-start">
+                  <Label className="block text-sm font-medium text-primary2/80 whitespace-nowrap">
+                    User Name
+                  </Label>
+                  <div className="text-gray-900 font-medium break-all">
+                    {user.username}
+                  </div>
+                </div>
+
+                <div className="flex sm:flex-col gap-y-0 gap-x-2 sm:gap-2 items-start sm:items-start">
+                  <Label className="block text-sm font-medium text-primary2/80 whitespace-nowrap">
+                    No People
+                  </Label>
+                  <div className="text-gray-900 font-medium">
+                    {user.no_people}
+                  </div>
+                </div>
+
+                <div className="flex sm:flex-col gap-y-0 gap-x-2 sm:gap-2 items-start sm:items-start">
+                  <Label className="block text-sm font-medium text-primary2/80 whitespace-nowrap">
+                    Ticket Type
+                  </Label>
+                  <div className="text-gray-900 font-medium">
+                    <span className="inline-block px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-sm">
+                      {user.ticket_type}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div
               ref={qrRef}
               className="p-6 bg-white rounded-xl border border-gray-200 shadow-md lg:p-8"
