@@ -1,16 +1,7 @@
-import { useEffect, useState } from "react";
 import Sidebar from "./Main/Sidebar";
-import { Outlet, useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
+import { Outlet } from "react-router-dom";
 
 function AppLayout() {
-  const [accessToken] = useState(Cookies.get("accessToken"));
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!accessToken) {
-      navigate("/login");
-    }
-  }, [accessToken, navigate]);
   return (
     <Sidebar>
       <Outlet />
